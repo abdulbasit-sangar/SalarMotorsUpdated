@@ -49,7 +49,7 @@ export const HeroSection = ({ heroCar }) => {
   
 <h1
   className={
-    "font-display text-5xl sm:text-5xl md:text-6xl lg:text-7xl " +
+    "font-display text-[25px] sm:text-5xl md:text-6xl lg:text-7xl " +
     "font-semibold leading-[1.05] tracking-tight text-black " +
     "max-w-[90%] sm:max-w-xl md:max-w-2xl " +
     "transition-all duration-700 ease-out " +
