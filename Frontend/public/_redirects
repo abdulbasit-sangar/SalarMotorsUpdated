@@ -1,0 +1,4 @@
+# Netlify SPA fallback — client-side routing (React Router) needs every
+# path to resolve to index.html; without this, a hard refresh on e.g.
+# /listings/right-hand returns a 404 from Netlify's static file server.
+/*  /index.html  200

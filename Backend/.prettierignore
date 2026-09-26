@@ -1,0 +1,16 @@
+# VS Code settings folder
+/.vscode
+
+# Installed dependencies (Node modules)
+/node_modules
+
+# Build output folder (compiled production files)
+./dist
+
+
+
+# Environment variables file (contains secrets)
+/.env
+
+# All environment variable variants (.env.local, .env.production, etc.)
+.env*

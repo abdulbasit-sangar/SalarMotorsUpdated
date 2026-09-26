@@ -1,0 +1,293 @@
+/* Fonts are loaded once, in index.html (Inter only — spec requirement #7).
+   This file previously ALSO imported Bricolage Grotesque + Inter + IBM
+   Plex Mono here, duplicating and conflicting with index.html's link tag —
+   removed as dead/duplicate font configuration (spec requirement #11). */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --header-h: 76px;
+
+    /* Bright automotive-glass palette. Names are kept stable so every
+       screen that already references these tokens updates together. */
+    --color-graphite-50: #fdfcfa;
+    --color-graphite-100: #f1eee7;
+    --color-graphite-800: #ede8dd;
+    --color-graphite-900: #f4f1ea;
+    --color-graphite-950: #faf9f6;
+    --color-steel: #e3ded2;
+    --color-ash: #5b6472;
+    --color-bone: #14161b;
+    --color-brass: #b8863a;
+    --color-brass-light: #d9ad68;
+    --color-brass-dark: #8c6423;
+    --color-danger: #c1493d;
+    --color-signal: #2f8f7a;
+
+    --bg: var(--color-graphite-950);
+    --surface: var(--color-graphite-900);
+    --surface-800: var(--color-graphite-800);
+    --surface-muted: var(--color-graphite-900);
+    --border: var(--color-steel);
+    --text: var(--color-bone);
+    --muted: var(--color-ash);
+    --accent: var(--color-brass);
+    --accent-light: var(--color-brass-light);
+    --accent-dark: var(--color-brass-dark);
+    --danger: var(--color-danger);
+    --signal: var(--color-signal);
+    --card-bg: #ffffff;
+    --card-text: #14161b;
+    --card-muted: #5b6472;
+    --card-border: #e9e5da;
+    --section-light: #ffffff;
+    --section-light-text: #14161b;
+    --section-light-muted: #5b6472;
+
+    /* Bright glassmorphism surfaces — used sparingly (navbar, search,
+       filters, floating panels, modals), never as a whole-page treatment. */
+    --glass-bg: rgba(255, 255, 255, 0.62);
+    --glass-bg-strong: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.75);
+    --glass-shadow: 0 12px 40px -12px rgba(20, 22, 27, 0.18);
+    --glass-blur: blur(20px) saturate(160%);
+
+    color-scheme: light;
+  }
+
+  * {
+    @apply border-steel;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    transition:
+      background-color 220ms ease,
+      color 220ms ease,
+      border-color 220ms ease;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--color-bone);
+  }
+
+  /* Visible keyboard focus everywhere — never suppressed */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a4350;
+  }
+}
+
+@layer components {
+  .tag-shape {
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  }
+
+  .tag-shape-sm {
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  }
+
+  .container-page {
+    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
+  }
+
+  .field-label {
+    @apply block text-xs font-semibold uppercase tracking-wider text-ash mb-1.5;
+  }
+
+  .section-eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.2em] text-brass mb-3;
+  }
+
+  .section-title {
+    @apply font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-bone leading-tight;
+  }
+
+  .section-subtitle {
+    @apply text-ash text-base sm:text-lg leading-relaxed mt-4 max-w-2xl;
+  }
+
+  .card-light {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--card-text);
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 8px 30px rgba(0, 0, 0, 0.12),
+      0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Bright, clear glassmorphism — reserved for floating/overlay surfaces:
+     navbar, search, filter panels, hero info cards, modals. */
+  .glass-panel {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .glass-panel-strong {
+    background: var(--glass-bg-strong);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    border-bottom: 1px solid rgba(20, 22, 27, 0.06);
+  }
+
+  /* Dashboard-chip: small glass pill used for vehicle spec/meta data —
+     the recurring motif tying the automotive instrument-panel feel
+     into the bright glass language. */
+  .chip-glass {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+    background: rgba(255, 255, 255, 0.7);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(20, 22, 27, 0.07);
+    color: var(--card-text);
+  }
+
+  .chip-dark {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+    background: rgba(20, 22, 27, 0.55);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #fdfcfa;
+  }
+}
+
+@layer utilities {
+  .bg-graphite-950 {
+    background-color: var(--color-graphite-950) !important;
+  }
+  .bg-graphite-900 {
+    background-color: var(--color-graphite-900) !important;
+  }
+  .bg-graphite-800 {
+    background-color: var(--color-graphite-800) !important;
+  }
+  .bg-graphite-100 {
+    background-color: var(--color-graphite-100) !important;
+  }
+  .bg-graphite-50 {
+    background-color: var(--color-graphite-50) !important;
+  }
+  .border-steel {
+    border-color: var(--color-steel) !important;
+  }
+  .text-bone {
+    color: var(--color-bone) !important;
+  }
+  .text-ash {
+    color: var(--color-ash) !important;
+  }
+  .text-brass {
+    color: var(--color-brass) !important;
+  }
+  .bg-brass {
+    background-color: var(--color-brass) !important;
+  }
+  .bg-brass-light {
+    background-color: var(--color-brass-light) !important;
+  }
+  .bg-brass-dark {
+    background-color: var(--color-brass-dark) !important;
+  }
+  .border-brass {
+    border-color: var(--color-brass) !important;
+  }
+  .bg-danger {
+    background-color: var(--color-danger) !important;
+  }
+  .text-danger {
+    color: var(--color-danger) !important;
+  }
+  .border-danger {
+    border-color: var(--color-danger) !important;
+  }
+  .text-graphite-950 {
+    /* Semantically this class is used app-wide as "dark text on the
+       brass/accent background" (buttons, step badges). It intentionally
+       resolves to the ink token, not --color-graphite-950 itself, so
+       accent-colored surfaces keep readable contrast. */
+    color: var(--color-bone) !important;
+  }
+  .bg-section-light {
+    background-color: var(--section-light) !important;
+  }
+  .text-section-light {
+    color: var(--section-light-text) !important;
+  }
+  .text-section-light-muted {
+    color: var(--section-light-muted) !important;
+  }
+  .bg-card {
+    background-color: var(--card-bg) !important;
+  }
+  .text-card {
+    color: var(--card-text) !important;
+  }
+  .text-card-muted {
+    color: var(--card-muted) !important;
+  }
+  .border-card {
+    border-color: var(--card-border) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

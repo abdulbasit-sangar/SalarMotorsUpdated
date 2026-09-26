@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 180" role="img" aria-labelledby="title desc">
+  <title id="title">SALAR MOTORS</title>
+  <desc id="desc">Premium automotive logo for SALAR MOTORS</desc>
+  <defs>
+    <linearGradient id="badgeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f4d38b" />
+      <stop offset="50%" stop-color="#c79a3b" />
+      <stop offset="100%" stop-color="#8b5a14" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1f2937" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(18 18)">
+    <circle cx="70" cy="70" r="62" fill="#111827" stroke="url(#badgeGradient)" stroke-width="6" />
+    <path d="M43 76h54l12 24H31z" fill="url(#badgeGradient)" />
+    <path d="M48 69l12-18h20l12 18" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M52 76h36" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+    <circle cx="56" cy="99" r="8" fill="#ffffff" />
+    <circle cx="86" cy="99" r="8" fill="#ffffff" />
+    <path d="M36 96h24" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.9" />
+    <path d="M96 96h24" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.9" />
+    <path d="M40 53c8-8 15-12 27-12s19 4 27 12" fill="none" stroke="url(#badgeGradient)" stroke-width="5" stroke-linecap="round" />
+  </g>
+
+  <g transform="translate(160 34)">
+    <text x="0" y="48" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="700" letter-spacing="2" fill="url(#textGradient)">SALAR</text>
+    <text x="0" y="92" font-family="Inter, Arial, sans-serif" font-size="40" font-weight="700" letter-spacing="3" fill="#8b5a14">MOTORS</text>
+    <rect x="2" y="104" width="220" height="3" rx="1.5" fill="url(#badgeGradient)" opacity="0.9" />
+  </g>
+</svg>
