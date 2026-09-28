@@ -3,15 +3,13 @@ import clsx from "clsx";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey.js";
 import { CloseIcon } from "../../../shared/components/icons.jsx";
 
-/**
- * Premium filter surface: a full-height bottom sheet on mobile (drag-handle
- * affordance, scrollable body, sticky-safe close) and a right-side floating
- * glass drawer on desktop/tablet. One shared component so Browse and the
- * dedicated Filter page don't each carry their own modal markup.
- *
- * Pure presentation — open/close state and filter logic live in the caller.
- */
-export const FilterSheet = ({ open, onClose, title = "Refine Results", description, children }) => {
+export const FilterSheet = ({
+  open,
+  onClose,
+  title = "Refine Results",
+  description,
+  children,
+}) => {
   useEscapeKey(onClose, open);
 
   useEffect(() => {
@@ -26,61 +24,170 @@ export const FilterSheet = ({ open, onClose, title = "Refine Results", descripti
   return (
     <div
       className={clsx(
-        "fixed inset-0 z-[70] transition-opacity duration-300",
+        "fixed inset-0 z-[90] transition-opacity duration-300",
         open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
       )}
       role="dialog"
       aria-modal="true"
       aria-label={title}
+      aria-hidden={!open}
     >
+      {/* BACKDROP */}
       <div
-        className="absolute inset-0 bg-graphite/45 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-graphite/60 backdrop-blur-sm transition-opacity duration-300"
         onClick={onClose}
+        aria-hidden="true"
       />
 
-      {/* Mobile: bottom sheet */}
+      {/* MOBILE BOTTOM SHEET */}
       <div
         className={clsx(
-          "absolute inset-x-0 bottom-0 max-h-[88vh] flex flex-col rounded-t-[28px] glass-panel-strong shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden",
+          `
+            absolute
+            inset-x-0
+            bottom-0
+            flex
+            max-h-[92dvh]
+            flex-col
+            overflow-hidden
+            rounded-t-[32px]
+            border
+            border-b-0
+            border-card
+            bg-white
+            shadow-[0_-20px_60px_rgba(0,0,0,0.25)]
+            transition-transform
+            duration-300
+            ease-[cubic-bezier(0.22,1,0.36,1)]
+            md:hidden
+          `,
           open ? "translate-y-0" : "translate-y-full",
         )}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex justify-center pt-3 pb-1 shrink-0">
-          <span className="h-1.5 w-10 rounded-full bg-graphite/15" aria-hidden="true" />
+        {/* DRAG HANDLE */}
+        <div className="flex shrink-0 justify-center pb-1 pt-3.5" aria-hidden="true">
+          <span className="h-1.5 w-12 rounded-full bg-graphite/20" />
         </div>
-        <SheetHeader title={title} description={description} onClose={onClose} />
-        <div className="flex-1 overflow-y-auto px-5 pb-6">{children}</div>
+
+        <SheetHeader
+          title={title}
+          description={description}
+          onClose={onClose}
+        />
+
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-8 pt-4">
+          {children}
+        </div>
       </div>
 
-      {/* Desktop/tablet: right-side floating glass drawer */}
+      {/* DESKTOP / TABLET DRAWER */}
       <div
         className={clsx(
-          "hidden md:flex absolute right-0 top-0 h-full w-full max-w-md flex-col glass-panel-strong border-l shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          `
+            absolute
+            right-0
+            top-0
+            hidden
+            h-full
+            w-full
+            max-w-[460px]
+            flex-col
+            overflow-hidden
+            border-l
+            border-card
+            bg-white
+            shadow-[-20px_0_60px_rgba(0,0,0,0.2)]
+            transition-transform
+            duration-300
+            ease-[cubic-bezier(0.22,1,0.36,1)]
+            md:flex
+          `,
           open ? "translate-x-0" : "translate-x-full",
         )}
         onClick={(event) => event.stopPropagation()}
       >
-        <SheetHeader title={title} description={description} onClose={onClose} />
-        <div className="flex-1 overflow-y-auto px-6 pb-8">{children}</div>
+        <SheetHeader
+          title={title}
+          description={description}
+          onClose={onClose}
+        />
+
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-10 pt-6">
+          {children}
+        </div>
       </div>
     </div>
   );
 };
 
 const SheetHeader = ({ title, description, onClose }) => (
-  <div className="flex items-start justify-between gap-4 border-b border-card px-5 md:px-6 pb-4 pt-1 md:pt-6 shrink-0">
-    <div>
-      <h2 className="font-display text-xl font-semibold text-bone">{title}</h2>
-      {description && <p className="text-ash text-sm mt-1">{description}</p>}
+  <header
+    className="
+      flex
+      shrink-0
+      items-start
+      justify-between
+      gap-4
+      border-b
+      border-card
+      bg-white/95
+      px-5
+      pb-4
+      pt-4
+      backdrop-blur-xl
+      md:px-6
+      md:pb-5
+      md:pt-6
+    "
+  >
+    <div className="min-w-0">
+      <div className="mb-2 flex items-center gap-2">
+        <span className="h-1.5 w-1.5 rounded-full bg-brass" aria-hidden="true" />
+        <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-brass-dark">
+          Filter Controls
+        </span>
+      </div>
+
+      <h2 className="font-display text-xl font-bold leading-tight text-bone md:text-2xl">
+        {title}
+      </h2>
+
+      {description && (
+        <p className="mt-1.5 max-w-sm text-xs leading-5 text-ash md:text-sm">
+          {description}
+        </p>
+      )}
     </div>
+
     <button
       type="button"
       onClick={onClose}
-      aria-label="Close"
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ash transition-colors hover:bg-graphite-100 hover:text-bone"
+      aria-label="Close filters"
+      className="
+        flex
+        h-10
+        w-10
+        shrink-0
+        items-center
+        justify-center
+        rounded-full
+        border
+        border-card
+        bg-white
+        text-ash
+        shadow-sm
+        transition-all
+        duration-200
+        hover:border-brass/40
+        hover:bg-brass/10
+        hover:text-bone
+        focus-visible:outline-none
+        focus-visible:ring-2
+        focus-visible:ring-brass/40
+      "
     >
-      <CloseIcon className="h-[18px] w-[18px]" />
+      <CloseIcon className="h-[17px] w-[17px]" />
     </button>
-  </div>
+  </header>
 );
