@@ -12,6 +12,7 @@ import {
   TRANSMISSION,
   CONDITION,
   CAR_BRANDS,
+  CAR_MODELS_BY_BRAND,
   PROVINCES,
   LOCATIONS,
   SPECIAL_LOCATIONS,
@@ -270,7 +271,10 @@ export const filterCarsService = async (query = {}) => {
   const sortOption = SORT_MAP[query.sort] || SORT_MAP.newest;
   // Excludes featured/sponsored cars — same "exactly one category" rule as
   // getAllCarsService (see comment there for the full bug explanation).
-  const filter = { isHidden: false, featured: { $ne: true } };
+  const filter = {
+    isHidden: false,
+    ...(query.includeFeatured === "true" ? {} : { featured: { $ne: true } }),
+  };
 
   if (brand)
     filter.brand = new RegExp(
@@ -616,6 +620,7 @@ export const getFeaturedCarsService = async (limitNum = 8) => {
 
 export const getCarOptionsService = () => ({
   brands: CAR_BRANDS,
+  modelsByBrand: CAR_MODELS_BY_BRAND,
   // Full flat list (Afghan provinces/cities + special locations) — kept for
   // any existing consumer that just wants "every selectable location" as
   // one list (e.g. the Province filter in FilterPanel).

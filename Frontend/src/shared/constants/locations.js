@@ -4,8 +4,8 @@
  *
  * These strings MUST match Backend/src/constants/car.constants.js exactly
  * (LOCATION_DUBAI / LOCATION_ON_THE_WAY) — they're what gets sent as the
- * `province` filter param (e.g. `/listings?province=Dubai`), and what gets
- * saved as a listing's `province` on Create Listing. Defined once here so
+ * `province` filter value and what gets saved as a listing's `province` on
+ * Create Listing. Defined once here so
  * the Navbar, Footer, Home page, and Admin Dashboard never drift out of
  * sync with each other or with the backend.
  */
@@ -16,8 +16,7 @@ export const LOCATION_ON_THE_WAY = {
   DUBAI_TO_HERAT: "From Dubai to Herat",
 };
 
-export const dubaiCarsPath = () =>
-  `/listings?province=${encodeURIComponent(LOCATION_DUBAI)}`;
+export const dubaiCarsPath = () => "/dubai-cars";
 
 export const onTheWayPath = (destination) =>
-  `/listings?province=${encodeURIComponent(destination)}`;
+  `/on-the-way/${encodeURIComponent(destination.toLowerCase().replace(/\s+/g, "-"))}`;

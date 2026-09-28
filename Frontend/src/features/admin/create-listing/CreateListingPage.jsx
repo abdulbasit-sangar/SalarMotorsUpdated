@@ -13,6 +13,7 @@ import { FeaturesSelector } from "../../../shared/components/FeaturesSelector.js
 import { useToast } from "../../../store/ui/ToastContext.jsx";
 
 import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
+import { SearchableSelect } from "../../../shared/components/SearchableSelect.jsx";
 
 import {
   validateCarForm,
@@ -80,6 +81,25 @@ export default function CreateListingPage() {
       ...prev,
       [key]: undefined,
     }));
+  };
+
+  const updateBrand = (event) => {
+    setForm((prev) => ({
+      ...prev,
+      brand: event.target.value,
+      model: "",
+    }));
+
+    setFieldErrors((prev) => ({
+      ...prev,
+      brand: undefined,
+      model: undefined,
+    }));
+  };
+
+  const updateModel = (model) => {
+    setForm((prev) => ({ ...prev, model }));
+    setFieldErrors((prev) => ({ ...prev, model: undefined }));
   };
 
   const handleSubmit = async (e) => {
@@ -199,7 +219,7 @@ export default function CreateListingPage() {
               label="Brand"
               required
               value={form.brand}
-              onChange={updateField("brand")}
+              onChange={updateBrand}
               error={fieldErrors.brand}
               disabled={optionsLoading}
             >
@@ -213,12 +233,18 @@ export default function CreateListingPage() {
               ))}
             </Select>
 
-            <Input
+            <SearchableSelect
+              id="listing-model"
               label="Model"
               required
-              placeholder="Corolla"
               value={form.model}
-              onChange={updateField("model")}
+              onChange={updateModel}
+              options={(options?.modelsByBrand?.[form.brand] ?? []).map(
+                (model) => ({ value: model, label: model }),
+              )}
+              placeholder={form.brand ? "Select model" : "Select brand first"}
+              disabled={!form.brand}
+              disabledLabel="Select brand first"
               error={fieldErrors.model}
             />
           </div>
@@ -330,13 +356,15 @@ export default function CreateListingPage() {
                 </optgroup>
               )}
               <optgroup label="Afghan Provinces">
-                {(options?.locationGroups?.provinces ?? options?.provinces ?? []).map(
-                  (v) => (
-                    <option key={v} value={v}>
-                      {v}
-                    </option>
-                  ),
-                )}
+                {(
+                  options?.locationGroups?.provinces ??
+                  options?.provinces ??
+                  []
+                ).map((v) => (
+                  <option key={v} value={v}>
+                    {v}
+                  </option>
+                ))}
               </optgroup>
             </Select>
 

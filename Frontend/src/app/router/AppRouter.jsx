@@ -13,13 +13,16 @@ import { GuestOnlyRoute } from "./GuestOnlyRoute.jsx";
 import { SuperAdminOnlyRoute } from "./SuperAdminOnlyRoute.jsx";
 import { RouteLoadingFallback } from "./RouteLoadingFallback.jsx";
 import NotFoundPage from "./NotFoundPage.jsx";
+import {
+  LOCATION_DUBAI,
+  LOCATION_ON_THE_WAY,
+} from "../../shared/constants/locations.js";
 
 // Home and the Browse/Listings page are eager — they're the most common
 // entry points and keeping them in the main bundle avoids a loading flash
 // on first visit. FilterResultsPage is the one main filter used for
 // Browse (/listings) — kept eager alongside it since it's what actually
-// renders there now, and also serves the "Dubai Cars" and "On the Way"
-// categories via ?province=<value> (see shared/constants/locations.js).
+// renders there now; fixed-location categories reuse it on dedicated routes.
 import HomePage from "../../features/catalog/home/HomePage.jsx";
 import FilterResultsPage from "../../features/catalog/filters/FilterResultsPage.jsx";
 
@@ -82,6 +85,33 @@ export const AppRouter = () => (
       <Route element={<PublicLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/listings" element={<FilterResultsPage />} />
+        <Route
+          path="/dubai-cars"
+          element={
+            <FilterResultsPage
+              fixedProvince={LOCATION_DUBAI}
+              fixedTitle="Dubai Cars"
+            />
+          }
+        />
+        <Route
+          path="/on-the-way/from-america-to-herat"
+          element={
+            <FilterResultsPage
+              fixedProvince={LOCATION_ON_THE_WAY.AMERICA_TO_HERAT}
+              fixedTitle="From America to Herat"
+            />
+          }
+        />
+        <Route
+          path="/on-the-way/from-dubai-to-herat"
+          element={
+            <FilterResultsPage
+              fixedProvince={LOCATION_ON_THE_WAY.DUBAI_TO_HERAT}
+              fixedTitle="From Dubai to Herat"
+            />
+          }
+        />
         <Route path="/search" element={withSuspense(<SearchResultsPage />)} />
         {/* Filter + Sort now live only inside Browse (/listings). /filter
             is kept as a redirect so any old links/bookmarks still land
@@ -106,13 +136,17 @@ export const AppRouter = () => (
         <Route
           path="/admin/register-manager"
           element={
-            <GuestOnlyRoute>{withSuspense(<ManagerRegisterPage />)}</GuestOnlyRoute>
+            <GuestOnlyRoute>
+              {withSuspense(<ManagerRegisterPage />)}
+            </GuestOnlyRoute>
           }
         />
         <Route
           path="/admin/forgot-password"
           element={
-            <GuestOnlyRoute>{withSuspense(<ForgotPasswordPage />)}</GuestOnlyRoute>
+            <GuestOnlyRoute>
+              {withSuspense(<ForgotPasswordPage />)}
+            </GuestOnlyRoute>
           }
         />
       </Route>

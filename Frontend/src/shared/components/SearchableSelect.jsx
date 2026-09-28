@@ -41,7 +41,10 @@ export const SearchableSelect = ({
   options,
   placeholder = "Any",
   disabled = false,
+  disabledLabel = "Loading…",
   allowClear = true,
+  required = false,
+  error,
 }) => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -127,6 +130,9 @@ export const SearchableSelect = ({
     disabled,
     "aria-haspopup": "listbox",
     "aria-expanded": open,
+    "aria-required": required || undefined,
+    "aria-invalid": !!error,
+    "aria-describedby": error ? `${id}-error` : undefined,
   };
 
   return (
@@ -137,6 +143,7 @@ export const SearchableSelect = ({
           {label && (
             <label htmlFor={id} className={labelClassName}>
               {label}
+              {required && <span className="text-brass ml-1">*</span>}
             </label>
           )}
 
@@ -149,6 +156,7 @@ export const SearchableSelect = ({
               disabled
                 ? "cursor-not-allowed opacity-70"
                 : "hover:border-brass/50",
+              error && "border-danger focus:border-danger focus:ring-danger/20",
             )}
           >
             <span
@@ -158,7 +166,7 @@ export const SearchableSelect = ({
               )}
             >
               {disabled
-                ? "Loading…"
+                ? disabledLabel
                 : selectedOption
                   ? selectedOption.label
                   : placeholder}
@@ -171,6 +179,16 @@ export const SearchableSelect = ({
             />
           </button>
         </>
+      )}
+
+      {error && !Icon && (
+        <p
+          id={`${id}-error`}
+          role="alert"
+          className="mt-1.5 text-xs text-danger"
+        >
+          {error}
+        </p>
       )}
 
       {/* Icon variant: leading icon + label/value stacked in one row. */}
@@ -206,7 +224,7 @@ export const SearchableSelect = ({
               )}
             >
               {disabled
-                ? "Loading…"
+                ? disabledLabel
                 : selectedOption
                   ? selectedOption.label
                   : placeholder}

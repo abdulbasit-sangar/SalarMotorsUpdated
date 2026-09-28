@@ -4,15 +4,6 @@ import { SearchableSelect } from "../../../shared/components/SearchableSelect.js
 import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
 import { SORT_OPTIONS } from "../../../services/cars/carsApi.js";
 
-const IDENTITY_FIELDS = [
-  {
-    key: "model",
-    label: "Model",
-    type: "text",
-    placeholder: "e.g. Corolla, Land Cruiser",
-  },
-];
-
 const LOCATION_FIELDS = [
   {
     key: "color",
@@ -169,6 +160,18 @@ export const FilterPanel = ({ initialValues, onApply, onReset }) => {
     }
   };
 
+  const updateBrand = (brand) => {
+    setValues((previous) => ({
+      ...previous,
+      brand,
+      model: "",
+    }));
+
+    if (rangeError) {
+      setRangeError(null);
+    }
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -230,11 +233,23 @@ export const FilterPanel = ({ initialValues, onApply, onReset }) => {
               options: asOptions(options?.brands),
             },
             values,
-            update,
+            (key, value) =>
+              key === "brand" ? updateBrand(value) : update(key, value),
             optionsLoading,
           )}
 
-          {IDENTITY_FIELDS.map((field) => renderField(field, values, update))}
+          <SearchableSelect
+            id="filter-model"
+            label="Model"
+            value={values.model}
+            onChange={(model) => update("model", model)}
+            options={(options?.modelsByBrand?.[values.brand] ?? []).map(
+              (model) => ({ value: model, label: model }),
+            )}
+            placeholder={values.brand ? "Any model" : "Select brand first"}
+            disabled={!values.brand}
+            disabledLabel="Select brand first"
+          />
 
           <SearchableSelect
             label="Year"

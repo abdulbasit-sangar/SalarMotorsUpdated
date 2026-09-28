@@ -9,7 +9,7 @@ import {
   CarSilhouetteIcon,
   CalendarIcon,
   MapPinIcon,
-  SteeringWheelIcon,
+  SearchIcon as ModelIcon,
 } from "../../../shared/components/icons.jsx";
 
 export const HeroSearchBar = ({ className }) => {
@@ -18,8 +18,8 @@ export const HeroSearchBar = ({ className }) => {
 
   const [values, setValues] = useState({
     brand: "",
+    model: "",
     minYear: "",
-    steeringType: "",
     province: "",
   });
 
@@ -31,9 +31,9 @@ export const HeroSearchBar = ({ className }) => {
   }, []);
 
   // Order matches the required layout:
-  // Mobile:   one field per row (Brand, Year, Location, Steering)
+  // Mobile:   one field per row (Brand, Year, Location, Model)
   // Tablet:   2 columns
-  // Desktop:  Brand | Year | Location | Steering (one row)
+  // Desktop:  Brand | Year | Location | Model (one row)
   const FILTER_FIELDS = [
     {
       key: "brand",
@@ -47,7 +47,10 @@ export const HeroSearchBar = ({ className }) => {
       label: "Year",
       icon: CalendarIcon,
       placeholder: optionsLoading ? "Loading…" : "Any year",
-      options: (options?.years ?? []).map((v) => ({ value: String(v), label: String(v) })),
+      options: (options?.years ?? []).map((v) => ({
+        value: String(v),
+        label: String(v),
+      })),
     },
     {
       key: "province",
@@ -57,16 +60,25 @@ export const HeroSearchBar = ({ className }) => {
       options: (options?.provinces ?? []).map((v) => ({ value: v, label: v })),
     },
     {
-      key: "steeringType",
-      label: "Steering",
-      icon: SteeringWheelIcon,
-      placeholder: optionsLoading ? "Loading…" : "Any",
-      options: (options?.steering ?? []).map((v) => ({ value: v, label: v })),
+      key: "model",
+      label: "Model",
+      icon: ModelIcon,
+      placeholder: values.brand ? "Any model" : "Select brand first",
+      disabledLabel: "Select brand first",
+      disabled: !values.brand || optionsLoading,
+      options: (options?.modelsByBrand?.[values.brand] ?? []).map((model) => ({
+        value: model,
+        label: model,
+      })),
     },
   ];
 
   const update = (key, value) =>
-    setValues((prev) => ({ ...prev, [key]: value }));
+    setValues((prev) => ({
+      ...prev,
+      [key]: value,
+      ...(key === "brand" ? { model: "" } : {}),
+    }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -95,7 +107,9 @@ export const HeroSearchBar = ({ className }) => {
         {FILTER_FIELDS.map((field, index) => (
           <div
             key={field.key}
-            style={{ transitionDelay: mounted ? `${100 + index * 80}ms` : "0ms" }}
+            style={{
+              transitionDelay: mounted ? `${100 + index * 80}ms` : "0ms",
+            }}
             className={clsx(
               "min-w-0 transition-all duration-500 ease-out",
               mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
@@ -109,7 +123,8 @@ export const HeroSearchBar = ({ className }) => {
               onChange={(value) => update(field.key, value)}
               options={field.options}
               placeholder={field.placeholder}
-              disabled={optionsLoading}
+              disabled={field.disabled ?? optionsLoading}
+              disabledLabel={field.disabledLabel}
             />
           </div>
         ))}
