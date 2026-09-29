@@ -18,7 +18,6 @@ const emptyFilters = () => ({
   model: "",
   province: "",
   color: "",
-  steeringType: "",
   fuelType: "",
   bodyType: "",
   transmission: "",
@@ -93,12 +92,6 @@ export const FilterPanel = ({ initialValues, onApply, onReset }) => {
   ];
 
   const SPEC_FIELDS = [
-    {
-      key: "steeringType",
-      label: "Steering Type",
-      type: "select",
-      options: asOptions(options?.steering),
-    },
     {
       key: "fuelType",
       label: "Fuel Type",

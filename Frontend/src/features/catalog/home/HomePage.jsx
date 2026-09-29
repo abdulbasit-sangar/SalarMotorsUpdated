@@ -7,70 +7,11 @@ import {
   ShippingIcon,
   HeadsetIcon,
 } from "../../../shared/components/icons.jsx";
-import { CarSection } from "../../../shared/components/CarSection.jsx";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
 import {
   fetchFeaturedCars,
   fetchCars,
 } from "../../../services/cars/carsApi.js";
-import { dubaiCarsPath } from "../../../shared/constants/locations.js";
-
-const CATEGORIES = [
-  {
-    title: "Japanese Cars",
-    description: "Toyota, Honda, Nissan & more",
-    to: "/filter?brand=Toyota",
-    emoji: "🇯🇵",
-    accent: "from-rose-500/20 via-red-500/10 to-transparent",
-    borderHover: "hover:border-rose-500/40",
-    textHover: "group-hover:text-rose-400",
-  },
-  {
-    title: "American Cars",
-    description: "Ford, Chevy, Jeep & more",
-    to: "/filter?brand=Ford",
-    emoji: "🇺🇸",
-    accent: "from-blue-500/20 via-indigo-500/10 to-transparent",
-    borderHover: "hover:border-blue-500/40",
-    textHover: "group-hover:text-blue-400",
-  },
-  {
-    title: "Dubai Imports",
-    description: "Premium UAE-sourced vehicles",
-    to: dubaiCarsPath(),
-    emoji: "🇦🇪",
-    accent: "from-amber-500/20 via-yellow-500/10 to-transparent",
-    borderHover: "hover:border-amber-500/40",
-    textHover: "group-hover:text-amber-400",
-  },
-  {
-    title: "Luxury Cars",
-    description: "High-end premium vehicles",
-    to: "/filter?minPrice=25000",
-    emoji: "✨",
-    accent: "from-purple-500/20 via-fuchsia-500/10 to-transparent",
-    borderHover: "hover:border-purple-500/40",
-    textHover: "group-hover:text-purple-400",
-  },
-  {
-    title: "SUVs",
-    description: "Spacious family & adventure",
-    to: "/filter?bodyType=SUV",
-    emoji: "🚙",
-    accent: "from-emerald-500/20 via-teal-500/10 to-transparent",
-    borderHover: "hover:border-emerald-500/40",
-    textHover: "group-hover:text-emerald-400",
-  },
-  {
-    title: "Sedans",
-    description: "Comfort, style & efficiency",
-    to: "/filter?bodyType=Sedan",
-    emoji: "🚗",
-    accent: "from-cyan-500/20 via-sky-500/10 to-transparent",
-    borderHover: "hover:border-cyan-500/40",
-    textHover: "group-hover:text-cyan-400",
-  },
-];
 
 const WHY_CHOOSE = [
   {
@@ -78,36 +19,24 @@ const WHY_CHOOSE = [
     description:
       "Every listing is screened and verified so you can browse with complete confidence.",
     icon: ShieldIcon,
-    bgGradient: "from-emerald-500/10 to-teal-500/5",
-    iconColor: "text-emerald-400",
-    glowColor: "group-hover:bg-emerald-500/20",
   },
   {
     title: "Quality Inspection",
     description:
       "Detailed condition reports and transparent specs help you make informed decisions.",
     icon: ClipboardCheckIcon,
-    bgGradient: "from-cyan-500/10 to-blue-500/5",
-    iconColor: "text-cyan-400",
-    glowColor: "group-hover:bg-cyan-500/20",
   },
   {
     title: "Trusted Import Process",
     description:
       "From sourcing to delivery, our import process is built on reliability and trust.",
     icon: ShippingIcon,
-    bgGradient: "from-amber-500/10 to-orange-500/5",
-    iconColor: "text-amber-400",
-    glowColor: "group-hover:bg-amber-500/20",
   },
   {
     title: "Customer Support",
     description:
       "Our dedicated team guides you through every step of your car buying journey.",
     icon: HeadsetIcon,
-    bgGradient: "from-purple-500/10 to-pink-500/5",
-    iconColor: "text-purple-400",
-    glowColor: "group-hover:bg-purple-500/20",
   },
 ];
 
@@ -116,7 +45,7 @@ const HOW_IT_WORKS = [
     step: 1,
     title: "Browse",
     description:
-      "Explore our curated catalog and filter by brand, price, year, and steering type.",
+      "Explore our curated catalog and filter by brand, price, year, and vehicle specifications.",
   },
   {
     step: 2,
@@ -186,51 +115,18 @@ const useReveal = (threshold = 0.15) => {
   return [ref, visible];
 };
 
-const CategoryCard = ({ category, visible, delay }) => (
-  <Link
-    to={category.to}
-    style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
-    className={
-      "group relative overflow-hidden card-light rounded-premium-lg p-6 sm:p-8 hover-lift shadow-card " +
-      `border border-white/5 bg-gradient-to-br ${category.accent} ${category.borderHover} ` +
-      "transition-all duration-700 ease-out will-change-transform " +
-      "hover:-translate-y-1.5 hover:shadow-card-hover active:scale-[0.98] " +
-      (visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8")
-    }
-  >
-    <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-white/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500 pointer-events-none" />
-    <span
-      className="text-3xl mb-4 block transition-transform duration-300 ease-out group-hover:scale-110 group-hover:-rotate-3"
-      aria-hidden="true"
-    >
-      {category.emoji}
-    </span>
-    <h3
-      className={`font-display text-xl font-bold text-card ${category.textHover} transition-colors duration-300`}
-    >
-      {category.title}
-    </h3>
-    <p className="text-card-muted text-sm mt-2 leading-relaxed">
-      {category.description}
-    </p>
-  </Link>
-);
-
 const IconCard = ({ item, visible, delay }) => {
   const Icon = item.icon;
   return (
     <div
       style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
       className={
-        "group relative overflow-hidden card-light rounded-premium-lg p-6 sm:p-8 hover-lift shadow-card text-center " +
-        `border border-white/5 bg-gradient-to-b ${item.bgGradient} ` +
-        "transition-all duration-700 ease-out will-change-transform hover:-translate-y-1.5 " +
+        "group card-light rounded-premium-lg p-5 sm:p-7 shadow-card text-center " +
+        "transition-all duration-500 ease-out hover:-translate-y-0.5 hover:border-brass/30 " +
         (visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8")
       }
     >
-      <div
-        className={`w-14 h-14 mx-auto flex items-center justify-center rounded-2xl bg-white/5 ${item.iconColor} mb-5 transition-all duration-300 ease-out ${item.glowColor} group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-black/20`}
-      >
+      <div className="w-12 h-12 mx-auto flex items-center justify-center rounded-xl bg-graphite-100 text-brass-dark mb-4">
         <Icon className="w-6 h-6" aria-hidden="true" />
       </div>
       <h3 className="font-display text-lg font-bold text-card">{item.title}</h3>
@@ -282,7 +178,7 @@ const StepCard = ({ step, title, description, isLast, visible, delay }) => (
 );
 
 export default function HomePage() {
-  const { data, loading } = useAsyncData(loadHomeData, []);
+  const { data } = useAsyncData(loadHomeData, []);
 
   const [whyRef, whyVisible] = useReveal();
   const [howRef, howVisible] = useReveal();
@@ -303,18 +199,16 @@ export default function HomePage() {
         ref={whyRef}
         className="bg-section-light pt-10 pb-16 sm:pt-14 sm:pb-24 relative overflow-hidden"
       >
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
         <div className="container-page relative z-10">
           <div
             className={
-              "text-center max-w-2xl mx-auto mb-12 sm:mb-16 transition-all duration-700 ease-out " +
+              "text-center max-w-2xl mx-auto mb-10 sm:mb-12 transition-all duration-700 ease-out " +
               (whyVisible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-6")
             }
           >
-            <p className="section-eyebrow text-emerald-400 font-semibold tracking-wider uppercase">
+            <p className="section-eyebrow text-brass-dark font-semibold tracking-wider uppercase">
               Why Salar Motors
             </p>
             <h2 className="section-title text-section-light">
@@ -325,7 +219,7 @@ export default function HomePage() {
               support to make importing your next car effortless.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {WHY_CHOOSE.map((item, index) => (
               <IconCard
                 key={item.title}
@@ -376,14 +270,13 @@ export default function HomePage() {
       <section
         id="about"
         ref={aboutRef}
-        className="bg-section-light py-16 sm:py-24 relative overflow-hidden"
+        className="bg-graphite-900 py-14 sm:py-20"
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-rose-500/5 via-purple-500/5 to-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
         <div className="container-page relative z-10">
           <div className="max-w-3xl mx-auto">
             <p
               className={
-                "section-eyebrow text-purple-400 font-semibold tracking-wider uppercase text-center transition-all duration-700 ease-out " +
+                "section-eyebrow text-brass-dark font-semibold tracking-wider uppercase text-center transition-all duration-700 ease-out " +
                 (aboutVisible
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-6")
@@ -406,7 +299,7 @@ export default function HomePage() {
             <div
               style={{ transitionDelay: aboutVisible ? "180ms" : "0ms" }}
               className={
-                "card-light rounded-premium-lg shadow-card p-8 sm:p-12 mt-10 sm:mt-12 space-y-6 border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent " +
+                "card-light rounded-premium-lg shadow-card p-5 sm:p-8 mt-8 sm:mt-10 space-y-5 " +
                 "transition-all duration-700 ease-out " +
                 (aboutVisible
                   ? "opacity-100 translate-y-0"
@@ -433,7 +326,7 @@ export default function HomePage() {
               <div className="pt-4 flex flex-wrap gap-4">
                 <Link
                   to="/listings"
-                  className="h-11 px-6 flex items-center bg-amber-500 text-white font-semibold text-sm rounded-xl transition-all duration-300 ease-out hover:bg-amber-600 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(245,158,11,0.3)] active:translate-y-0 active:scale-[0.98]"
+                  className="h-11 px-6 flex items-center bg-brass text-graphite-950 font-semibold text-sm rounded-xl transition-colors hover:bg-brass-light"
                 >
                   View All Listings
                 </Link>

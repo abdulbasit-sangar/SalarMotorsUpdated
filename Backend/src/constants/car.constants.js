@@ -1,8 +1,3 @@
-export const STEERING = {
-  RHD: "RHD",
-  LHD: "LHD",
-};
-
 export const FUEL_TYPE = {
   PETROL: "Petrol",
   DIESEL: "Diesel",
@@ -44,7 +39,7 @@ export const CONDITION = {
 // file. Keep this file as the only place these lists are edited.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Plain arrays (not key/value maps like STEERING etc.) since these are
+// Plain arrays (not key/value maps like the specification enums above) since these are
 // open lists of display strings, not a small fixed enum with symbolic keys.
 export const CAR_BRANDS = [
   "Toyota",

@@ -21,29 +21,16 @@ import {
   getPrimaryImage,
 } from "../utils/format.js";
 
-import {
-  optimizedImageUrl,
-  buildSrcSet,
-} from "../utils/imagekit.js";
+import { optimizedImageUrl, buildSrcSet } from "../utils/imagekit.js";
 
-export const CarCard = ({
-  car,
-  premium = false,
-  sponsored = false,
-}) => {
+export const CarCard = ({ car, premium = false, sponsored = false }) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  const imageUrls = (car?.images || [])
-    .map((img) => img?.url)
-    .filter(Boolean);
+  const imageUrls = (car?.images || []).map((img) => img?.url).filter(Boolean);
 
-  const image =
-    imageUrls[activeImageIndex] || getPrimaryImage(car);
+  const image = imageUrls[activeImageIndex] || getPrimaryImage(car);
 
-  const mileage = formatMileage(
-    car.mileage,
-    car.mileageUnit,
-  );
+  const mileage = formatMileage(car.mileage, car.mileageUnit);
 
   const location = carLocation(car);
   const imageTotal = imageUrls.length;
@@ -58,9 +45,7 @@ export const CarCard = ({
     event.stopPropagation();
 
     setActiveImageIndex((current) =>
-      current === 0
-        ? imageUrls.length - 1
-        : current - 1,
+      current === 0 ? imageUrls.length - 1 : current - 1,
     );
   };
 
@@ -69,9 +54,7 @@ export const CarCard = ({
     event.stopPropagation();
 
     setActiveImageIndex((current) =>
-      current === imageUrls.length - 1
-        ? 0
-        : current + 1,
+      current === imageUrls.length - 1 ? 0 : current + 1,
     );
   };
 
@@ -80,7 +63,8 @@ export const CarCard = ({
       to={`/cars/${car._id}`}
       className={clsx(
         "group flex h-full flex-col overflow-hidden",
-        "rounded-[22px] border border-card bg-card",
+        "rounded-2xl border border-card bg-card",
+        premium && "border-brass/20",
         "shadow-card",
         "transition-all duration-300 ease-out",
         "hover:-translate-y-1 hover:border-brass/40",
@@ -107,8 +91,7 @@ export const CarCard = ({
               "h-full w-full object-cover",
               "transition-transform duration-700 ease-out",
               "group-hover:scale-[1.045]",
-              car.isSold &&
-                "grayscale-[35%] opacity-90",
+              car.isSold && "grayscale-[35%] opacity-90",
             )}
           />
         ) : (
@@ -155,18 +138,7 @@ export const CarCard = ({
         )}
 
         {/* Featured */}
-        {(sponsored || car.featured) && (
-          <div
-            className={clsx(
-              "absolute left-3 z-10 transition-[top] duration-200",
-              car.isSold ? "top-11" : "top-12",
-            )}
-          >
-            <Badge variant="brass">
-              Featured
-            </Badge>
-          </div>
-        )}
+
 
         {/* Favorite */}
         <FavoriteButton
@@ -177,35 +149,19 @@ export const CarCard = ({
       </div>
 
       {/* CONTENT */}
-      <div
-        className={clsx(
-          "flex flex-1 flex-col p-4.5 sm:p-5",
-          premium && "sm:p-5.5",
-        )}
-      >
+      <div className={clsx("flex flex-1 flex-col p-4 sm:p-5")}>
         <div className="min-w-0">
           <h3 className="truncate font-display text-lg font-semibold leading-snug text-card">
             {carTitle(car)}
           </h3>
 
           <p className="mt-1.5 font-mono text-base font-semibold text-brass-dark">
-            {formatPrice(
-              car.price,
-              car.currency,
-            )}
+            {formatPrice(car.price, car.currency)}
           </p>
         </div>
 
-        {(location ||
-          mileage ||
-          car.steeringType) && (
+        {(location || mileage) && (
           <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-5">
-            {car.steeringType && (
-              <span className="chip-glass">
-                {car.steeringType}
-              </span>
-            )}
-
             {location && (
               <span className="chip-glass">
                 <MapPinIcon className="h-3.5 w-3.5 text-ash" />

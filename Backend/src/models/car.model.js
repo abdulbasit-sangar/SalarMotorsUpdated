@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import {
-  STEERING,
   FUEL_TYPE,
   BODY_TYPE,
   TRANSMISSION,
@@ -154,16 +153,6 @@ const carSchema = new mongoose.Schema(
         values: Object.values(TRANSMISSION),
         message: `Transmission must be one of: ${Object.values(TRANSMISSION).join(", ")}`,
       },
-    },
-
-    steeringType: {
-      type: String,
-      enum: {
-        values: Object.values(STEERING),
-        message: `Steering type must be RHD or LHD`,
-      },
-      required: [true, "Steering type is required"],
-      index: true, // dedicated endpoints filter by this
     },
 
     condition: {
@@ -331,16 +320,10 @@ const carSchema = new mongoose.Schema(
 );
 
 // ─── Compound indexes for common query combinations ───────────────────────────
-carSchema.index({ brand: 1, steeringType: 1 });
 carSchema.index({ brand: 1, price: 1 });
 carSchema.index({ isHidden: 1, featured: 1 });
 carSchema.index({ isHidden: 1, createdAt: -1 });
 carSchema.index({ isHidden: 1, isSold: 1 });
-// Covers isHidden/featured/steeringType combination queries — e.g. the
-// Steering Type filter on Browse (/cars/filter), which always applies the
-// isHidden/featured exclusion alongside it.
-carSchema.index({ isHidden: 1, featured: 1, steeringType: 1 });
-
 // ─── Pre-save hook: auto-generate slug from title + partial _id ───────────────
 carSchema.pre("save", async function (next) {
   if (!this.isModified("title") && this.slug) return next();

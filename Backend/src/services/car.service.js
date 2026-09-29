@@ -6,7 +6,6 @@ import {
 } from "../middlewares/upload.middleware.js";
 import { ApiError } from "../utils/apiHelpers.js";
 import {
-  STEERING,
   FUEL_TYPE,
   BODY_TYPE,
   TRANSMISSION,
@@ -169,7 +168,7 @@ export const getAllCarsService = async (query = {}, includeHidden = false) => {
   const [cars, totalCars] = await Promise.all([
     Car.find(filter)
       .select(
-        "title brand model year price currency mileage mileageUnit province steeringType images featured isSold features slug createdAt isHidden",
+        "title brand model year price currency mileage mileageUnit province images featured isSold features slug createdAt isHidden",
       )
       .sort(sortOption)
       .skip(skip)
@@ -231,7 +230,7 @@ export const searchCarsService = async (query = {}) => {
   const [cars, totalCars] = await Promise.all([
     Car.find(filter)
       .select(
-        "title brand model year price currency mileage mileageUnit province steeringType images featured isSold slug createdAt",
+        "title brand model year price currency mileage mileageUnit province images featured isSold slug createdAt",
       )
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -254,7 +253,6 @@ export const filterCarsService = async (query = {}) => {
     province,
     fuelType,
     bodyType,
-    steeringType,
     transmission,
     condition,
     color,
@@ -289,7 +287,6 @@ export const filterCarsService = async (query = {}) => {
   if (province) filter.province = buildProvinceFilter(province);
   if (fuelType) filter.fuelType = fuelType;
   if (bodyType) filter.bodyType = bodyType;
-  if (steeringType) filter.steeringType = steeringType;
   if (transmission) filter.transmission = transmission;
   if (condition) filter.condition = condition;
   if (color)
@@ -329,7 +326,7 @@ export const filterCarsService = async (query = {}) => {
   const [cars, totalCars] = await Promise.all([
     Car.find(filter)
       .select(
-        "title brand model year price currency mileage mileageUnit province steeringType fuelType bodyType images featured isSold slug createdAt",
+        "title brand model year price currency mileage mileageUnit province fuelType bodyType images featured isSold slug createdAt",
       )
       .sort(sortOption)
       .skip(skip)
@@ -353,7 +350,7 @@ export const getSimilarCarsService = async (id) => {
   validateObjectId(id, "car ID");
 
   const source = await Car.findOne({ _id: id, isHidden: false })
-    .select("brand model price steeringType")
+    .select("brand model price")
     .lean();
 
   if (!source) throw new ApiError(404, "Car not found");
@@ -365,7 +362,6 @@ export const getSimilarCarsService = async (id) => {
     featured: { $ne: true }, // don't recommend a sponsored car as a "similar" one — keeps categories separate
     _id: { $ne: source._id },
     brand: source.brand,
-    steeringType: source.steeringType,
     price: {
       $gte: source.price - priceMargin,
       $lte: source.price + priceMargin,
@@ -374,7 +370,7 @@ export const getSimilarCarsService = async (id) => {
 
   const cars = await Car.find(filter)
     .select(
-      "title brand model year price currency mileage mileageUnit province steeringType images featured isSold slug",
+      "title brand model year price currency mileage mileageUnit province images featured isSold slug",
     )
     .limit(6)
     .lean();
@@ -604,7 +600,7 @@ export const reorderCarImagesService = async (id, orderedPublicIds = []) => {
 export const getFeaturedCarsService = async (limitNum = 8) => {
   const cars = await Car.find({ isHidden: false, featured: true })
     .select(
-      "title brand model year price currency mileage mileageUnit province steeringType images featured isSold slug",
+      "title brand model year price currency mileage mileageUnit province images featured isSold slug",
     )
     .sort({ createdAt: -1 })
     .limit(limitNum)
@@ -634,7 +630,6 @@ export const getCarOptionsService = () => ({
   },
   years: getCarYears(),
   engineCC: ENGINE_CC_OPTIONS,
-  steering: Object.values(STEERING),
   fuelTypes: Object.values(FUEL_TYPE),
   bodyTypes: Object.values(BODY_TYPE),
   transmissions: Object.values(TRANSMISSION),

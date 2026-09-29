@@ -51,7 +51,7 @@
     --glass-bg: rgba(255, 255, 255, 0.62);
     --glass-bg-strong: rgba(255, 255, 255, 0.8);
     --glass-border: rgba(255, 255, 255, 0.75);
-    --glass-shadow: 0 12px 40px -12px rgba(20, 22, 27, 0.18);
+    --glass-shadow: 0 8px 28px -12px rgba(20, 22, 27, 0.15);
     --glass-blur: blur(20px) saturate(160%);
 
     color-scheme: light;
@@ -149,10 +149,10 @@
   }
 
   .hover-lift:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
     box-shadow:
-      0 8px 30px rgba(0, 0, 0, 0.12),
-      0 2px 8px rgba(0, 0, 0, 0.06);
+      0 6px 20px rgba(20, 22, 27, 0.08),
+      0 1px 4px rgba(20, 22, 27, 0.04);
   }
 
   /* Bright, clear glassmorphism — reserved for floating/overlay surfaces:

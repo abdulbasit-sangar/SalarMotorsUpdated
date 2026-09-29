@@ -6,10 +6,12 @@ No backend, API, auth, routing, or business logic touched anywhere.
 ## How to apply
 
 Option A — patch (preferred, preserves history):
+
 ```
 cd Salar_Motors
 git apply phase1-foundation-navbar-hero-cards.patch
 ```
+
 If it doesn't apply cleanly (e.g. you've since changed these files), use Option B.
 
 Option B — manual copy:
@@ -17,6 +19,7 @@ Copy the files in this zip into the matching paths under `Frontend/`, overwritin
 originals. The folder structure mirrors the repo (`Frontend/src/...`).
 
 Then:
+
 ```
 cd Frontend
 npm install
@@ -69,7 +72,7 @@ call sites (CarSection, Search, Filters, Listings) — no call-site changes need
 new `glass` badge variant, slightly softer button radii and hover states).
 
 **`icons.jsx`** — added Search, Close, Menu, ChevronDown, ArrowRight, Calendar,
-SteeringWheel, Fuel, Check, Sliders icons in the same stroke style as the existing
+Fuel, Check, Sliders icons in the same stroke style as the existing
 CarSilhouette/Gauge/MapPin icons, for use in later phases (filters, specs, forms).
 
 ## Verified
@@ -90,6 +93,7 @@ CarSilhouette/Gauge/MapPin icons, for use in later phases (filters, specs, forms
 
 Phase 2: Browse & Search — listings grid, `FilterPanel` (incl. mobile bottom-sheet),
 `SearchBar`/`SearchResultsPage`.
+
 # Salar Motors — UI Redesign, Phase 2: Browse & Search
 
 Scope of this phase: listings grid header/controls, the filter system (new shared
@@ -106,6 +110,7 @@ if you haven't.
 cd Salar_Motors
 git apply phase2-browse-search-filters.patch
 ```
+
 or copy the files in this zip into matching paths under `Frontend/`.
 
 ```
@@ -118,6 +123,7 @@ npm run dev
 
 **`FilterSheet.jsx` (new)** — the centerpiece of this phase. A single shared component
 that renders as:
+
 - a **full-height bottom sheet** on mobile — drag-handle affordance, rounded top
   corners, scrollable body, sticky-safe
 - a **floating glass drawer** sliding in from the right on tablet/desktop
@@ -137,7 +143,7 @@ where the field list runs well past one screen.
 Filters/Sort buttons, wired to `FilterSheet` instead of the old inline modal. All
 fetching, URL param logic, pagination, and filter-apply/reset handlers are untouched.
 
-**`SteeringListingsPage.jsx` / `SearchResultsPage.jsx`** — heading weight touched up
+**`SearchResultsPage.jsx`** — heading weight touched up
 for visual consistency with the rest of the catalog pages. No logic changes.
 
 **`Input.jsx`** (Input/Select/Textarea) — restyled to the bright glass system
@@ -179,6 +185,7 @@ correctly.
 
 Phase 3: Vehicle Details — `CarDetailsPage`, `ImageGallery`, `SpecsGrid`, related
 vehicles section.
+
 # Salar Motors — UI Redesign, Phase 3: Vehicle Details
 
 Scope of this phase: the vehicle details page (`CarDetailsPage`), the image gallery,
@@ -193,6 +200,7 @@ tokens being applied — apply Phases 1 and 2 first if you haven't.
 cd Salar_Motors
 git apply phase3-vehicle-details.patch
 ```
+
 or copy the files in this zip into matching paths under `Frontend/`.
 
 **One thing to note:** `icons.jsx` is included as a full file, not a patch fragment,
@@ -216,12 +224,13 @@ tiles with a brass active-border instead of a plain highlight.
 
 **`SpecsGrid.jsx`** — same fields, same `null`/`undefined` filtering logic. Added
 icons per spec (calendar for year/imported date, gauge for mileage, fuel pump, gear
-for transmission, steering wheel, engine) — this follows the brief's icon mapping
-directly and reuses the existing spec-icon set from Phase 1 plus two new icons
+for transmission, engine) — this follows the brief's icon mapping directly and
+reuses the existing spec-icon set from Phase 1 plus two new icons
 (`GearIcon`, `EngineIcon`) added to `icons.jsx` in the same stroke style as the rest.
 
 **`CarDetailsPage.jsx`** — restructured hierarchy, same data fetching
 (`useAsyncData`, `fetchCarById`, `fetchSimilarCars`), same loading/error states:
+
 - Back link now has a chevron icon instead of a text arrow
 - Badges use the new glass/brass/neutral variants from Phase 1
 - Price is now presented in its own glass panel directly under the title — it's
@@ -250,6 +259,7 @@ directly and reuses the existing spec-icon set from Phase 1 plus two new icons
 ## Next phase
 
 Phase 4: Auth screens — Login, Register, Forgot/Reset Password, OTP.
+
 # Salar Motors — UI Redesign, Phase 4: Auth Screens
 
 Scope of this phase: Login, Register (initial admin), Forgot/Reset Password + OTP,
@@ -266,6 +276,7 @@ haven't.
 cd Salar_Motors
 git apply phase4-auth-screens.patch
 ```
+
 or copy the files in this zip into matching paths under `Frontend/`.
 
 **Also apply `hotfix-invalid-tailwind-class.patch`** (see below — separate patch,
@@ -345,6 +356,7 @@ Phases 1–2 into your own branch. It's two lines total. Apply it alongside this
 ## Next phase
 
 Phase 5: Admin/Manager dashboards — listing management, manager accounts, CRUD forms.
+
 # Salar Motors — UI Redesign, Phase 5: Admin/Manager Dashboards
 
 Scope of this phase: the admin shell (sidebar + mobile drawer), Dashboard, Manage
@@ -360,6 +372,7 @@ tokens and shared components (`Input`, `Button`, `Badge`, `Pagination`, `EmptySt
 cd Salar_Motors
 git apply phase5-admin-dashboard.patch
 ```
+
 or copy the files in this zip into matching paths under `Frontend/`.
 
 **Note on `icons.jsx`:** included as a full file again, same reasoning as Phase 3 —
@@ -389,7 +402,8 @@ section feels like part of the same product rather than a bolted-on dashboard.
 props, same skeleton-while-loading behavior.
 
 **`DashboardPage.jsx`** — heading weight touched up for consistency. All data fetching
-(`Promise.all` over cars/RHD/LHD/featured counts) and the `FEATURED_CAP` display logic
+(`Promise.all` over total, Dubai, in-transit, and featured counts) and the
+`FEATURED_CAP` display logic
 are untouched.
 
 **`ManageListingsPage.jsx` / `AdminCarRow.jsx`** — the "hidden listings" info banner
@@ -441,6 +455,7 @@ codebase sweep afterward and confirmed there are no other instances anywhere.
 
 Phase 6: Footer, modals, loading/empty/error states, and a full mobile QA sweep
 (320–430px) across the whole app.
+
 # Salar Motors — UI Redesign, Phase 6: Footer, Modals, States & Mobile QA
 
 Final phase. Scope: Footer polish, toast/notification restyle, offline banner, crash
@@ -455,6 +470,7 @@ No backend, API, or logic touched. Depends on all previous phases.
 cd Salar_Motors
 git apply phase6-footer-modals-qa.patch
 ```
+
 or copy the files in this zip into matching paths under `Frontend/`.
 
 ```
@@ -518,14 +534,14 @@ remaining instances anywhere in `src/`.
 
 # Project summary — all 6 phases
 
-| Phase | Scope |
-|---|---|
-| 1 | Foundation — design tokens, Navbar, Hero, Vehicle Cards |
-| 2 | Browse & Search — listings grid, filter system (bottom sheet + glass drawer) |
-| 3 | Vehicle Details — gallery, specs, related vehicles |
-| 4 | Auth screens — Login, Register, Forgot/Reset Password, OTP, Profile |
-| 5 | Admin/Manager dashboards |
-| 6 | Footer, modals/toasts, error states, mobile QA |
+| Phase | Scope                                                                        |
+| ----- | ---------------------------------------------------------------------------- |
+| 1     | Foundation — design tokens, Navbar, Hero, Vehicle Cards                      |
+| 2     | Browse & Search — listings grid, filter system (bottom sheet + glass drawer) |
+| 3     | Vehicle Details — gallery, specs, related vehicles                           |
+| 4     | Auth screens — Login, Register, Forgot/Reset Password, OTP, Profile          |
+| 5     | Admin/Manager dashboards                                                     |
+| 6     | Footer, modals/toasts, error states, mobile QA                               |
 
 Throughout, the constraint held: **no backend, API, auth logic, RBAC, validation, or
 business logic was modified in any phase** — every change was CSS classes, component

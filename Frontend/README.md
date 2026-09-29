@@ -8,6 +8,7 @@ Built with React + Vite, React Router, Tailwind CSS, and Axios.
 Added on top of Phases 1–6:
 
 **Reduced redundant requests**
+
 - New `services/api/cache.js`: a small in-memory cache for public catalog
   reads (`fetchCars`, `fetchFeaturedCars`, `fetchRightHandCars`,
   `fetchLeftHandCars`, `searchCars`, `filterCars`, `fetchSimilarCars`,
@@ -21,6 +22,7 @@ Added on top of Phases 1–6:
   invalidation, and per-params key isolation — all four passed.
 
 **Image optimization**
+
 - `shared/utils/imagekit.js`: appends ImageKit transform params
   (`?tr=w-,q-,f-webp`) to any ImageKit URL, so the browser downloads an
   image sized for where it's displayed instead of the original upload —
@@ -33,6 +35,7 @@ Added on top of Phases 1–6:
   the fold) while everything else stays `loading="lazy"`.
 
 **Bundle size / code-splitting**
+
 - Home and Listings stay in the main bundle (most common entry points);
   every other route — search, filter, details, both auth pages, and the
   entire admin surface — is now `React.lazy()`-loaded behind a Suspense
@@ -42,9 +45,10 @@ Added on top of Phases 1–6:
   per-route chunks loaded on demand.
 
 **Deployment readiness**
+
 - `public/_redirects` (Netlify) and `vercel.json` (Vercel) SPA fallback
   rewrites — without one of these, a hard refresh on a deep route like
-  `/listings/right-hand` 404s on most static hosts, since there's no
+  `/dubai-cars` 404s on most static hosts, since there's no
   server-side router to fall back to `index.html`.
 - `public/robots.txt`, Open Graph + Twitter card meta tags in `index.html`
   for link-preview support.
@@ -57,7 +61,7 @@ Added on top of Phases 1–6:
 2. Set `VITE_API_URL` to your deployed backend's API base
    (e.g. `https://api.yourdomain.com/api`) at build time — Vite inlines
    `import.meta.env.VITE_API_URL` into the bundle, so it must be set
-   *before* building, not just at runtime
+   _before_ building, not just at runtime
 3. Deploy `dist/` to any static host:
    - **Netlify**: `_redirects` is already in place
    - **Vercel**: `vercel.json` is already in place
@@ -73,6 +77,7 @@ Added on top of Phases 1–6:
 Added on top of Phases 1–5:
 
 **Accessibility**
+
 - Skip-to-content link on both layouts (`shared/components/SkipToContent.jsx`)
 - All slide-in overlays (Navbar mobile menu, Filter drawer, Admin drawer)
   now close on **Escape** (`shared/hooks/useEscapeKey.js`) and carry
@@ -85,6 +90,7 @@ Added on top of Phases 1–5:
 - Buttons in a loading state now expose `aria-busy`
 
 **Edge cases**
+
 - **`ErrorBoundary`** (`shared/components/ErrorBoundary.jsx`) now wraps the
   whole app in `main.jsx` — a render-time crash shows a recovery screen
   with a reload button instead of a blank page
@@ -112,10 +118,10 @@ Added on top of Phases 1–4:
   Listings, Create Listing, Profile — desktop fixed sidebar, mobile slide-in
   drawer. `AdminLayout` was rebuilt around it, replacing the Phase 1
   placeholder top bar.
-- **Dashboard** (`features/admin/dashboard/`): total/RHD/LHD listing counts
-  (real `pagination.totalCars` from three cheap `limit:1` calls) and a
+- **Dashboard** (`features/admin/dashboard/`): total, Dubai, and in-transit
+  listing counts (real `pagination.totalCars` from cheap `limit:1` calls) and a
   featured count. The featured count is honestly capped — `GET
-  /cars/featured` clamps `limit` to 20 server-side and returns no total, so
+/cars/featured` clamps `limit` to 20 server-side and returns no total, so
   past 20 the dashboard shows "20+" rather than a fabricated number. Recent
   Arrivals section reuses `CarCard`. Quick actions link to Create and
   Manage.
@@ -132,14 +138,14 @@ Added on top of Phases 1–4:
 
 ### A real backend constraint this phase had to design around
 
-`GET /api/cars` (and `/cars/:id`, `/search`, `/filter`, `/right-hand`,
-`/left-hand`) all filter `isHidden: false` unconditionally — there is no
+`GET /api/cars` (and `/cars/:id`, `/search`, `/filter`) all filter
+`isHidden: false` unconditionally — there is no
 admin variant that also returns hidden cars. That's correct for the public
 site, but it means: **once a car is hidden, no GET endpoint can find it
 again** to display it back to the admin. The `PATCH` toggle endpoints
 themselves aren't filtered (`toggleHideCarService` does a plain
-`findById`), so un-hiding still works *if you already have the car in
-front of you* — it just can't be re-discovered through search/browse/list
+`findById`), so un-hiding still works _if you already have the car in
+front of you_ — it just can't be re-discovered through search/browse/list
 once it drops out of every GET response.
 
 The Manage Listings page works around this instead of hiding the problem:
@@ -178,7 +184,7 @@ exactly — register-once enforcement (second registration attempt returns
 403 "Admin already exists"), login, refresh, `/me`, and logout — plus
 confirmed every new route resolves through the dev server.
 
-## Phase 3 — Search, Filter, Details & Steering Browsing (this delivery)
+## Phase 3 — Search, Filter & Details (this delivery)
 
 Added on top of Phase 1 + 2:
 
@@ -190,14 +196,10 @@ Added on top of Phase 1 + 2:
   before a keyword is entered and a "no matches" state after
 - **Filter panel + results page** (`features/catalog/filters/`): every
   filterable field from `filterCarsService` (brand, model, province, color,
-  steering/fuel/body/transmission/condition, price/year/mileage ranges,
+  fuel/body/transmission/condition, price/year/mileage ranges,
   sort) synced to the URL query string, so filtered links are shareable.
   Desktop shows a sticky sidebar; mobile gets a slide-in drawer with an
   active-filter count on the toggle button
-- **RHD/LHD dedicated pages** (`features/catalog/listings/SteeringListingsPage.jsx`):
-  one component parameterized by `steering`, backing both
-  `/listings/right-hand` (`GET /cars/right-hand`) and `/listings/left-hand`
-  (`GET /cars/left-hand`), each independently paginated/sortable
 - **Car details page** (`features/catalog/details/`): image gallery with
   thumbnail strip (falls back to the silhouette icon for cars with no
   photos yet), full specs grid pulling every optional field the backend
@@ -206,24 +208,22 @@ Added on top of Phase 1 + 2:
   state for hidden/deleted/invalid IDs (backend 404s these)
 
 Verified against an extended mock backend covering `/cars/search`,
-`/cars/filter`, `/cars/similar/:id`, `/cars/:id` (including a 404 case), and
-the RHD/LHD endpoints — every new route resolves and renders.
+`/cars/filter`, `/cars/similar/:id`, and `/cars/:id` (including a 404 case) —
+every new route resolves and renders.
 
 ## Phase 2 — Public Catalog Core (this delivery)
 
 Added on top of Phase 1:
 
-- **Home page** (`features/catalog/home/`): hero with a live "manifest
-  strip" (real counts pulled from `/cars`, `/cars/right-hand`,
-  `/cars/left-hand`, `/cars/featured` — not placeholder numbers), a
+- **Home page** (`features/catalog/home/`): hero with featured and recent
+  inventory sections, a
   Featured Listings section, and a Recent Arrivals section
 - **Listings page** (`features/catalog/listings/ListingsPage.jsx`): fully
   paginated + sortable against `GET /api/cars`, with `page`/`sort` synced
   to the URL query string so links are shareable and back/forward works
 - **CarCard** (`shared/components/CarCard.jsx`): the signature spec-tag
   card — image (or silhouette fallback if a car has no images yet),
-  steering-type and featured badges, monospace price ticket, location and
-  mileage row
+  featured badge, monospace price, location and mileage row
 - **CarSection**: shared title+grid+viewAll wrapper handling
   loading/empty/error consistently, reused by both Home sections
 - **Pagination**: windowed page numbers with `…` gaps for large result sets
@@ -231,8 +231,8 @@ Added on top of Phase 1:
   (loading/error/data, stale-response guarding) all catalog pages build on
 
 Verified by pointing the app at a small mock server matching the real
-response shapes (`/cars`, `/cars/featured`, `/cars/right-hand`,
-`/cars/left-hand`) — home and listings render, paginate, and sort correctly.
+response shapes (`/cars`, `/cars/featured`) — home and listings render,
+paginate, and sort correctly.
 
 ## Phase 1 — Foundation
 
@@ -257,16 +257,16 @@ What's included:
 
 ### Design system summary
 
-| Token | Value | Use |
-|---|---|---|
-| `graphite-950` | `#14171C` | App background |
-| `graphite-800` | `#1E232B` | Card/surface background |
-| `steel` | `#2B323C` | Borders, dividers |
-| `ash` | `#8891A0` | Muted text |
-| `bone` | `#F2EFE9` | Primary text |
-| `brass` | `#C9A24B` | Primary accent (CTAs, active states, prices) |
-| `signal` | `#3FBFAD` | Secondary accent (RHD/LHD badges, success) |
-| `danger` | `#D9604E` | Errors |
+| Token          | Value     | Use                                           |
+| -------------- | --------- | --------------------------------------------- |
+| `graphite-950` | `#14171C` | App background                                |
+| `graphite-800` | `#1E232B` | Card/surface background                       |
+| `steel`        | `#2B323C` | Borders, dividers                             |
+| `ash`          | `#8891A0` | Muted text                                    |
+| `bone`         | `#F2EFE9` | Primary text                                  |
+| `brass`        | `#C9A24B` | Primary accent (CTAs, active states, prices)  |
+| `signal`       | `#3FBFAD` | Secondary accent (status indicators, success) |
+| `danger`       | `#D9604E` | Errors                                        |
 
 Typography: **Big Shoulders Display** (headings - a condensed,
 signage/plate-inspired face fitting an automotive/import marketplace),
@@ -304,7 +304,7 @@ src/
 ## Roadmap
 
 - **Phase 2**: ✅ Public catalog core - Home, Listings, Car Card, pagination
-- **Phase 3**: ✅ Search, Filter, Car Details, RHD/LHD browsing
+- **Phase 3**: ✅ Search, Filter, Car Details
 - **Phase 4**: ✅ Admin auth - Login, Register (one-time setup), Profile
 - **Phase 5**: ✅ Admin management - Dashboard, Create Listing, Manage Listings
 - **Phase 6**: ✅ Responsive/accessibility/edge-case polish

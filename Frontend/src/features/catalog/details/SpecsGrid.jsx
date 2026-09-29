@@ -1,10 +1,14 @@
-import { formatDate, formatMileage, formatPrice, carLocation } from "../../../shared/utils/format.js";
+import {
+  formatDate,
+  formatMileage,
+  formatPrice,
+  carLocation,
+} from "../../../shared/utils/format.js";
 import {
   CalendarIcon,
   GaugeIcon,
   FuelIcon,
   GearIcon,
-  SteeringWheelIcon,
   EngineIcon,
   MapPinIcon,
 } from "../../../shared/components/icons.jsx";
@@ -26,7 +30,7 @@ const SpecCell = ({ icon: Icon, label, value }) => {
  * SpecsGrid — the "Specification" section (spec requirement #15), rendered
  * directly below the image gallery on the details page (see
  * CarDetailsPage.jsx). Covers every field the spec calls out — Make/Model/
- * Year/Price+Currency/Mileage+Unit/Fuel/Transmission/Steering/Engine/
+ * Year/Price+Currency/Mileage+Unit/Fuel/Transmission/Engine/
  * Condition/Color/VIN/Province+City/Import date — in one place, so it's
  * intentionally the ONLY place these are repeated (title/price panel above
  * it stay focused on the at-a-glance figures, not a full spec dump).
@@ -38,7 +42,11 @@ export const SpecsGrid = ({ car }) => (
       <SpecCell label="Model" value={car.model} />
       <SpecCell icon={CalendarIcon} label="Year" value={car.year} />
       <SpecCell label="Price" value={formatPrice(car.price, car.currency)} />
-      <SpecCell icon={GaugeIcon} label="Mileage" value={formatMileage(car.mileage, car.mileageUnit)} />
+      <SpecCell
+        icon={GaugeIcon}
+        label="Mileage"
+        value={formatMileage(car.mileage, car.mileageUnit)}
+      />
       <SpecCell label="Condition" value={car.condition} />
       <SpecCell label="Color" value={car.color} />
     </div>
@@ -46,11 +54,18 @@ export const SpecsGrid = ({ car }) => (
       <SpecCell icon={FuelIcon} label="Fuel Type" value={car.fuelType} />
       <SpecCell label="Body Type" value={car.bodyType} />
       <SpecCell icon={GearIcon} label="Transmission" value={car.transmission} />
-      <SpecCell icon={SteeringWheelIcon} label="Steering" value={car.steeringType} />
-      <SpecCell icon={EngineIcon} label="Engine" value={car.engineCC ? `${car.engineCC} cc` : null} />
+      <SpecCell
+        icon={EngineIcon}
+        label="Engine"
+        value={car.engineCC ? `${car.engineCC} cc` : null}
+      />
       <SpecCell icon={MapPinIcon} label="Location" value={carLocation(car)} />
       <SpecCell label="VIN" value={car.vin} />
-      <SpecCell icon={CalendarIcon} label="Imported" value={formatDate(car.importedDate)} />
+      <SpecCell
+        icon={CalendarIcon}
+        label="Imported"
+        value={formatDate(car.importedDate)}
+      />
     </div>
   </div>
 );

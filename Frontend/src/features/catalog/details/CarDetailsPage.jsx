@@ -2,7 +2,10 @@ import { useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
 import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
-import { fetchCarById, fetchSimilarCars } from "../../../services/cars/carsApi.js";
+import {
+  fetchCarById,
+  fetchSimilarCars,
+} from "../../../services/cars/carsApi.js";
 import { ImageGallery } from "./ImageGallery.jsx";
 import { SpecsGrid } from "./SpecsGrid.jsx";
 import { Badge } from "../../../shared/components/Badge.jsx";
@@ -12,14 +15,26 @@ import { Skeleton } from "../../../shared/components/Skeleton.jsx";
 import { SellerCard } from "../../../shared/components/SellerCard.jsx";
 import { FeaturesList } from "../../../shared/components/FeaturesList.jsx";
 import { FavoriteButton } from "../../../shared/components/FavoriteButton.jsx";
-import { carLocation, carTitle, formatPrice } from "../../../shared/utils/format.js";
-import { MapPinIcon, ChevronLeftIcon } from "../../../shared/components/icons.jsx";
+import {
+  carLocation,
+  carTitle,
+  formatPrice,
+} from "../../../shared/utils/format.js";
+import {
+  MapPinIcon,
+  ChevronLeftIcon,
+} from "../../../shared/components/icons.jsx";
 
 export default function CarDetailsPage() {
   const { id } = useParams();
 
   const carFetcher = useCallback(() => fetchCarById(id), [id]);
-  const { data: car, error: carError, loading: carLoading, refetch } = useAsyncData(carFetcher, [id]);
+  const {
+    data: car,
+    error: carError,
+    loading: carLoading,
+    refetch,
+  } = useAsyncData(carFetcher, [id]);
   const { options } = useCarOptions();
 
   const similarFetcher = useCallback(() => {
@@ -35,7 +50,7 @@ export default function CarDetailsPage() {
 
   if (carLoading) {
     return (
-      <div className="container-page py-10 sm:py-14">
+      <div className="container-page pb-10 pt-28 sm:pb-14 sm:pt-32">
         <Skeleton className="h-4 w-24 mb-6" />
         <div className="grid lg:grid-cols-2 gap-10">
           <Skeleton className="aspect-[4/3] sm:aspect-[16/10] w-full rounded-premium-lg" />
@@ -52,9 +67,11 @@ export default function CarDetailsPage() {
   if (carError) {
     const isNotFound = carError.status === 404;
     return (
-      <div className="container-page py-16">
+      <div className="container-page pb-16 pt-28 sm:pt-32">
         <ErrorState
-          title={isNotFound ? "Listing not found" : "Couldn't load this listing"}
+          title={
+            isNotFound ? "Listing not found" : "Couldn't load this listing"
+          }
           description={
             isNotFound
               ? "This car may have been sold, hidden, or the link is incorrect."
@@ -63,7 +80,10 @@ export default function CarDetailsPage() {
           onRetry={isNotFound ? undefined : refetch}
         />
         <div className="text-center">
-          <Link to="/listings" className="text-brass-dark text-sm font-semibold">
+          <Link
+            to="/listings"
+            className="text-brass-dark text-sm font-semibold"
+          >
             ← Back to all listings
           </Link>
         </div>
@@ -77,7 +97,7 @@ export default function CarDetailsPage() {
 
   return (
     <div>
-      <div className="container-page py-8 sm:py-10">
+      <div className="container-page pb-8 pt-28 sm:pb-10 sm:pt-32">
         <Link
           to="/listings"
           className="inline-flex items-center gap-1.5 text-ash hover:text-brass-dark text-sm font-medium mb-6 transition-colors"
@@ -108,9 +128,10 @@ export default function CarDetailsPage() {
             <div className="flex items-center justify-between gap-2 mb-3">
               <div className="flex items-center gap-2 flex-wrap">
                 {car.isSold && <Badge variant="danger">Sold</Badge>}
-                {car.steeringType && <Badge variant="glass">{car.steeringType}</Badge>}
                 {car.featured && <Badge variant="brass">Featured</Badge>}
-                {car.condition && <Badge variant="neutral">{car.condition}</Badge>}
+                {car.condition && (
+                  <Badge variant="neutral">{car.condition}</Badge>
+                )}
               </div>
               <FavoriteButton carId={car._id} />
             </div>
@@ -143,7 +164,10 @@ export default function CarDetailsPage() {
               </div>
             )}
 
-            <FeaturesList featureGroups={options?.featureGroups} selectedFeatures={car.features} />
+            <FeaturesList
+              featureGroups={options?.featureGroups}
+              selectedFeatures={car.features}
+            />
 
             <SellerCard car={car} />
           </div>

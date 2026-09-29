@@ -300,12 +300,11 @@ export const Navbar = () => {
   };
 
   return (
-      <header className="fixed top-0 left-0 z-50 w-full">
-    {/* Desktop Floating Pill Navbar Container */}
+    <header className="fixed top-0 left-0 z-50 w-full">
+      {/* Desktop Floating Pill Navbar Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-        <div className="glass-nav md:rounded-full md:shadow-lg md:border md:border-white/10">
+        <div className="glass-nav lg:rounded-full lg:shadow-lg lg:border lg:border-white/10">
           <div className="h-[76px] px-4 sm:px-6 flex items-center justify-between gap-4">
-            
             {/* Logo */}
             <NavLink
               to="/"
@@ -320,7 +319,7 @@ export const Navbar = () => {
             </NavLink>
 
             {/* Desktop Navigation Links (Centered) */}
-            <nav className="hidden md:flex items-center justify-center gap-6 lg:gap-8">
+            <nav className="hidden lg:flex items-center justify-center gap-6 lg:gap-8">
               {NAV_LINKS.map((link) =>
                 link.to === "/" ? (
                   <NavLink
@@ -329,7 +328,10 @@ export const Navbar = () => {
                     end={link.end}
                     className={navLinkClass}
                   >
-                    <link.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <link.icon
+                      className="h-4 w-4 shrink-0"
+                      aria-hidden="true"
+                    />
                     <span>{link.label}</span>
                   </NavLink>
                 ) : (
@@ -363,7 +365,7 @@ export const Navbar = () => {
               {/* Mobile Hamburger Menu Toggle */}
               <button
                 type="button"
-                className="md:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100"
+                className="lg:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100"
                 aria-label={open ? "Close menu" : "Open menu"}
                 aria-expanded={open}
                 onClick={() => setOpen((v) => !v)}
@@ -382,7 +384,7 @@ export const Navbar = () => {
       {/* Mobile Drawer Overlay */}
       <div
         className={clsx(
-          "fixed inset-0 z-40 bg-graphite/45 backdrop-blur-[2px] transition-opacity duration-300 md:hidden",
+          "fixed inset-0 z-40 bg-graphite/45 backdrop-blur-[2px] transition-opacity duration-300 lg:hidden",
           open
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0",
@@ -393,7 +395,7 @@ export const Navbar = () => {
       {/* Mobile Slide-out Nav */}
       <nav
         className={clsx(
-          "fixed right-0 top-0 z-50 flex h-screen w-[84%] max-w-[360px] flex-col glass-panel-strong transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden",
+          "fixed right-0 top-0 z-50 flex h-[100dvh] w-[84%] max-w-[360px] flex-col glass-panel-strong transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden",
           open ? "translate-x-0 shadow-2xl" : "translate-x-full",
         )}
         aria-label="Mobile navigation"

@@ -46,14 +46,15 @@ export default {
       },
       borderRadius: {
         tag: "2px",
-        premium: "1rem",
-        "premium-lg": "1.25rem",
+        premium: "0.875rem",
+        "premium-lg": "1rem",
       },
       boxShadow: {
         tag: "0 1px 0 0 rgba(242,239,233,0.06) inset",
         lift: "0 12px 32px -12px rgba(20,22,27,0.28)",
         card: "0 1px 3px rgba(20,22,27,0.05), 0 4px 16px rgba(20,22,27,0.06)",
-        "card-hover": "0 12px 32px rgba(20,22,27,0.10), 0 2px 8px rgba(20,22,27,0.05)",
+        "card-hover":
+          "0 12px 32px rgba(20,22,27,0.10), 0 2px 8px rgba(20,22,27,0.05)",
         premium: "0 4px 24px rgba(20,22,27,0.10)",
         glass: "0 12px 40px -12px rgba(20,22,27,0.18)",
       },

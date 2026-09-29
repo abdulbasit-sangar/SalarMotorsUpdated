@@ -34,10 +34,12 @@ export const Modal = ({ open, onClose, title, children }) => {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-premium-lg bg-card border border-card shadow-card p-5 sm:p-6"
+        className="relative w-full max-w-lg max-h-[85vh] max-h-[85dvh] overflow-y-auto rounded-premium-lg bg-card border border-card shadow-card p-5 sm:p-6"
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-lg font-semibold text-card">{title}</h2>
+          <h2 className="font-display text-lg font-semibold text-card">
+            {title}
+          </h2>
           <button
             type="button"
             onClick={onClose}

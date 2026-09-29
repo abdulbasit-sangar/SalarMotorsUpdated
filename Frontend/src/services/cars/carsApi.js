@@ -56,7 +56,7 @@ export const filterCars = async (params = {}) => {
 };
 
 // GET /api/cars/options — centralized dropdown options (brands, provinces,
-// years, engineCC, steering, fuelTypes, bodyTypes, transmissions, conditions).
+// years, engineCC, fuelTypes, bodyTypes, transmissions, conditions).
 // Single source of truth is backend/constants/car.constants.js — components
 // must not hardcode their own copies of these lists. Cached longer than the
 // catalog data below since these change rarely (only when the constants
@@ -66,7 +66,7 @@ export const fetchCarOptions = async () => {
     cacheKey("car-options", {}),
     async () => {
       const { data } = await apiClient.get("/cars/options");
-      return data.data; // { brands, provinces, years, engineCC, steering, fuelTypes, bodyTypes, transmissions, conditions }
+      return data.data; // { brands, provinces, years, engineCC, fuelTypes, bodyTypes, transmissions, conditions }
     },
     5 * 60_000,
   );

@@ -3,8 +3,8 @@ import { fetchCarOptions } from "../../services/cars/carsApi.js";
 
 /**
  * useCarOptions — fetches the centralized car dropdown options
- * (brands, provinces, years, engineCC, steering, fuelTypes, bodyTypes,
- * transmissions, conditions) from GET /api/cars/options.
+ * (brands, provinces, years, engineCC, fuelTypes, bodyTypes, transmissions,
+ * conditions) from GET /api/cars/options.
  *
  * Shared by every component that renders a Brand/Province/Year/Engine CC
  * dropdown (CreateListingPage, FilterPanel, HeroSearchBar) so the fetch,
@@ -17,10 +17,12 @@ import { fetchCarOptions } from "../../services/cars/carsApi.js";
  * an empty array for any list they read off it while loading.
  */
 export const useCarOptions = () => {
-  const { data: options, loading, error, refetch } = useAsyncData(
-    fetchCarOptions,
-    [],
-  );
+  const {
+    data: options,
+    loading,
+    error,
+    refetch,
+  } = useAsyncData(fetchCarOptions, []);
 
   return { options, loading, error, refetch };
 };

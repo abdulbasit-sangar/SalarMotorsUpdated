@@ -7,7 +7,7 @@ import { validateObjectId } from "./car.service.js";
 // plus isSold, so favorited cards render identically to every other card —
 // including the Sold ribbon (see CarCard.jsx).
 const CARD_FIELDS =
-  "title brand model year price province city steeringType images featured isSold slug createdAt isHidden";
+  "title brand model year price province city images featured isSold slug createdAt isHidden";
 
 // ─── Add favorite ──────────────────────────────────────────────────────────────
 export const addFavoriteService = async (deviceId, carId) => {
@@ -22,7 +22,7 @@ export const addFavoriteService = async (deviceId, carId) => {
   await Favorite.updateOne(
     { deviceId, car: carId },
     { $setOnInsert: { deviceId, car: carId } },
-    { upsert: true }
+    { upsert: true },
   );
 
   return { carId };
@@ -50,5 +50,10 @@ export const getFavoritesService = async (deviceId) => {
     .map((f) => f.car)
     .filter((car) => car && !car.isHidden);
 
-  return { cars, favoritedCarIds: favorites.filter((f) => f.car).map((f) => String(f.car._id)) };
+  return {
+    cars,
+    favoritedCarIds: favorites
+      .filter((f) => f.car)
+      .map((f) => String(f.car._id)),
+  };
 };

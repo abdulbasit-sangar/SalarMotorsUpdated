@@ -37,7 +37,7 @@ export default function SearchResultsPage() {
   };
 
   return (
-    <div className="container-page py-10 sm:py-14">
+    <div className="container-page pb-10 pt-28 sm:pb-14 sm:pt-32">
       <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
         Search
       </p>

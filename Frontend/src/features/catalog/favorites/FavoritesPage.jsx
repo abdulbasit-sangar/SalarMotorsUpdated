@@ -36,7 +36,7 @@ export default function FavoritesPage() {
   }, [favoriteIds, ready]);
 
   return (
-    <div className="container-page py-8 sm:py-10">
+    <div className="container-page pb-8 pt-28 sm:pb-10 sm:pt-32">
       <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
         Saved
       </p>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import clsx from "clsx";
 import { SearchIcon, ChevronDownIcon, CheckIcon } from "./icons.jsx";
@@ -64,11 +64,28 @@ export const SearchableSelect = ({
 
   const selectedOption = options.find((opt) => opt.value === value);
 
-  const updatePosition = () => {
+  const updatePosition = useCallback(() => {
     const rect = triggerRef.current?.getBoundingClientRect();
     if (!rect) return;
-    setPosition({ top: rect.bottom + 6, left: rect.left, width: rect.width });
-  };
+    const desiredHeight = showSearch ? 340 : 284;
+    const spaceBelow = window.innerHeight - rect.bottom - 12;
+    const spaceAbove = rect.top - 12;
+    const openBelow = spaceBelow >= desiredHeight || spaceBelow >= spaceAbove;
+    const availableSpace = openBelow ? spaceBelow : spaceAbove;
+    const maxHeight = Math.min(desiredHeight, Math.max(120, availableSpace));
+    const width = Math.min(rect.width, window.innerWidth - 24);
+    const left = Math.min(
+      Math.max(12, rect.left),
+      window.innerWidth - width - 12,
+    );
+
+    setPosition({
+      top: openBelow ? rect.bottom + 6 : rect.top - maxHeight - 6,
+      left,
+      width,
+      maxHeight,
+    });
+  }, [showSearch]);
 
   const openDropdown = () => {
     if (disabled) return;
@@ -115,7 +132,7 @@ export const SearchableSelect = ({
       window.removeEventListener("resize", handleReposition);
       window.removeEventListener("scroll", handleReposition, true);
     };
-  }, [open, showSearch]);
+  }, [open, showSearch, updatePosition]);
 
   const handleSelect = (nextValue) => {
     onChange(nextValue);
@@ -250,8 +267,9 @@ export const SearchableSelect = ({
               top: position.top,
               left: position.left,
               width: position.width,
+              maxHeight: position.maxHeight,
             }}
-            className="z-[200] glass-panel-strong rounded-xl overflow-hidden"
+            className="z-[200] glass-panel-strong rounded-xl overflow-y-auto"
           >
             {showSearch && (
               <div className="p-2 border-b border-card">

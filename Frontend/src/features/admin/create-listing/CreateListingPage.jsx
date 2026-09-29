@@ -36,7 +36,6 @@ const INITIAL_FORM = {
   currency: "USD",
   province: "",
   city: "",
-  steeringType: "",
   mileage: "",
   mileageUnit: "km",
   fuelType: "",
@@ -304,22 +303,6 @@ export default function CreateListingPage() {
             onChange={updateField("vin")}
             error={fieldErrors.vin}
           />
-
-          <Select
-            label="Steering Type"
-            required
-            value={form.steeringType}
-            onChange={updateField("steeringType")}
-            error={fieldErrors.steeringType}
-          >
-            <option value="">Select steering type</option>
-
-            {(options?.steering ?? []).map((v) => (
-              <option key={v} value={v}>
-                {v}
-              </option>
-            ))}
-          </Select>
         </section>
 
         {/* ==================== LOCATION ==================== */}
