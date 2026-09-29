@@ -1,52 +1,73 @@
 import mongoose from "mongoose";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Root-cause fix for "backend becomes unresponsive after running a while":
-//
-// The previous config called `mongoose.connect(uri)` with no options at all.
-// Two defaults made that dangerous in production:
-//   1. `bufferCommands` defaults to `true` — if the connection to MongoDB
-//      drops (Atlas idle disconnects, a network blip, a replica-set
-//      failover) every query issued afterwards is silently queued in
-//      memory instead of failing, waiting for a reconnect that may never
-//      come. No error, no timeout — the request just hangs forever. That's
-//      exactly "loads correctly at first, then stops responding."
-//   2. No `serverSelectionTimeoutMS`/`socketTimeoutMS` meant even a genuine
-//      reconnect attempt could hang indefinitely instead of failing fast.
-//
-// Fix: fail fast instead of hanging, and log connection state changes so a
-// dropped connection is visible instead of silent.
-// ─────────────────────────────────────────────────────────────────────────────
+const connection = mongoose.connection;
+let connectionPromise = null;
+let listenersRegistered = false;
 
+const registerConnectionListeners = () => {
+  if (listenersRegistered) return;
+  listenersRegistered = true;
+
+  connection.on("connected", () => {
+    console.info("[DATABASE] Connection established.");
+  });
+
+  connection.on("disconnected", () => {
+    console.warn("[DATABASE] Connection lost. The MongoDB driver will attempt recovery.");
+  });
+
+  connection.on("reconnected", () => {
+    console.info("[DATABASE] Connection successfully restored.");
+  });
+
+  connection.on("error", (error) => {
+    // Never print the URI or credentials; driver error messages are logged as-is.
+    console.error("[DATABASE] Connection error:", error?.message || error);
+  });
+
+  connection.on("close", () => {
+    console.warn("[DATABASE] Connection closed.");
+  });
+};
+
+/**
+ * Establish the application's single Mongoose connection.
+ * Concurrent callers share the same in-flight attempt.
+ */
 const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 10_000, // fail fast if Mongo can't be reached, instead of hanging
-      socketTimeoutMS: 45_000,          // kill a socket that's gone quiet instead of holding it open forever
-      maxPoolSize: 20,
-      minPoolSize: 2,
-      bufferCommands: false,            // never silently queue queries while disconnected — fail immediately
-    });
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`❌ MongoDB Connection Error: ${error.message}`);
-    process.exit(1);
+  if (!process.env.MONGODB_URI) {
+    throw new Error("MONGODB_URI is not configured.");
   }
 
-  // ── Visibility into connection state after the initial connect ──────────
-  // These don't crash the process — the Mongo driver already retries
-  // reconnection on its own. This just makes drops/recoveries visible in
-  // logs instead of silently degrading, and is what previously made this
-  // bug near-impossible to diagnose.
-  mongoose.connection.on("error", (err) => {
-    console.error("⚠️  MongoDB connection error:", err.message);
-  });
-  mongoose.connection.on("disconnected", () => {
-    console.warn("⚠️  MongoDB disconnected — driver will attempt to reconnect.");
-  });
-  mongoose.connection.on("reconnected", () => {
-    console.log("✅ MongoDB reconnected.");
-  });
+  if (connection.readyState === 1) return connection;
+  if (connectionPromise) return connectionPromise;
+
+  registerConnectionListeners();
+
+  connectionPromise = mongoose
+    .connect(process.env.MONGODB_URI, {
+      // Let the driver manage recovery after transient network/Atlas events.
+      // A finite selection timeout bounds failed operations during outages.
+      serverSelectionTimeoutMS: 10_000,
+      // Keep the driver's default socket timeout (0). A short inactivity
+      // timeout can unnecessarily terminate otherwise healthy pooled sockets.
+      maxPoolSize: 20,
+      minPoolSize: 0,
+      bufferCommands: false,
+    })
+    .then(() => {
+      console.info("[DATABASE] Initial connection established.");
+      return connection;
+    })
+    .catch((error) => {
+      console.error("[DATABASE] Initial connection failed:", error?.message || error);
+      throw error;
+    })
+    .finally(() => {
+      connectionPromise = null;
+    });
+
+  return connectionPromise;
 };
 
 export default connectDB;
