@@ -8,8 +8,12 @@ import {
   filterCars,
   SORT_OPTIONS,
 } from "../../../services/cars/carsApi.js";
-import { CarCard, CarCardGrid } from "../../../shared/components/CarCard.jsx";
-import { CarCardSkeleton } from "../../../shared/components/Skeleton.jsx";
+import {
+  CarCard,
+  CarCardGrid,
+  CarCardRow,
+} from "../../../shared/components/CarCard.jsx";
+import { Skeleton } from "../../../shared/components/Skeleton.jsx";
 import { EmptyState } from "../../../shared/components/EmptyState.jsx";
 import { ErrorState } from "../../../shared/components/ErrorState.jsx";
 import { Pagination } from "../../../shared/components/Pagination.jsx";
@@ -21,6 +25,24 @@ import {
 } from "../../../shared/components/icons.jsx";
 
 const LIMIT = 12;
+
+// Backend caps GET /cars/featured at 20.
+const SPONSORED_LIMIT = 20;
+
+// Compact placeholder that matches the compact listing card.
+const CompactCardSkeleton = () => (
+  <div className="overflow-hidden rounded-xl border border-card bg-card shadow-card">
+    <Skeleton className="aspect-[16/10] w-full rounded-none" />
+    <div className="space-y-2.5 p-3.5 sm:p-4">
+      <Skeleton className="h-5 w-2/5" />
+      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-3 w-1/2" />
+    </div>
+  </div>
+);
+
+const sameLocation = (a, b) =>
+  String(a || "").trim().toLowerCase() === String(b || "").trim().toLowerCase();
 
 // Only these keys are sent to the backend — page/limit are handled separately.
 const FILTER_KEYS = [
@@ -219,7 +241,9 @@ export default function FilterResultsPage({
     [filters, fixedProvince],
   );
 
-  const isFiltered = Boolean(fixedProvince) || activeCount > 0;
+  // Sponsored row shows on every tab (All Cars + the three location tabs)
+  // unless the user has applied filters on All Cars.
+  const showSponsored = activeCount === 0;
 
   const fetcher = useCallback(
     () =>
@@ -231,11 +255,17 @@ export default function FilterResultsPage({
           limit: LIMIT,
         }),
 
-        // Sponsored cars only on the unfiltered browse view.
-        isFiltered ? Promise.resolve({ cars: [] }) : fetchFeaturedCars(4),
+        showSponsored
+          ? fetchFeaturedCars(SPONSORED_LIMIT)
+          : Promise.resolve({ cars: [] }),
       ]).then(([listings, featured]) => ({
         listings,
-        featuredCars: featured.cars,
+        // Featured cars are global; on a location tab keep only that tab's.
+        featuredCars: fixedProvince
+          ? featured.cars.filter((car) =>
+              sameLocation(car.province, fixedProvince),
+            )
+          : featured.cars,
       })),
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -307,8 +337,29 @@ export default function FilterResultsPage({
     });
   };
 
+  const sponsoredCars = useMemo(
+    () => (showSponsored ? data?.featuredCars || [] : []),
+    [showSponsored, data],
+  );
+
+  // Location tabs ask the backend to include featured cars in the listing
+  // (see fetcher), so remove the ones already shown in the Sponsored row —
+  // a car should appear once, not twice.
+  const gridCars = useMemo(() => {
+    const cars = data?.listings?.cars || [];
+    if (!fixedProvince || sponsoredCars.length === 0) return cars;
+    const sponsoredIds = new Set(sponsoredCars.map((car) => car._id));
+    return cars.filter((car) => !sponsoredIds.has(car._id));
+  }, [data, fixedProvince, sponsoredCars]);
+
+  const totalCars = Math.max(
+    0,
+    (data?.listings?.pagination?.totalCars || 0) -
+      (fixedProvince ? sponsoredCars.length : 0),
+  );
+
   return (
-    <div className="container-page py-10 sm:py-14">
+    <div className="container-listing py-10 sm:py-14">
       <Reveal className="relative z-10 mb-8 pt-16 sm:pt-20">
         {fixedProvince && (
           <h1 className="mb-6 font-display text-3xl font-semibold text-bone">
@@ -401,28 +452,28 @@ export default function FilterResultsPage({
         </Reveal>
       )}
 
-      {/* =========================================================
-          SPONSORED SECTION
-          FIX: Uses the same container/grid alignment as the
-          regular vehicle results instead of rendering CarSection,
-          which adds another nested container.
-          ========================================================= */}
-      {!error && !loading && !isFiltered && data?.featuredCars?.length > 0 && (
-        <Reveal delay={120} className="mb-10">
-          <section>
-            <div className="mb-6 sm:mb-7">
-              <p className="section-eyebrow">Handpicked</p>
+      {/* SPONSORED — one swipeable row (left <-> right) */}
+      {!error && !loading && sponsoredCars.length > 0 && (
+        <Reveal delay={120} className="mb-8 sm:mb-10">
+          <section aria-labelledby="sponsored-heading">
+            <h2
+              id="sponsored-heading"
+              className="mb-4 font-display text-xl font-bold leading-tight text-section-light sm:text-2xl"
+            >
+              Sponsored Vehicles
+            </h2>
 
-              <h2 className="mt-1.5 font-display text-3xl font-bold leading-tight text-section-light sm:text-4xl">
-                Sponsored
-              </h2>
-            </div>
-
-            <CarCardGrid>
-              {data.featuredCars.map((car) => (
-                <CarCard key={car._id} car={car} premium sponsored />
+            <CarCardRow label="Sponsored vehicles">
+              {sponsoredCars.map((car) => (
+                <CarCard
+                  key={car._id}
+                  car={car}
+                  premium
+                  sponsored
+                  variant="compact"
+                />
               ))}
-            </CarCardGrid>
+            </CarCardRow>
           </section>
         </Reveal>
       )}
@@ -431,25 +482,29 @@ export default function FilterResultsPage({
         {error ? (
           <ErrorState onRetry={refetch} />
         ) : loading ? (
-          <CarCardGrid>
+          <CarCardGrid dense>
             {Array.from({
               length: LIMIT,
             }).map((_, i) => (
-              <CarCardSkeleton key={i} />
+              <CompactCardSkeleton key={i} />
             ))}
           </CarCardGrid>
-        ) : data?.listings?.cars?.length ? (
+        ) : gridCars.length || sponsoredCars.length ? (
           <>
-            <p className="text-ash text-sm mb-6">
-              {data.listings.pagination.totalCars} result
-              {data.listings.pagination.totalCars === 1 ? "" : "s"}
-            </p>
+            {gridCars.length > 0 && (
+              <>
+                <p className="mb-4 text-sm text-ash">
+                  {totalCars} result
+                  {totalCars === 1 ? "" : "s"}
+                </p>
 
-            <CarCardGrid>
-              {data.listings.cars.map((car) => (
-                <CarCard key={car._id} car={car} />
-              ))}
-            </CarCardGrid>
+                <CarCardGrid dense>
+                  {gridCars.map((car) => (
+                    <CarCard key={car._id} car={car} variant="compact" />
+                  ))}
+                </CarCardGrid>
+              </>
+            )}
 
             <div className="mt-10">
               <Pagination

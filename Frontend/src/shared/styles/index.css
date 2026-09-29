@@ -121,6 +121,19 @@
   .container-page {
     @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
   }
+    /* Wider, centered page container for vehicle listing tabs */
+  .container-listing {
+    @apply mx-auto w-full max-w-[1680px] px-4 sm:px-5 lg:px-6;
+  }
+
+  /* Hides the scrollbar on swipeable rows (still scrollable). */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 
   .field-label {
     @apply block text-xs font-semibold uppercase tracking-wider text-ash mb-1.5;
