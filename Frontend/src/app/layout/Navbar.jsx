@@ -45,7 +45,7 @@ const ON_THE_WAY_LINKS = [
 
 const navLinkClass = ({ isActive }) =>
   clsx(
-    "relative inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-sm font-medium transition-colors py-1",
+    "relative inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-sm lg:text-[13px] font-medium transition-colors py-1",
     isActive
       ? "text-brass-dark after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-[2px] after:rounded-full after:bg-brass"
       : "text-ash hover:text-bone",
@@ -83,9 +83,15 @@ const isCategoryActive = (location, to) => {
 const CategoryNavLink = ({ to, label, icon: Icon, className, onClick }) => {
   const location = useLocation();
   const isActive = isCategoryActive(location, to);
+
   return (
     <Link to={to} className={className({ isActive })} onClick={onClick}>
-      {Icon && <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />}
+      {Icon && (
+        <Icon
+          className="h-4 w-4 shrink-0 lg:h-[15px] lg:w-[15px]"
+          aria-hidden="true"
+        />
+      )}
       <span>{label}</span>
     </Link>
   );
@@ -93,6 +99,7 @@ const CategoryNavLink = ({ to, label, icon: Icon, className, onClick }) => {
 
 const FavoritesBadge = ({ count, className }) => {
   if (!count) return null;
+
   return (
     <span
       className={clsx(
@@ -113,12 +120,15 @@ const FavoritesIconLink = ({ count }) => (
     title="Favorites"
     className={({ isActive }) =>
       clsx(
-        "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-graphite-100",
+        "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-graphite-100 lg:h-9 lg:w-9",
         isActive ? "text-brass-dark" : "text-bone",
       )
     }
   >
-    <HeartIcon className="h-5 w-5" aria-hidden="true" />
+    <HeartIcon
+      className="h-5 w-5 lg:h-[18px] lg:w-[18px]"
+      aria-hidden="true"
+    />
     <FavoritesBadge count={count} className="absolute -right-0.5 -top-0.5" />
   </NavLink>
 );
@@ -136,9 +146,11 @@ const OnTheWayDropdown = () => {
 
   useEffect(() => {
     if (!open) return undefined;
+
     const handleClickOutside = (event) => {
       if (!containerRef.current?.contains(event.target)) setOpen(false);
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
@@ -161,7 +173,10 @@ const OnTheWayDropdown = () => {
         aria-expanded={open}
         onClick={() => setOpen(true)}
       >
-        <ShipIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+        <ShipIcon
+          className="h-4 w-4 shrink-0 lg:h-[15px] lg:w-[15px]"
+          aria-hidden="true"
+        />
         <span>On the Way</span>
         <ChevronDownIcon
           className={clsx(
@@ -205,6 +220,7 @@ const OnTheWayDropdown = () => {
 const MobileOnTheWaySection = ({ onNavigate }) => {
   const [expanded, setExpanded] = useState(false);
   const location = useLocation();
+
   const isActive = ON_THE_WAY_LINKS.some((link) =>
     isCategoryActive(location, link.to),
   );
@@ -302,9 +318,9 @@ export const Navbar = () => {
   return (
     <header className="fixed top-0 left-0 z-50 w-full">
       {/* Desktop Floating Pill Navbar Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 lg:pt-3">
         <div className="glass-nav lg:rounded-full lg:shadow-lg lg:border lg:border-white/10">
-          <div className="h-[76px] px-4 sm:px-6 flex items-center justify-between gap-4">
+          <div className="h-[76px] lg:h-[64px] px-4 sm:px-6 lg:px-5 flex items-center justify-between gap-4 lg:gap-3">
             {/* Logo */}
             <NavLink
               to="/"
@@ -314,12 +330,12 @@ export const Navbar = () => {
               <img
                 src={logo}
                 alt="Salar Motors logo"
-                className="h-9 md:h-10 w-auto object-contain"
+                className="h-9 md:h-10 lg:h-9 w-auto object-contain"
               />
             </NavLink>
 
             {/* Desktop Navigation Links (Centered) */}
-            <nav className="hidden lg:flex items-center justify-center gap-6 lg:gap-8">
+            <nav className="hidden lg:flex items-center justify-center gap-5 xl:gap-6">
               {NAV_LINKS.map((link) =>
                 link.to === "/" ? (
                   <NavLink
@@ -329,7 +345,7 @@ export const Navbar = () => {
                     className={navLinkClass}
                   >
                     <link.icon
-                      className="h-4 w-4 shrink-0"
+                      className="h-4 w-4 shrink-0 lg:h-[15px] lg:w-[15px]"
                       aria-hidden="true"
                     />
                     <span>{link.label}</span>
@@ -352,11 +368,11 @@ export const Navbar = () => {
               {/* Search Trigger Button */}
               <button
                 type="button"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100 lg:h-9 lg:w-9"
                 aria-label="Search vehicles"
                 onClick={() => setSearchOpen(true)}
               >
-                <SearchIcon className="h-5 w-5" />
+                <SearchIcon className="h-5 w-5 lg:h-[18px] lg:w-[18px]" />
               </button>
 
               {/* Favorites Icon */}

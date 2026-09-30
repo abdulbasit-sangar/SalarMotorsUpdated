@@ -25,11 +25,8 @@ import {
 } from "../../../shared/components/icons.jsx";
 
 const LIMIT = 12;
-
-// Backend caps GET /cars/featured at 20.
 const SPONSORED_LIMIT = 20;
 
-// Compact placeholder that matches the compact listing card.
 const CompactCardSkeleton = () => (
   <div className="overflow-hidden rounded-xl border border-card bg-card shadow-card">
     <Skeleton className="aspect-[16/10] w-full rounded-none" />
@@ -42,25 +39,17 @@ const CompactCardSkeleton = () => (
 );
 
 const sameLocation = (a, b) =>
-  String(a || "").trim().toLowerCase() === String(b || "").trim().toLowerCase();
+  String(a || "").trim().toLowerCase() ===
+  String(b || "").trim().toLowerCase();
 
-// Only these keys are sent to the backend — page/limit are handled separately.
+// Only the requested filter fields are applied through the filter panel.
 const FILTER_KEYS = [
   "brand",
   "model",
   "province",
   "color",
-  "fuelType",
-  "bodyType",
-  "transmission",
-  "condition",
-  "engineCC",
-  "minPrice",
-  "maxPrice",
   "minYear",
   "maxYear",
-  "minMileage",
-  "maxMileage",
   "sort",
 ];
 
@@ -75,37 +64,19 @@ const paramsToFilters = (searchParams) => {
   return result;
 };
 
-// Filter keys whose value is already a human-readable label on its own.
 const DIRECT_LABEL_KEYS = [
   "brand",
   "model",
   "province",
   "color",
-  "fuelType",
-  "bodyType",
-  "transmission",
-  "condition",
 ];
 
-// Min/max pairs are collapsed into a single chip each.
 const RANGE_KEY_GROUPS = [
-  {
-    minKey: "minPrice",
-    maxKey: "maxPrice",
-    prefix: "Price",
-    format: (v) => `$${Number(v).toLocaleString()}`,
-  },
   {
     minKey: "minYear",
     maxKey: "maxYear",
     prefix: "Year",
-    format: (v) => v,
-  },
-  {
-    minKey: "minMileage",
-    maxKey: "maxMileage",
-    prefix: "Mileage",
-    format: (v) => `${Number(v).toLocaleString()} km`,
+    format: (value) => value,
   },
 ];
 
@@ -121,7 +92,6 @@ const rangeChipLabel = (prefix, min, max, format) => {
     : `${prefix}: up to ${format(max)}`;
 };
 
-// Lightweight scroll/mount reveal.
 const useReveal = (threshold = 0.15) => {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -174,7 +144,6 @@ const Reveal = ({ children, delay = 0, className = "" }) => {
   );
 };
 
-// Builds the removable applied-filter chips.
 const buildActiveChips = (filters) => {
   const chips = [];
 
@@ -187,14 +156,6 @@ const buildActiveChips = (filters) => {
       });
     }
   });
-
-  if (filters.engineCC) {
-    chips.push({
-      id: "engineCC",
-      label: `${filters.engineCC} cc`,
-      keys: ["engineCC"],
-    });
-  }
 
   RANGE_KEY_GROUPS.forEach(({ minKey, maxKey, prefix, format }) => {
     const min = filters[minKey];
@@ -217,11 +178,9 @@ export default function FilterResultsPage({
   fixedTitle = "",
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
-
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
 
   const page = Math.max(1, parseInt(searchParams.get("page")) || 1);
-
   const sort = searchParams.get("sort") || "newest";
 
   const filters = useMemo(
@@ -234,15 +193,15 @@ export default function FilterResultsPage({
 
   const activeCount = fixedProvince
     ? 0
-    : FILTER_KEYS.filter((key) => key !== "sort" && filters[key]).length;
+    : FILTER_KEYS.filter(
+        (key) => key !== "sort" && filters[key],
+      ).length;
 
   const activeChips = useMemo(
     () => (fixedProvince ? [] : buildActiveChips(filters)),
     [filters, fixedProvince],
   );
 
-  // Sponsored row shows on every tab (All Cars + the three location tabs)
-  // unless the user has applied filters on All Cars.
   const showSponsored = activeCount === 0;
 
   const fetcher = useCallback(
@@ -260,14 +219,12 @@ export default function FilterResultsPage({
           : Promise.resolve({ cars: [] }),
       ]).then(([listings, featured]) => ({
         listings,
-        // Featured cars are global; on a location tab keep only that tab's.
         featuredCars: fixedProvince
           ? featured.cars.filter((car) =>
               sameLocation(car.province, fixedProvince),
             )
           : featured.cars,
       })),
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [searchParams.toString(), page, fixedProvince],
   );
@@ -300,7 +257,6 @@ export default function FilterResultsPage({
     const params = new URLSearchParams(searchParams);
 
     keys.forEach((key) => params.delete(key));
-
     params.delete("page");
 
     setSearchParams(params);
@@ -316,7 +272,6 @@ export default function FilterResultsPage({
     }
 
     params.delete("page");
-
     setSearchParams(params);
   };
 
@@ -342,12 +297,13 @@ export default function FilterResultsPage({
     [showSponsored, data],
   );
 
-  // Location tabs ask the backend to include featured cars in the listing
-  // (see fetcher), so remove the ones already shown in the Sponsored row —
-  // a car should appear once, not twice.
   const gridCars = useMemo(() => {
     const cars = data?.listings?.cars || [];
-    if (!fixedProvince || sponsoredCars.length === 0) return cars;
+
+    if (!fixedProvince || sponsoredCars.length === 0) {
+      return cars;
+    }
+
     const sponsoredIds = new Set(sponsoredCars.map((car) => car._id));
     return cars.filter((car) => !sponsoredIds.has(car._id));
   }, [data, fixedProvince, sponsoredCars]);
@@ -366,6 +322,7 @@ export default function FilterResultsPage({
             {fixedTitle}
           </h1>
         )}
+
         <div
           className={`flex w-full items-center gap-3 sm:justify-end sm:gap-3 ${
             fixedProvince ? "justify-end" : "justify-between"
@@ -378,7 +335,9 @@ export default function FilterResultsPage({
               className="inline-flex h-11 min-w-[120px] flex-1 items-center justify-center gap-2 rounded-full glass-panel px-5 text-sm font-semibold text-bone shadow-sm transition-all duration-200 hover:bg-white/85 sm:min-w-[120px] sm:flex-none"
             >
               <SlidersIcon className="h-4 w-4 shrink-0 text-brass-dark" />
-              <span>Filters{activeCount > 0 && ` (${activeCount})`}</span>
+              <span>
+                Filters{activeCount > 0 && ` (${activeCount})`}
+              </span>
             </button>
           )}
 
@@ -394,9 +353,9 @@ export default function FilterResultsPage({
               className="peer absolute inset-0 z-10 h-11 w-full cursor-pointer opacity-0"
               aria-label="Sort options"
             >
-              {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+              {SORT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>
@@ -416,8 +375,7 @@ export default function FilterResultsPage({
         <FilterSheet
           open={mobilePanelOpen}
           onClose={() => setMobilePanelOpen(false)}
-          title="Refine Results"
-          description="Adjust your search and apply changes."
+          title="Filter Vehicles"
         >
           <FilterPanel
             initialValues={filters}
@@ -428,16 +386,15 @@ export default function FilterResultsPage({
       )}
 
       {activeChips.length > 0 && (
-        <Reveal delay={60} className="flex flex-wrap items-center gap-2 mb-8">
+        <Reveal delay={60} className="mb-8 flex flex-wrap items-center gap-2">
           {activeChips.map((chip) => (
             <button
               key={chip.id}
               type="button"
               onClick={() => removeChip(chip.keys)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-brass/12 border border-brass/30 pl-3.5 pr-2.5 py-1.5 text-xs font-semibold text-brass-dark transition-colors hover:bg-brass/20"
+              className="inline-flex items-center gap-1.5 rounded-full border border-brass/30 bg-brass/12 py-1.5 pl-3.5 pr-2.5 text-xs font-semibold text-brass-dark transition-colors hover:bg-brass/20"
             >
               {chip.label}
-
               <CloseIcon className="h-3 w-3" />
             </button>
           ))}
@@ -452,7 +409,7 @@ export default function FilterResultsPage({
         </Reveal>
       )}
 
-      {/* SPONSORED — one swipeable row (left <-> right) */}
+      {/* SPONSORED VEHICLES */}
       {!error && !loading && sponsoredCars.length > 0 && (
         <Reveal delay={120} className="mb-8 sm:mb-10">
           <section aria-labelledby="sponsored-heading">
@@ -483,10 +440,8 @@ export default function FilterResultsPage({
           <ErrorState onRetry={refetch} />
         ) : loading ? (
           <CarCardGrid dense>
-            {Array.from({
-              length: LIMIT,
-            }).map((_, i) => (
-              <CompactCardSkeleton key={i} />
+            {Array.from({ length: LIMIT }).map((_, index) => (
+              <CompactCardSkeleton key={index} />
             ))}
           </CarCardGrid>
         ) : gridCars.length || sponsoredCars.length ? (
@@ -494,13 +449,16 @@ export default function FilterResultsPage({
             {gridCars.length > 0 && (
               <>
                 <p className="mb-4 text-sm text-ash">
-                  {totalCars} result
-                  {totalCars === 1 ? "" : "s"}
+                  {totalCars} result{totalCars === 1 ? "" : "s"}
                 </p>
 
                 <CarCardGrid dense>
                   {gridCars.map((car) => (
-                    <CarCard key={car._id} car={car} variant="compact" />
+                    <CarCard
+                      key={car._id}
+                      car={car}
+                      variant="compact"
+                    />
                   ))}
                 </CarCardGrid>
               </>
@@ -515,12 +473,12 @@ export default function FilterResultsPage({
           </>
         ) : (
           <EmptyState
-            icon={<CarSilhouetteIcon className="w-14 h-9" />}
+            icon={<CarSilhouetteIcon className="h-9 w-14" />}
             title="No matches"
             description={
               fixedProvince
                 ? `No vehicles are currently listed for ${fixedTitle}.`
-                : "Nothing fits these filters yet. Try widening a range or clearing a field."
+                : "Nothing fits these filters yet. Try changing a field or clearing a filter."
             }
             actionLabel={activeCount > 0 ? "Clear filters" : undefined}
             onAction={activeCount > 0 ? resetFilters : undefined}

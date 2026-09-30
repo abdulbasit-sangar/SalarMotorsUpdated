@@ -6,7 +6,7 @@ import { CloseIcon } from "../../../shared/components/icons.jsx";
 export const FilterSheet = ({
   open,
   onClose,
-  title = "Refine Results",
+  title = "Filter Vehicles",
   description,
   children,
 }) => {
@@ -14,8 +14,10 @@ export const FilterSheet = ({
 
   useEffect(() => {
     if (!open) return undefined;
+
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+
     return () => {
       document.body.style.overflow = previousOverflow;
     };
@@ -24,8 +26,12 @@ export const FilterSheet = ({
   return (
     <div
       className={clsx(
-        "fixed inset-0 z-[90] transition-opacity duration-300",
-        open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
+        "fixed inset-0 z-[90] grid place-items-center",
+        "px-3 py-4 sm:px-5 sm:py-6 lg:px-6",
+        "transition-opacity duration-300",
+        open
+          ? "pointer-events-auto opacity-100"
+          : "pointer-events-none opacity-0",
       )}
       role="dialog"
       aria-modal="true"
@@ -34,87 +40,99 @@ export const FilterSheet = ({
     >
       {/* BACKDROP */}
       <div
-        className="absolute inset-0 bg-graphite/60 backdrop-blur-sm transition-opacity duration-300"
+        className="
+          absolute
+          inset-0
+          bg-graphite-950/65
+          backdrop-blur-sm
+          transition-opacity
+          duration-300
+        "
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* MOBILE BOTTOM SHEET */}
+      {/* FILTER CARD */}
       <div
         className={clsx(
           `
-            absolute
-            inset-x-0
-            bottom-0
+            relative
+            z-10
             flex
-            max-h-[92dvh]
-            flex-col
-            overflow-hidden
-            rounded-t-[32px]
-            border
-            border-b-0
-            border-card
-            bg-white
-            shadow-[0_-20px_60px_rgba(0,0,0,0.25)]
-            transition-transform
-            duration-300
-            ease-[cubic-bezier(0.22,1,0.36,1)]
-            md:hidden
-          `,
-          open ? "translate-y-0" : "translate-y-full",
-        )}
-        onClick={(event) => event.stopPropagation()}
-      >
-        {/* DRAG HANDLE */}
-        <div className="flex shrink-0 justify-center pb-1 pt-3.5" aria-hidden="true">
-          <span className="h-1.5 w-12 rounded-full bg-graphite/20" />
-        </div>
-
-        <SheetHeader
-          title={title}
-          description={description}
-          onClose={onClose}
-        />
-
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-8 pt-4">
-          {children}
-        </div>
-      </div>
-
-      {/* DESKTOP / TABLET DRAWER */}
-      <div
-        className={clsx(
-          `
-            absolute
-            right-0
-            top-0
-            hidden
-            h-full
             w-full
             max-w-[460px]
+            max-h-[calc(100dvh-2rem)]
             flex-col
             overflow-hidden
-            border-l
+            rounded-2xl
+            border
             border-card
             bg-white
-            shadow-[-20px_0_60px_rgba(0,0,0,0.2)]
-            transition-transform
+            shadow-[0_24px_80px_rgba(0,0,0,0.3)]
+            transition-all
             duration-300
             ease-[cubic-bezier(0.22,1,0.36,1)]
-            md:flex
           `,
-          open ? "translate-x-0" : "translate-x-full",
+          open
+            ? "translate-y-0 scale-100 opacity-100"
+            : "translate-y-3 scale-[0.98] opacity-0",
         )}
         onClick={(event) => event.stopPropagation()}
       >
+        {/* HEADER */}
         <SheetHeader
           title={title}
           description={description}
           onClose={onClose}
         />
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-10 pt-6">
-          {children}
+        {/* FILTER CONTENT */}
+        <div
+          className="
+            min-h-0
+            flex-1
+            overflow-x-hidden
+            overflow-y-auto
+            overscroll-contain
+            px-4
+            py-4
+            sm:px-5
+            sm:py-5
+            lg:px-6
+            lg:py-5
+          "
+        >
+          {/* 
+            FILTER LAYOUT
+
+            First fields:
+            ┌──────────────────────────────┐
+            │          INPUT 1             │
+            └──────────────────────────────┘
+
+            ┌──────────────────────────────┐
+            │          INPUT 2             │
+            └──────────────────────────────┘
+
+            ┌──────────────────────────────┐
+            │          INPUT 3             │
+            └──────────────────────────────┘
+
+            Final two:
+            ┌──────────────┐ ┌──────────────┐
+            │    INPUT     │ │    INPUT     │
+            └──────────────┘ └──────────────┘
+          */}
+          <div
+            className="
+              grid
+              w-full
+              grid-cols-1
+              gap-4
+            "
+          >
+            {children}
+          </div>
         </div>
       </div>
     </div>
@@ -126,35 +144,44 @@ const SheetHeader = ({ title, description, onClose }) => (
     className="
       flex
       shrink-0
-      items-start
+      items-center
       justify-between
       gap-4
       border-b
       border-card
-      bg-white/95
-      px-5
-      pb-4
-      pt-4
-      backdrop-blur-xl
-      md:px-6
-      md:pb-5
-      md:pt-6
+      bg-white
+      px-4
+      py-3.5
+      sm:px-5
+      sm:py-4
+      lg:px-6
     "
   >
     <div className="min-w-0">
-      <div className="mb-2 flex items-center gap-2">
-        <span className="h-1.5 w-1.5 rounded-full bg-brass" aria-hidden="true" />
-        <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-brass-dark">
-          Filter Controls
-        </span>
-      </div>
-
-      <h2 className="font-display text-xl font-bold leading-tight text-bone md:text-2xl">
+      <h2
+        className="
+          font-display
+          text-lg
+          font-bold
+          leading-tight
+          text-bone
+          sm:text-xl
+        "
+      >
         {title}
       </h2>
 
       {description && (
-        <p className="mt-1.5 max-w-sm text-xs leading-5 text-ash md:text-sm">
+        <p
+          className="
+            mt-1
+            max-w-sm
+            text-xs
+            leading-5
+            text-ash
+            sm:text-sm
+          "
+        >
           {description}
         </p>
       )}
@@ -166,8 +193,8 @@ const SheetHeader = ({ title, description, onClose }) => (
       aria-label="Close filters"
       className="
         flex
-        h-10
-        w-10
+        h-9
+        w-9
         shrink-0
         items-center
         justify-center
@@ -176,7 +203,6 @@ const SheetHeader = ({ title, description, onClose }) => (
         border-card
         bg-white
         text-ash
-        shadow-sm
         transition-all
         duration-200
         hover:border-brass/40
@@ -185,9 +211,11 @@ const SheetHeader = ({ title, description, onClose }) => (
         focus-visible:outline-none
         focus-visible:ring-2
         focus-visible:ring-brass/40
+        sm:h-10
+        sm:w-10
       "
     >
-      <CloseIcon className="h-[17px] w-[17px]" />
+      <CloseIcon className="h-4 w-4 sm:h-[17px] sm:w-[17px]" />
     </button>
   </header>
 );
