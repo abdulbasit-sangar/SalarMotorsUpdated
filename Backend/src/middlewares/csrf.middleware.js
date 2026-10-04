@@ -19,8 +19,23 @@ const issueCsrfCookie = (res) => {
   return token;
 };
 
+// Anonymous favorites mutations (POST/DELETE /api/favorites/:carId) are the ONLY
+// state-changing requests exempt from CSRF validation. They are not backed by
+// any cookie/session credential (so there is nothing for CSRF to ride on); they
+// are scoped by the X-Device-Id header, enforced by requireDeviceId in
+// favorite.routes.js. The custom header also forces a CORS preflight, and CORS
+// only allows FRONTEND_URL. csrfProtection is mounted at app level, so req.path
+// is the full path. Matching is exact and case-sensitive: any variation falls
+// through to normal CSRF validation (fails closed).
+const ANONYMOUS_FAVORITES_MUTATION = /^\/api\/favorites\/[^/]+\/?$/;
+
+const isAnonymousFavoritesMutation = (req) =>
+  (req.method === "POST" || req.method === "DELETE") &&
+  ANONYMOUS_FAVORITES_MUTATION.test(req.path);
+
 export const csrfProtection = (req, res, next) => {
   if (req.method === "OPTIONS") return next();
+  if (isAnonymousFavoritesMutation(req)) return next();
 
   const cookieToken = req.cookies?.[CSRF_COOKIE] || issueCsrfCookie(res);
   const unsafeMethod = ["POST", "PUT", "PATCH", "DELETE"].includes(req.method);

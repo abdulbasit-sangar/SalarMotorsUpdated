@@ -48,6 +48,12 @@ export const apiClient = axios.create({
 
 export const UPLOAD_TIMEOUT_MS = 120000;
 
+// Anonymous favorites are scoped by X-Device-Id, not by a cookie session, and
+// the backend exempts them from CSRF (see csrf.middleware.js). They must not
+// depend on the Admin CSRF handshake. Everything else keeps CSRF.
+const isAnonymousFavoritesRequest = (config) =>
+  /^\/favorites(\/|$)/.test(config.url || "");
+
 apiClient.interceptors.request.use(async (config) => {
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -57,7 +63,10 @@ apiClient.interceptors.request.use(async (config) => {
   // shared/utils/deviceId.js.
   config.headers["X-Device-Id"] = getDeviceId();
   if (
-    ["post", "put", "patch", "delete"].includes(config.method?.toLowerCase())
+    ["post", "put", "patch", "delete"].includes(
+      config.method?.toLowerCase(),
+    ) &&
+    !isAnonymousFavoritesRequest(config)
   ) {
     const csrfToken = await ensureCsrfToken();
     if (csrfToken) config.headers["X-CSRF-Token"] = csrfToken;
