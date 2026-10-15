@@ -1,5 +1,6 @@
 import Joi from "joi";
 import { ApiError } from "../utils/apiHelpers.js";
+import { minImagesError } from "../utils/imageRules.js";
 import {
   FUEL_TYPE,
   BODY_TYPE,
@@ -11,6 +12,7 @@ import {
   VEHICLE_FEATURES,
   CURRENCY_CODES,
   MILEAGE_UNITS,
+  MIN_IMAGES_TO_PUBLISH,
 } from "../constants/car.constants.js";
 
 const VIN_PATTERN = /^[A-HJ-NPR-Z0-9]{5,17}$/i;
@@ -218,5 +220,22 @@ export const parseFeaturesField = (req, res, next) => {
       req.body.features = [];
     }
   }
+  next();
+};
+
+// ─── Minimum images to publish (creation) ─────────────────────────────────────
+// POST /api/cars creates a listing that is public immediately (there is no
+// isHidden on the create schema), so creation IS the publication boundary.
+// Runs BEFORE createCar so a rejected request never claims an idempotency
+// key and never touches ImageKit. Only real, non-empty files that passed
+// multer's type/size filters count; the client's own idea of "how many" is
+// never consulted.
+export const validateMinImagesToPublish = (req, res, next) => {
+  const files = Array.isArray(req.files) ? req.files : [];
+  const valid = files.filter((f) => f?.buffer && f.buffer.length > 0);
+  if (valid.length < MIN_IMAGES_TO_PUBLISH) {
+    return next(minImagesError(valid.length));
+  }
+  req.files = valid;
   next();
 };

@@ -12,6 +12,7 @@ import {
   DEFAULT_CURRENCY,
   MILEAGE_UNITS,
   DEFAULT_MILEAGE_UNIT,
+  MAX_CAR_IMAGES,
 } from "../constants/car.constants.js";
 import { generateSlug } from "../utils/slugUtils.js";
 
@@ -254,8 +255,8 @@ const carSchema = new mongoose.Schema(
     images: {
       type: [imageSchema],
       validate: {
-        validator: (arr) => arr.length <= 10,
-        message: "A car can have a maximum of 10 images",
+        validator: (arr) => arr.length <= MAX_CAR_IMAGES,
+        message: `A car can have a maximum of ${MAX_CAR_IMAGES} images`,
       },
       default: [],
     },

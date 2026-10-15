@@ -4,6 +4,11 @@ import { Button } from "../../../shared/components/Button.jsx";
 import { CarSilhouetteIcon } from "../../../shared/components/icons.jsx";
 import { useAuth } from "../../../store/auth/AuthContext.jsx";
 import {
+  IMAGE_LIMITS,
+  countValidImages,
+  getPublishStatus,
+} from "../../../shared/utils/imageRules.js";
+import {
   carLocation,
   carTitle,
   formatPrice,
@@ -19,12 +24,22 @@ export const AdminCarRow = ({
   onManageImages,
   onDelete,
   pending,
+  imageLimits = IMAGE_LIMITS,
 }) => {
   const image = getPrimaryImage(car);
   const location = carLocation(car);
   // Feature is superadmin-only; listing deletion is allowed for both roles.
   const { admin } = useAuth();
   const isSuperAdmin = admin?.role === "superadmin";
+
+  // Un-hiding publishes the listing, which needs the minimum image count.
+  // (Hiding, editing and every other action are never blocked by it.)
+  const publishStatus = getPublishStatus(
+    countValidImages(car.images),
+    imageLimits,
+  );
+  const blockedFromPublish = car.isHidden && !publishStatus.canPublish;
+  const hintId = `publish-hint-${car._id}`;
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 bg-card border border-card rounded-premium-lg p-4 shadow-card">
@@ -65,6 +80,12 @@ export const AdminCarRow = ({
           </Badge>
         </div>
 
+        {blockedFromPublish && (
+          <p id={hintId} className="mt-2 text-xs text-danger">
+            {publishStatus.requirementMessage} {publishStatus.missingMessage}
+          </p>
+        )}
+
         <div className="flex flex-wrap gap-2 mt-3">
           {isSuperAdmin && (
             <Button
@@ -80,6 +101,9 @@ export const AdminCarRow = ({
             size="sm"
             variant={car.isHidden ? "primary" : "danger"}
             loading={pending === "hide"}
+            disabled={blockedFromPublish}
+            aria-describedby={blockedFromPublish ? hintId : undefined}
+            title={blockedFromPublish ? publishStatus.requirementMessage : undefined}
             onClick={() => onToggleHide(car)}
           >
             {car.isHidden ? "Unhide" : "Hide"}

@@ -7,6 +7,12 @@ import { Input, Select, Textarea } from "../../../shared/components/Input.jsx";
 import { Button } from "../../../shared/components/Button.jsx";
 
 import { ImageUploader } from "../../../shared/components/ImageUploader.jsx";
+import { ImageCountStatus } from "../../../shared/components/ImageCountStatus.jsx";
+import {
+  resolveImageLimits,
+  countSelectableFiles,
+  getPublishStatus,
+} from "../../../shared/utils/imageRules.js";
 
 import { FeaturesSelector } from "../../../shared/components/FeaturesSelector.jsx";
 
@@ -70,6 +76,15 @@ export default function CreateListingPage() {
   const [submitting, setSubmitting] = useState(false);
   const creationRequestId = useRef(crypto.randomUUID());
 
+  // Creating a listing publishes it, so it needs the minimum number of
+  // images. Only real, non-empty selected files count; the backend re-checks
+  // everything after the upload and is the final authority.
+  const imageLimits = resolveImageLimits(options?.imageLimits);
+  const publishStatus = getPublishStatus(
+    countSelectableFiles(images),
+    imageLimits,
+  );
+
   const updateField = (key) => (e) => {
     setForm((prev) => ({
       ...prev,
@@ -111,6 +126,14 @@ export default function CreateListingPage() {
 
     if (hasErrors(errors)) {
       toast.error("Please fix the highlighted fields.");
+      return;
+    }
+
+    if (!publishStatus.canPublish) {
+      // Also covers keyboard submission, which a disabled button alone
+      // would not explain.
+      setFormError([publishStatus.requirementMessage, publishStatus.missingMessage]);
+      toast.error(publishStatus.requirementMessage);
       return;
     }
 
@@ -548,13 +571,30 @@ export default function CreateListingPage() {
         {/* ==================== IMAGES ==================== */}
 
         <section className="glass-panel rounded-premium-lg p-5 sm:p-6">
-          <ImageUploader files={images} onChange={setImages} />
+          <ImageUploader
+            files={images}
+            onChange={setImages}
+            limits={imageLimits}
+          />
+          <ImageCountStatus
+            id="image-requirement"
+            className="mt-4"
+            count={publishStatus.count}
+            limits={imageLimits}
+            needsPublish
+          />
         </section>
 
         {/* ==================== ACTIONS ==================== */}
 
         <div className="flex gap-3 pt-2">
-          <Button type="submit" variant="primary" loading={submitting}>
+          <Button
+            type="submit"
+            variant="primary"
+            loading={submitting}
+            disabled={!publishStatus.canPublish}
+            aria-describedby="image-requirement"
+          >
             Publish Listing
           </Button>
 

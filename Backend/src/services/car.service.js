@@ -23,9 +23,13 @@ import {
   VEHICLE_FEATURES,
   CURRENCIES,
   MILEAGE_UNITS,
+  MAX_CAR_IMAGES,
+  MIN_IMAGES_TO_PUBLISH,
+  countValidImages,
 } from "../constants/car.constants.js";
 import { deleteFromImageKit } from "../middlewares/upload.middleware.js";
 import { createImageCleanupTask } from "./imageCleanup.service.js";
+import { minImagesError, maxImagesError } from "../utils/imageRules.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SHARED HELPERS
@@ -107,6 +111,13 @@ export const createCarService = async (
     throw error;
   }
   try {
+    // Defense in depth: the route already rejected < MIN_IMAGES_TO_PUBLISH
+    // files before any upload. This re-checks the images that were actually
+    // uploaded and attached; being inside this try block means a failure here
+    // rolls the uploads back like any other creation failure.
+    const attached = countValidImages(images);
+    if (attached < MIN_IMAGES_TO_PUBLISH) throw minImagesError(attached);
+
     // createdBy always comes from the authenticated JWT user (req.admin._id)
     // — it is never read from carData/client input. See car.controller.js.
     const car = await Car.create({
@@ -397,19 +408,48 @@ export const toggleFeatureCarService = async (id) => {
   return updated;
 };
 
+const HIDE_TOGGLE_SELECT = "title featured isHidden";
+
+// Hiding is never gated. Un-hiding IS the publication boundary for an
+// existing listing (hidden → visible), so it requires MIN_IMAGES_TO_PUBLISH
+// valid attached images. The final write re-checks the image count
+// atomically in the same query, so an image removed between our read and
+// the update cannot slip a short listing through.
 export const toggleHideCarService = async (id) => {
   validateObjectId(id, "car ID");
 
-  const car = await Car.findById(id).select("isHidden");
+  const car = await Car.findById(id).select("isHidden images");
   if (!car) throw new ApiError(404, "Car not found");
 
-  const updated = await Car.findByIdAndUpdate(
-    id,
-    { $set: { isHidden: !car.isHidden } },
-    { new: true, select: "title featured isHidden" },
-  ).lean();
+  if (!car.isHidden) {
+    return Car.findByIdAndUpdate(
+      id,
+      { $set: { isHidden: true } },
+      { new: true, select: HIDE_TOGGLE_SELECT },
+    ).lean();
+  }
 
-  return updated;
+  const validCount = countValidImages(car.images);
+  if (validCount < MIN_IMAGES_TO_PUBLISH) throw minImagesError(validCount);
+
+  const updated = await Car.findOneAndUpdate(
+    {
+      _id: id,
+      isHidden: true,
+      [`images.${MIN_IMAGES_TO_PUBLISH - 1}`]: { $exists: true },
+    },
+    { $set: { isHidden: false } },
+    { new: true, select: HIDE_TOGGLE_SELECT },
+  ).lean();
+  if (updated) return updated;
+
+  // The guarded update matched nothing: the listing changed after our read.
+  const fresh = await Car.findById(id).select(HIDE_TOGGLE_SELECT + " images");
+  if (!fresh) throw new ApiError(404, "Car not found");
+  if (!fresh.isHidden) return fresh.toObject(); // someone else already published it
+  const freshCount = countValidImages(fresh.images);
+  if (freshCount < MIN_IMAGES_TO_PUBLISH) throw minImagesError(freshCount);
+  throw new ApiError(409, "Listing changed while publishing. Please try again.");
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -455,26 +495,53 @@ export const updateCarFeaturesService = async (id, features = []) => {
 // ADMIN/MANAGER IMAGE EDITING — add and remove images on an existing listing
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Adds one or more newly-uploaded images to a car's existing image list.
-// Enforces the same 10-image cap the schema validates on save, but checked
-// here first so we don't waste an ImageKit upload only to have Mongoose
-// reject the save (uploads already happened in the controller by the time
-// this runs, but this still gives a clean error instead of a confusing one).
+// Cheap pre-flight used by the controller BEFORE uploading to ImageKit, so an
+// over-limit request fails fast without spending upload quota. It is only an
+// early exit — addCarImagesService below re-enforces the cap atomically.
+export const assertCanAddImagesService = async (id, incomingCount) => {
+  validateObjectId(id, "car ID");
+  const car = await Car.findById(id).select("images").lean();
+  if (!car) throw new ApiError(404, "Car not found");
+  const current = car.images?.length || 0;
+  if (current + incomingCount > MAX_CAR_IMAGES) {
+    throw maxImagesError(current, incomingCount);
+  }
+};
+
+// Adds newly-uploaded images to a car's existing image list. The cap counts
+// the images already attached (existing + new <= MAX_CAR_IMAGES), and is
+// enforced inside the update filter itself so concurrent or repeated
+// requests cannot push the total past the limit.
 export const addCarImagesService = async (id, newImages = []) => {
   validateObjectId(id, "car ID");
 
   const car = await Car.findById(id).select("images");
   if (!car) throw new ApiError(404, "Car not found");
 
-  if (car.images.length + newImages.length > 10) {
-    throw new ApiError(400, "A car can have a maximum of 10 images");
+  if (car.images.length + newImages.length > MAX_CAR_IMAGES) {
+    throw maxImagesError(car.images.length, newImages.length);
   }
 
-  const updated = await Car.findByIdAndUpdate(
-    id,
+  const updated = await Car.findOneAndUpdate(
+    {
+      _id: id,
+      $expr: {
+        $lte: [
+          { $size: { $ifNull: ["$images", []] } },
+          MAX_CAR_IMAGES - newImages.length,
+        ],
+      },
+    },
     { $push: { images: { $each: newImages } } },
     { new: true, runValidators: true, select: "title images" },
   ).lean();
+
+  if (!updated) {
+    // Lost a race with another add — report the real, current numbers.
+    const fresh = await Car.findById(id).select("images").lean();
+    if (!fresh) throw new ApiError(404, "Car not found");
+    throw maxImagesError(fresh.images?.length || 0, newImages.length);
+  }
 
   return updated;
 };
@@ -534,8 +601,11 @@ export const replaceCarImagesService = async (id, newImages = []) => {
   validateObjectId(id, "car ID");
   const car = await Car.findById(id).select("images");
   if (!car) throw new ApiError(404, "Car not found");
-  if (!newImages.length || newImages.length > 10) {
-    throw new ApiError(400, "Provide between 1 and 10 images");
+  if (!newImages.length || newImages.length > MAX_CAR_IMAGES) {
+    throw new ApiError(
+      400,
+      `Provide between 1 and ${MAX_CAR_IMAGES} images`,
+    );
   }
 
   const oldImages = car.images;
@@ -638,6 +708,8 @@ export const getCarOptionsService = () => ({
   features: VEHICLE_FEATURES,
   currencies: CURRENCIES,
   mileageUnits: MILEAGE_UNITS,
+  // Additive: lets the admin UI mirror the backend image rules exactly.
+  imageLimits: { min: MIN_IMAGES_TO_PUBLISH, max: MAX_CAR_IMAGES },
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

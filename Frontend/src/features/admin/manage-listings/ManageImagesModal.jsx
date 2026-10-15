@@ -2,6 +2,12 @@ import { useState } from "react";
 import { Modal } from "../../../shared/components/Modal.jsx";
 import { ImageUploader } from "../../../shared/components/ImageUploader.jsx";
 import { Button } from "../../../shared/components/Button.jsx";
+import { ImageCountStatus } from "../../../shared/components/ImageCountStatus.jsx";
+import {
+  IMAGE_LIMITS,
+  countValidImages,
+  remainingSlots,
+} from "../../../shared/utils/imageRules.js";
 import { useToast } from "../../../store/ui/ToastContext.jsx";
 import { parseApiError } from "../../../services/api/client.js";
 import {
@@ -24,7 +30,12 @@ import {
  * backend immediately (no local-only staging) so the car's image list is
  * never out of sync with what's actually stored in ImageKit.
  */
-export const ManageImagesModal = ({ car, onClose, onUpdated }) => {
+export const ManageImagesModal = ({
+  car,
+  onClose,
+  onUpdated,
+  limits = IMAGE_LIMITS,
+}) => {
   const toast = useToast();
   const [newFiles, setNewFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -33,9 +44,19 @@ export const ManageImagesModal = ({ car, onClose, onUpdated }) => {
   if (!car) return null;
 
   const images = car.images || [];
+  // Only images actually attached to the listing count — never local
+  // selections, and never failed uploads (they never reach `car.images`).
+  const attachedCount = countValidImages(images);
+  const slotsLeft = remainingSlots(images.length, limits);
 
   const handleUpload = async () => {
     if (!newFiles.length) return;
+    if (newFiles.length > slotsLeft) {
+      toast.error(
+        `This listing has ${images.length} of ${limits.max} images — only ${slotsLeft} more can be added.`,
+      );
+      return;
+    }
     setUploading(true);
     try {
       const updated = await addCarImages(car._id, newFiles);
@@ -87,6 +108,13 @@ export const ManageImagesModal = ({ car, onClose, onUpdated }) => {
 
   return (
     <Modal open={!!car} onClose={onClose} title={`Manage Images — ${car.title || car.model}`}>
+      <ImageCountStatus
+        className="mb-4"
+        count={attachedCount}
+        limits={limits}
+        needsPublish={!!car.isHidden}
+      />
+
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {images.map((img, index) => (
           <div key={img.public_id} className="relative rounded-xl overflow-hidden aspect-[4/3] bg-graphite-100 group">
@@ -135,7 +163,12 @@ export const ManageImagesModal = ({ car, onClose, onUpdated }) => {
       </div>
 
       <div className="mt-6 pt-6 border-t border-card">
-        <ImageUploader files={newFiles} onChange={setNewFiles} />
+        <ImageUploader
+          files={newFiles}
+          onChange={setNewFiles}
+          limits={limits}
+          existingCount={images.length}
+        />
         {newFiles.length > 0 && (
           <Button className="mt-4 w-full" variant="primary" loading={uploading} onClick={handleUpload}>
             Upload {newFiles.length} Image{newFiles.length > 1 ? "s" : ""}

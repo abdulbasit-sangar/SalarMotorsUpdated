@@ -129,7 +129,7 @@ Added on top of Phases 1–4:
   covering every field `car.validator.js` accepts, client-side validation
   mirroring the same required/min/max rules, and an **ImageUploader**
   (`shared/components/ImageUploader.jsx`) that enforces the exact backend
-  constraints up front — JPEG/PNG/WEBP only, 5MB/file, 10 files max (see
+  constraints up front — JPEG/PNG/WEBP only, 5MB/file, 20 files max (see
   `upload.middleware.js`) — with drag-and-drop, previews, a "Cover" tag on
   the first image, and per-file removal. Submits as `multipart/form-data`
   to `POST /cars`.

@@ -27,6 +27,7 @@ import {
 } from "../middlewares/upload.middleware.js";
 import {
   validateCreateCar,
+  validateMinImagesToPublish,
   validateUpdateFeatures,
   validateRemoveImage,
   parseFeaturesField,
@@ -80,6 +81,7 @@ router.post(
   handleUploadErrors,
   parseFeaturesField, // features arrives as a JSON string inside multipart form-data
   validateCreateCar,
+  validateMinImagesToPublish, // creation publishes immediately → min images
   createCar,
 );
 

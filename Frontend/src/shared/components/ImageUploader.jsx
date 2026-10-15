@@ -2,17 +2,30 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useToast } from "../../store/ui/ToastContext.jsx";
 import clsx from "clsx";
 import { CloseIcon } from "./icons.jsx";
+import { IMAGE_LIMITS, remainingSlots } from "../utils/imageRules.js";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB — matches upload.middleware.js
-const MAX_FILES = 10; // matches upload.middleware.js MAX_FILES
 
 /**
  * ImageUploader — mirrors the backend's exact upload constraints
- * (upload.middleware.js: jpeg/png/webp, 5MB/file, 10 files max) so the
- * person sees a rejection before submitting instead of after a round trip.
+ * (upload.middleware.js: jpeg/png/webp, 5MB/file, max images per listing) so
+ * the person sees a rejection before submitting instead of after a round trip.
+ *
+ * `limits`        { min, max } — from GET /cars/options (falls back to defaults)
+ * `existingCount` images already attached to the listing (Manage Images), so
+ *                 the cap applies to existing + newly selected, not just the
+ *                 new selection.
  */
-export const ImageUploader = ({ files, onChange, error }) => {
+export const ImageUploader = ({
+  files,
+  onChange,
+  error,
+  limits = IMAGE_LIMITS,
+  existingCount = 0,
+}) => {
+  const maxTotal = limits.max;
+  const capacity = remainingSlots(existingCount, limits); // how many files may be selected
   const toast = useToast();
   const inputRef = useRef(null);
   const [dragActive, setDragActive] = useState(false);
@@ -47,11 +60,14 @@ export const ImageUploader = ({ files, onChange, error }) => {
       }
 
       const combined = [...files, ...accepted];
-      if (combined.length > MAX_FILES) {
-        rejectReason = `Maximum ${MAX_FILES} images per car — only the first ${MAX_FILES} were kept.`;
+      if (combined.length > capacity) {
+        rejectReason =
+          existingCount > 0
+            ? `Maximum ${maxTotal} images per listing — it already has ${existingCount}, so only ${capacity} more can be added.`
+            : `Maximum ${maxTotal} images per listing — only the first ${capacity} were kept.`;
       }
 
-      const finalFiles = combined.slice(0, MAX_FILES);
+      const finalFiles = combined.slice(0, capacity);
       setLocalError(rejectReason);
       onChange(finalFiles);
 
@@ -62,7 +78,7 @@ export const ImageUploader = ({ files, onChange, error }) => {
         toast.error(rejectReason);
       }
     },
-    [files, onChange],
+    [files, onChange, capacity, maxTotal, existingCount],
   );
 
   const handleInputChange = (e) => {
@@ -85,7 +101,7 @@ export const ImageUploader = ({ files, onChange, error }) => {
       <p className="field-label">
         Photos{" "}
         <span className="text-ash normal-case font-normal">
-          (up to {MAX_FILES}, JPEG/PNG/WEBP, 5MB each)
+          (up to {maxTotal}, JPEG/PNG/WEBP, 5MB each)
         </span>
       </p>
 
@@ -111,7 +127,7 @@ export const ImageUploader = ({ files, onChange, error }) => {
           Drop images here, or click to browse
         </p>
         <p className="text-ash text-xs mt-1">
-          {files.length} / {MAX_FILES} selected
+          {files.length} selected · {Math.max(0, capacity - files.length)} more can be added
         </p>
         <input
           ref={inputRef}

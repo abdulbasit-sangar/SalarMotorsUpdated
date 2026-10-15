@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
+import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
+import {
+  resolveImageLimits,
+  countValidImages,
+  getPublishStatus,
+} from "../../../shared/utils/imageRules.js";
 import {
   deleteCar,
   fetchAdminCars,
@@ -35,6 +41,11 @@ export default function ManageListingsPage() {
     [page, sort],
   );
   const { data, loading, error, refetch } = useAsyncData(fetcher, [page, sort]);
+
+  // Image rules come from the backend (GET /cars/options → imageLimits); the
+  // defaults apply until that response arrives.
+  const { options } = useCarOptions();
+  const imageLimits = resolveImageLimits(options?.imageLimits);
 
   // Cars are mirrored into local state so that hiding a listing doesn't
   // make it vanish mid-session — see the note below the header. Toggling
@@ -80,6 +91,16 @@ export default function ManageListingsPage() {
   };
 
   const handleToggleHide = async (car) => {
+    // Un-hiding publishes the listing → needs the minimum images. Explain
+    // exactly what is missing instead of making a request that must fail.
+    // (The backend enforces the same rule regardless of this check.)
+    if (car.isHidden) {
+      const status = getPublishStatus(countValidImages(car.images), imageLimits);
+      if (!status.canPublish) {
+        toast.error(`${status.requirementMessage} ${status.missingMessage}`);
+        return;
+      }
+    }
     setPendingId({ id: car._id, action: "hide" });
     try {
       const updated = await toggleHideCar(car._id);
@@ -214,6 +235,7 @@ export default function ManageListingsPage() {
                 onToggleSold={handleToggleSold}
                 onEditFeatures={setEditingFeaturesCar}
                 onManageImages={setManagingImagesCar}
+                imageLimits={imageLimits}
                 onDelete={handleDelete}
               />
             ))}
@@ -246,6 +268,7 @@ export default function ManageListingsPage() {
         car={managingImagesCar}
         onClose={() => setManagingImagesCar(null)}
         onUpdated={handleImagesUpdated}
+        limits={imageLimits}
       />
     </div>
   );

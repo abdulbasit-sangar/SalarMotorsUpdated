@@ -11,6 +11,7 @@ import {
   toggleSoldCarService,
   updateCarFeaturesService,
   addCarImagesService,
+  assertCanAddImagesService,
   removeCarImageService,
   replaceCarImagesService,
   reorderCarImagesService,
@@ -222,6 +223,8 @@ export const addCarImages = asyncHandler(async (req, res) => {
       .status(400)
       .json(new ApiResponse(400, null, "No images provided"));
   }
+  // Fail fast (before spending ImageKit uploads) if this would exceed the cap.
+  await assertCanAddImagesService(req.params.id, req.files.length);
   const newImages = await uploadManyToImageKit(req.files);
   let car;
   try {

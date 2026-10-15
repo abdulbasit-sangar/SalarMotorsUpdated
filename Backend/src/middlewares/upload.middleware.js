@@ -18,6 +18,7 @@
 import multer from "multer";
 import imagekit from "../config/imagekit.js";
 import { ApiError } from "../utils/apiHelpers.js";
+import { MAX_CAR_IMAGES } from "../constants/car.constants.js";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const ALLOWED_MIME_TYPES = [
@@ -28,8 +29,9 @@ const ALLOWED_MIME_TYPES = [
 ];
 const MAX_FILE_SIZE_MB = 5;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-const MAX_FILES = 10;
+const MAX_FILES = MAX_CAR_IMAGES; // single source: car.constants.js
 const IMAGEKIT_OPERATION_TIMEOUT_MS = 30_000;
+const UPLOAD_CONCURRENCY = 5; // parallel ImageKit uploads per request
 
 const withTimeout = (promise, message) =>
   Promise.race([
@@ -67,7 +69,7 @@ const upload = multer({
   fileFilter,
   limits: {
     fileSize: MAX_FILE_SIZE_BYTES, // 5 MB per file
-    files: MAX_FILES, // max 10 files per request
+    files: MAX_FILES, // max MAX_CAR_IMAGES files per request
   },
 });
 
@@ -153,20 +155,31 @@ export const uploadToImageKit = async (file) => {
 /**
  * uploadManyToImageKit(files)
  *
- * Uploads all files in parallel. Called from the car controller after
+ * Uploads files in small parallel batches. Called from the car controller after
  * multer has populated req.files.
  *
  * @param {Express.Multer.File[]} files
  * @returns {Promise<Array<{ url: string, public_id: string }>>}
  */
 export const uploadManyToImageKit = async (files = []) => {
-  const results = await Promise.allSettled(
-    files.map((file) => uploadToImageKit(file)),
-  );
-  const uploaded = results
+  // Bounded concurrency: with up to MAX_CAR_IMAGES files, firing every upload
+  // at once risks ImageKit rate limits and per-upload timeouts. Batches keep
+  // the same all-or-nothing contract: after the first failed batch no further
+  // uploads start, and everything that did land is rolled back below.
+  const settled = [];
+  for (let i = 0; i < files.length; i += UPLOAD_CONCURRENCY) {
+    const batch = files.slice(i, i + UPLOAD_CONCURRENCY);
+    const results = await Promise.allSettled(
+      batch.map((file) => uploadToImageKit(file)),
+    );
+    settled.push(...results);
+    if (results.some((result) => result.status === "rejected")) break;
+  }
+
+  const uploaded = settled
     .filter((result) => result.status === "fulfilled")
     .map((result) => result.value);
-  const failed = results.find((result) => result.status === "rejected");
+  const failed = settled.find((result) => result.status === "rejected");
 
   if (failed) {
     const cleanup = await deleteManyFromImageKit(uploaded);

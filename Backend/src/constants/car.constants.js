@@ -626,3 +626,28 @@ export const getCarYears = () => {
   }
   return years;
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Listing image rules — single source of truth for the backend.
+//   MAX_CAR_IMAGES        hard cap per listing (multer, schema, services)
+//   MIN_IMAGES_TO_PUBLISH required before a listing becomes publicly visible
+//                         (creation, and Unhide). Existing visible listings
+//                         with fewer images are never touched by this rule.
+// Exposed to the frontend through GET /api/cars/options (imageLimits).
+// ─────────────────────────────────────────────────────────────────────────────
+export const MAX_CAR_IMAGES = 20;
+export const MIN_IMAGES_TO_PUBLISH = 5;
+
+// Counts only well-formed, attached images: non-empty url + public_id.
+// Never trust a client-supplied count — callers pass the stored array.
+export const countValidImages = (images) =>
+  Array.isArray(images)
+    ? images.filter(
+        (img) =>
+          img &&
+          typeof img.url === "string" &&
+          img.url.trim() !== "" &&
+          typeof img.public_id === "string" &&
+          img.public_id.trim() !== "",
+      ).length
+    : 0;
