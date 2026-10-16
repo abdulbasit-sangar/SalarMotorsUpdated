@@ -36,7 +36,9 @@ export const cached = (key, fetcher, ttlMs = DEFAULT_TTL_MS) => {
   }
 
   const promise = fetcher().catch((err) => {
-    store.delete(key);
+    if (store.get(key)?.promise === promise) {
+      store.delete(key);
+    }
     throw err;
   });
 
