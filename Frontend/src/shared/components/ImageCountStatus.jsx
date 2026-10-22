@@ -1,5 +1,6 @@
 import clsx from "clsx";
-import { getPublishStatus } from "../utils/imageRules.js";
+import { useTranslation } from "react-i18next";
+import { getPublishStatus, getPublishMessages } from "../utils/imageRules.js";
 
 /**
  * ImageCountStatus — the "3 / 20 images" counter plus the publishing rule.
@@ -18,24 +19,28 @@ export const ImageCountStatus = ({
   id,
   className,
 }) => {
+  const { t } = useTranslation("admin");
   const status = getPublishStatus(count, limits);
+  const text = getPublishMessages(t, status);
 
   let tone = "text-ash";
   let message = null;
   if (status.canPublish) {
     tone = "text-signal-dark";
-    message = `Meets the ${status.min}-image minimum to publish.`;
+    message = t("images.meets", { min: status.min });
   } else if (needsPublish) {
     tone = "text-danger";
-    message = `${status.requirementMessage} ${status.missingMessage}`;
+    message = `${text.requirementMessage} ${text.missingMessage}`;
   } else {
     tone = "text-brass-dark";
-    message = `This live listing has fewer than ${status.min} images. It stays visible, but ${status.min} are required to publish it again after hiding.`;
+    message = t("images.liveShort", { min: status.min });
   }
 
   return (
     <div id={id} role="status" aria-live="polite" className={clsx("text-xs", className)}>
-      <p className="font-mono font-semibold text-bone">{status.counterLabel}</p>
+      <p className="ltr-isolate font-mono font-semibold text-bone rtl:text-end">
+        {text.counterLabel}
+      </p>
       <p className={clsx("mt-0.5", tone)}>{message}</p>
     </div>
   );

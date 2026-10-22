@@ -1,6 +1,9 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
+import { useOptionLabel } from "../../../i18n/optionLabels.js";
 import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect.jsx";
 import {
@@ -13,6 +16,9 @@ import {
 } from "../../../shared/components/icons.jsx";
 
 export const HeroSearchBar = ({ className }) => {
+  const { t } = useTranslation("home");
+  const loadingText = useTranslation().t("select.loading");
+  const label = useOptionLabel();
   const navigate = useNavigate();
   const { options, loading: optionsLoading } = useCarOptions();
 
@@ -23,30 +29,37 @@ export const HeroSearchBar = ({ className }) => {
     province: "",
   });
 
-  // Mount-triggered entrance state for the field grid.
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(id);
   }, []);
 
-  // Order matches the required layout:
-  // Mobile:   one field per row (Brand, Year, Location, Model)
-  // Tablet:   2 columns
-  // Desktop:  Brand | Year | Location | Model (one row)
   const FILTER_FIELDS = [
     {
       key: "brand",
-      label: "Brand",
+      label: t("search.brand"),
       icon: CarSilhouetteIcon,
-      placeholder: optionsLoading ? "Loading…" : "Any brand",
-      options: (options?.brands ?? []).map((v) => ({ value: v, label: v })),
+      options: (options?.brands ?? []).map((v) => ({
+        value: v,
+        label: v,
+      })),
+    },
+    {
+      key: "model",
+      label: t("search.model"),
+      icon: ModelIcon,
+      disabled: !values.brand || optionsLoading,
+      options: (options?.modelsByBrand?.[values.brand] ?? []).map((model) => ({
+        value: model,
+        label: model,
+      })),
     },
     {
       key: "minYear",
-      label: "Year",
+      label: t("search.year"),
       icon: CalendarIcon,
-      placeholder: optionsLoading ? "Loading…" : "Any year",
       options: (options?.years ?? []).map((v) => ({
         value: String(v),
         label: String(v),
@@ -54,98 +67,130 @@ export const HeroSearchBar = ({ className }) => {
     },
     {
       key: "province",
-      label: "Location",
+      label: t("search.location"),
       icon: MapPinIcon,
-      placeholder: optionsLoading ? "Loading…" : "Any province",
-      options: (options?.provinces ?? []).map((v) => ({ value: v, label: v })),
-    },
-    {
-      key: "model",
-      label: "Model",
-      icon: ModelIcon,
-      placeholder: values.brand ? "Any model" : "Select brand first",
-      disabledLabel: "Select brand first",
-      disabled: !values.brand || optionsLoading,
-      options: (options?.modelsByBrand?.[values.brand] ?? []).map((model) => ({
-        value: model,
-        label: model,
+      options: (options?.provinces ?? []).map((v) => ({
+        value: v,
+        label: label("province", v),
       })),
     },
   ];
 
-  const update = (key, value) =>
+  const update = (key, value) => {
     setValues((prev) => ({
       ...prev,
       [key]: value,
       ...(key === "brand" ? { model: "" } : {}),
     }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const params = new URLSearchParams();
+
     Object.entries(values).forEach(([key, value]) => {
-      if (value !== "" && value != null) params.set(key, value);
+      if (value !== "" && value != null) {
+        params.set(key, value);
+      }
     });
+
     navigate(`/listings?${params.toString()}`);
   };
 
-  // No `mx-auto`: the bar starts at the container's left edge so it lines up
-  // with the logo and headline. Pass `className="mx-auto"` where a centered
-  // bar is needed.
   return (
-    <form
-      onSubmit={handleSubmit}
-      role="search"
+    <section
+      aria-label="Find your vehicle"
       className={clsx(
-        "glass-panel-strong rounded-premium-lg p-4 sm:p-6 w-full max-w-4xl",
-        "transition-all duration-700 ease-out",
-        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
+        "relative w-full max-w-7xl",
+        "transition-opacity duration-500 ease-out",
+        mounted ? "opacity-100" : "opacity-0",
         className,
       )}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {FILTER_FIELDS.map((field, index) => (
-          <div
-            key={field.key}
-            style={{
-              transitionDelay: mounted ? `${100 + index * 80}ms` : "0ms",
-            }}
-            className={clsx(
-              "min-w-0 transition-all duration-500 ease-out",
-              mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-            )}
-          >
-            <SearchableSelect
-              id={`hero-${field.key}`}
-              label={field.label}
-              icon={field.icon}
-              value={values[field.key]}
-              onChange={(value) => update(field.key, value)}
-              options={field.options}
-              placeholder={field.placeholder}
-              disabled={field.disabled ?? optionsLoading}
-              disabledLabel={field.disabledLabel}
-            />
-          </div>
-        ))}
-      </div>
-
       <div
-        style={{ transitionDelay: mounted ? "420ms" : "0ms" }}
         className={clsx(
-          "mt-4 sm:mt-5 flex justify-end transition-all duration-500 ease-out",
-          mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+          "relative rounded-2xl sm:rounded-3xl",
+          "border border-white/25",
+          "bg-white/[0.12] backdrop-blur-xl",
+          "p-4 sm:p-5 lg:p-6",
+          "shadow-[0_12px_40px_rgba(0,0,0,0.16)]",
         )}
       >
-        <button
-          type="submit"
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 sm:h-14 px-8 bg-brass text-graphite-950 font-semibold text-sm rounded-xl sm:rounded-2xl transition-all duration-200 ease-out hover:bg-brass-light hover:-translate-y-0.5 hover:shadow-card-hover active:translate-y-0 active:scale-[0.96]"
+        <h2 className="mb-5 text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-3xl">
+          Find Your Dream Car
+        </h2>
+
+        <form
+          onSubmit={handleSubmit}
+          role="search"
+          className={clsx(
+            "grid grid-cols-1 gap-2",
+            "sm:grid-cols-2",
+            "lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]",
+            "lg:items-center lg:gap-3",
+          )}
         >
-          <SearchIcon className="h-4 w-4 transition-transform duration-200 ease-out group-hover:scale-110" />
-          Search Cars
-          <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
-        </button>
+          {FILTER_FIELDS.map((field, index) => (
+            <div
+              key={field.key}
+              style={{
+                transitionDelay: mounted ? `${index * 50}ms` : "0ms",
+              }}
+              className={clsx(
+                "relative min-w-0 rounded-xl",
+                "transition-[background-color,opacity,transform] duration-300",
+                "focus-within:bg-white/[0.05]",
+                mounted
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-2 opacity-0",
+              )}
+            >
+              <div className="flex min-h-12 items-center">
+                <div className="min-w-0 w-full flex-1">
+                  <SearchableSelect
+                    id={`hero-${field.key}`}
+                    label={field.label}
+                    icon={field.icon}
+                    value={values[field.key]}
+                    onChange={(value) => update(field.key, value)}
+                    options={field.options}
+                    placeholder={optionsLoading ? loadingText : ""}
+                    disabled={field.disabled ?? optionsLoading}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <div className="sm:col-span-2 lg:col-span-1">
+            <button
+              type="submit"
+              className={clsx(
+                "group inline-flex h-12 w-full items-center justify-center gap-2",
+                "rounded-xl px-5",
+                "bg-[#D9AD68] text-[#17130D]",
+                "text-sm font-semibold tracking-wide",
+                "transition-[background-color,transform,box-shadow] duration-200",
+                "hover:bg-[#E5C18B]",
+                "hover:shadow-[0_5px_18px_rgba(217,173,104,0.22)]",
+                "active:scale-[0.98]",
+                "focus-visible:outline-none focus-visible:ring-2",
+                "focus-visible:ring-[#E5C18B] focus-visible:ring-offset-2",
+                "focus-visible:ring-offset-transparent",
+                "lg:min-w-[120px]",
+              )}
+            >
+              <SearchIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>{t("search.submit")}</span>
+              <ArrowRightIcon
+                className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
+    </section>
   );
 };

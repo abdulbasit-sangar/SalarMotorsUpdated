@@ -1,33 +1,39 @@
+import i18n from "../../i18n/index.js";
+
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
+
+// All messages come from locales/*/validation.json and are translated when
+// the form is validated (i.e. in the language active at submit time).
+const tv = (key, params) => i18n.t(key, { ns: "validation", ...params });
 
 export const validateLoginForm = ({ email, password }) => {
   const errors = {};
-  if (!email?.trim()) errors.email = "Email is required";
+  if (!email?.trim()) errors.email = tv("email.required");
   else if (!EMAIL_RE.test(email.trim()))
-    errors.email = "Please provide a valid email address";
+    errors.email = tv("email.invalid");
 
-  if (!password) errors.password = "Password is required";
+  if (!password) errors.password = tv("password.required");
   else if (password.length < 8)
-    errors.password = "Password must be at least 8 characters";
+    errors.password = tv("password.min", { min: 8 });
 
   return errors;
 };
 
 export const validateRegisterForm = ({ username, email, password }) => {
   const errors = {};
-  if (!username?.trim()) errors.username = "Username is required";
+  if (!username?.trim()) errors.username = tv("username.required");
   else if (username.trim().length < 3)
-    errors.username = "Username must be at least 3 characters";
+    errors.username = tv("username.min", { min: 3 });
   else if (username.trim().length > 30)
-    errors.username = "Username must not exceed 30 characters";
+    errors.username = tv("username.max", { max: 30 });
 
-  if (!email?.trim()) errors.email = "Email is required";
+  if (!email?.trim()) errors.email = tv("email.required");
   else if (!EMAIL_RE.test(email.trim()))
-    errors.email = "Please provide a valid email address";
+    errors.email = tv("email.invalid");
 
-  if (!password) errors.password = "Password is required";
+  if (!password) errors.password = tv("password.required");
   else if (password.length < 8)
-    errors.password = "Password must be at least 8 characters";
+    errors.password = tv("password.min", { min: 8 });
 
   return errors;
 };
@@ -42,23 +48,23 @@ export const validateManagerRegisterForm = ({
   confirmPassword,
 }) => {
   const errors = {};
-  if (!username?.trim()) errors.username = "Username is required";
+  if (!username?.trim()) errors.username = tv("username.required");
   else if (username.trim().length < 3)
-    errors.username = "Username must be at least 3 characters";
+    errors.username = tv("username.min", { min: 3 });
   else if (username.trim().length > 30)
-    errors.username = "Username must not exceed 30 characters";
+    errors.username = tv("username.max", { max: 30 });
 
-  if (!email?.trim()) errors.email = "Email is required";
+  if (!email?.trim()) errors.email = tv("email.required");
   else if (!EMAIL_RE.test(email.trim()))
-    errors.email = "Please provide a valid email address";
+    errors.email = tv("email.invalid");
 
-  if (!password) errors.password = "Password is required";
+  if (!password) errors.password = tv("password.required");
   else if (password.length < 8)
-    errors.password = "Password must be at least 8 characters";
+    errors.password = tv("password.min", { min: 8 });
 
-  if (!confirmPassword) errors.confirmPassword = "Please confirm your password";
+  if (!confirmPassword) errors.confirmPassword = tv("confirmPassword.required");
   else if (password && confirmPassword !== password)
-    errors.confirmPassword = "Passwords do not match";
+    errors.confirmPassword = tv("confirmPassword.mismatch");
 
   return errors;
 };
@@ -70,16 +76,16 @@ export const validateChangePasswordForm = ({
   confirmPassword,
 }) => {
   const errors = {};
-  if (!currentPassword) errors.currentPassword = "Current password is required";
+  if (!currentPassword) errors.currentPassword = tv("currentPassword.required");
 
-  if (!newPassword) errors.newPassword = "New password is required";
+  if (!newPassword) errors.newPassword = tv("newPassword.required");
   else if (newPassword.length < 8)
-    errors.newPassword = "New password must be at least 8 characters";
+    errors.newPassword = tv("newPassword.min", { min: 8 });
 
   if (!confirmPassword)
-    errors.confirmPassword = "Please confirm your new password";
+    errors.confirmPassword = tv("confirmNewPassword.required");
   else if (newPassword && confirmPassword !== newPassword)
-    errors.confirmPassword = "Passwords do not match";
+    errors.confirmPassword = tv("confirmPassword.mismatch");
 
   return errors;
 };
@@ -87,32 +93,32 @@ export const validateChangePasswordForm = ({
 // ─── Forgot password (email step) ─────────────────────────────────────────────
 export const validateForgotPasswordForm = ({ email }) => {
   const errors = {};
-  if (!email?.trim()) errors.email = "Email is required";
+  if (!email?.trim()) errors.email = tv("email.required");
   else if (!EMAIL_RE.test(email.trim()))
-    errors.email = "Please provide a valid email address";
+    errors.email = tv("email.invalid");
   return errors;
 };
 
 // ─── OTP verification step ─────────────────────────────────────────────────────
 export const validateOtpForm = ({ otp }) => {
   const errors = {};
-  if (!otp?.trim()) errors.otp = "Verification code is required";
+  if (!otp?.trim()) errors.otp = tv("otp.required");
   else if (!/^\d{6}$/.test(otp.trim()))
-    errors.otp = "Verification code must be 6 digits";
+    errors.otp = tv("otp.digits", { count: 6 });
   return errors;
 };
 
 // ─── Reset password step ───────────────────────────────────────────────────────
 export const validateResetPasswordForm = ({ newPassword, confirmPassword }) => {
   const errors = {};
-  if (!newPassword) errors.newPassword = "New password is required";
+  if (!newPassword) errors.newPassword = tv("newPassword.required");
   else if (newPassword.length < 8)
-    errors.newPassword = "New password must be at least 8 characters";
+    errors.newPassword = tv("newPassword.min", { min: 8 });
 
   if (!confirmPassword)
-    errors.confirmPassword = "Please confirm your new password";
+    errors.confirmPassword = tv("confirmNewPassword.required");
   else if (newPassword && confirmPassword !== newPassword)
-    errors.confirmPassword = "Passwords do not match";
+    errors.confirmPassword = tv("confirmPassword.mismatch");
 
   return errors;
 };
@@ -132,47 +138,47 @@ const MIN_CAR_YEAR = 2005;
 export const validateCarForm = (values) => {
   const errors = {};
 
-  if (!values.title?.trim()) errors.title = "Title is required";
+  if (!values.title?.trim()) errors.title = tv("car.title.required");
   else if (values.title.trim().length > 150)
-    errors.title = "Title must not exceed 150 characters";
+    errors.title = tv("car.title.max", { max: 150 });
 
-  if (!values.brand?.trim()) errors.brand = "Brand is required";
-  if (!values.model?.trim()) errors.model = "Model is required";
+  if (!values.brand?.trim()) errors.brand = tv("car.brand.required");
+  if (!values.model?.trim()) errors.model = tv("car.model.required");
 
-  if (!values.year) errors.year = "Year is required";
+  if (!values.year) errors.year = tv("car.year.required");
   else if (values.year < MIN_CAR_YEAR)
-    errors.year = `Year must be ${MIN_CAR_YEAR} or later`;
+    errors.year = tv("car.year.min", { min: MIN_CAR_YEAR });
   else if (values.year > currentYear + 1)
-    errors.year = "Year cannot be in the future";
+    errors.year = tv("car.year.future");
 
   if (
     values.price === "" ||
     values.price === null ||
     values.price === undefined
   ) {
-    errors.price = "Price is required";
+    errors.price = tv("car.price.required");
   } else if (Number(values.price) < 0) {
-    errors.price = "Price cannot be negative";
+    errors.price = tv("car.price.negative");
   }
 
-  if (!values.province?.trim()) errors.province = "Location is required";
+  if (!values.province?.trim()) errors.province = tv("car.province.required");
 
   if (
     values.mileage !== "" &&
     values.mileage !== undefined &&
     Number(values.mileage) < 0
   ) {
-    errors.mileage = "Mileage cannot be negative";
+    errors.mileage = tv("car.mileage.negative");
   }
   if (
     values.engineCC !== "" &&
     values.engineCC !== undefined &&
     Number(values.engineCC) < 0
   ) {
-    errors.engineCC = "Engine CC cannot be negative";
+    errors.engineCC = tv("car.engineCC.negative");
   }
   if (values.description && values.description.length > 2000) {
-    errors.description = "Description must not exceed 2000 characters";
+    errors.description = tv("car.description.max", { max: 2000 });
   }
 
   return errors;

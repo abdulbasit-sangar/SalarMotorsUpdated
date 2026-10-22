@@ -1,5 +1,7 @@
 import { useState } from "react";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
+import { useOptionLabel } from "../../i18n/optionLabels.js";
 import { CheckSquareIcon, SquareIcon, ChevronDownIcon } from "./icons.jsx";
 
 /**
@@ -10,6 +12,8 @@ import { CheckSquareIcon, SquareIcon, ChevronDownIcon } from "./icons.jsx";
  * rest of the create-listing form.
  */
 export const FeaturesSelector = ({ featureGroups = [], selected = [], onChange }) => {
+  const { t } = useTranslation();
+  const label = useOptionLabel();
   const [openGroups, setOpenGroups] = useState(() => new Set(featureGroups.map((g) => g.group)));
   const selectedSet = new Set(selected);
 
@@ -33,9 +37,11 @@ export const FeaturesSelector = ({ featureGroups = [], selected = [], onChange }
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="field-label mb-0">Vehicle Features</h3>
+        <h3 className="field-label mb-0">{t("features.vehicleFeatures")}</h3>
         {selected.length > 0 && (
-          <span className="text-xs text-ash font-mono">{selected.length} selected</span>
+          <span className="text-xs text-ash font-mono">
+            {t("features.selectedCount", { count: selected.length })}
+          </span>
         )}
       </div>
 
@@ -49,12 +55,12 @@ export const FeaturesSelector = ({ featureGroups = [], selected = [], onChange }
               <button
                 type="button"
                 onClick={() => toggleGroup(group)}
-                className="flex w-full items-center justify-between px-4 py-3 text-left"
+                className="flex w-full items-center justify-between px-4 py-3 text-start"
               >
                 <span className="text-sm font-semibold text-bone">
-                  {group}
+                  {label("featureGroup", group)}
                   {groupSelectedCount > 0 && (
-                    <span className="ml-2 text-xs font-mono text-brass-dark">
+                    <span className="ms-2 text-xs font-mono text-brass-dark">
                       ({groupSelectedCount})
                     </span>
                   )}
@@ -90,7 +96,7 @@ export const FeaturesSelector = ({ featureGroups = [], selected = [], onChange }
                         ) : (
                           <SquareIcon className="h-[18px] w-[18px] text-steel shrink-0" />
                         )}
-                        <span className="truncate">{feature}</span>
+                        <span className="truncate">{label("feature", feature)}</span>
                       </label>
                     );
                   })}

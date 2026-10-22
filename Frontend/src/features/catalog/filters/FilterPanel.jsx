@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useOptionLabel } from "../../../i18n/optionLabels.js";
 import { Input } from "../../../shared/components/Input.jsx";
 import { SearchableSelect } from "../../../shared/components/SearchableSelect.jsx";
 import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
@@ -23,6 +25,9 @@ export const emptyFilters = () => ({
 });
 
 export const FilterPanel = ({ initialValues, onApply, onReset }) => {
+  const { t } = useTranslation("catalog");
+  const loadingText = t("select.loading", { ns: "common" });
+  const label = useOptionLabel();
   const [values, setValues] = useState({
     ...emptyFilters(),
     ...initialValues,
@@ -86,11 +91,11 @@ export const FilterPanel = ({ initialValues, onApply, onReset }) => {
         >
           <div>
             <p className="text-xs font-semibold text-danger">
-              Filter options unavailable
+              {t("filters.optionsUnavailable")}
             </p>
 
             <p className="mt-0.5 text-[11px] leading-5 text-ash">
-              Some dropdown options could not be loaded.
+              {t("filters.optionsUnavailableDescription")}
             </p>
           </div>
 
@@ -109,26 +114,26 @@ export const FilterPanel = ({ initialValues, onApply, onReset }) => {
               hover:bg-danger/10
             "
           >
-            Retry
+            {t("filters.retry")}
           </button>
         </div>
       )}
 
       <SearchableSelect
-        label="Brand"
+        label={t("filters.brand")}
         value={values.brand}
         onChange={updateBrand}
         options={(options?.brands ?? []).map((brand) => ({
           value: brand,
           label: brand,
         }))}
-        placeholder={optionsLoading ? "Loading…" : "Any brand"}
+        placeholder={optionsLoading ? loadingText : t("filters.anyBrand")}
         disabled={optionsLoading}
       />
 
       <SearchableSelect
         id="filter-model"
-        label="Model"
+        label={t("filters.model")}
         value={values.model}
         onChange={(model) => update("model", model)}
         options={(options?.modelsByBrand?.[values.brand] ?? []).map(
@@ -137,46 +142,48 @@ export const FilterPanel = ({ initialValues, onApply, onReset }) => {
             label: model,
           }),
         )}
-        placeholder={values.brand ? "Any model" : "Select brand first"}
+        placeholder={
+          values.brand ? t("filters.anyModel") : t("filters.selectBrandFirst")
+        }
         disabled={!values.brand}
-        disabledLabel="Select brand first"
+        disabledLabel={t("filters.selectBrandFirst")}
       />
 
       <SearchableSelect
-        label="Location"
+        label={t("filters.location")}
         value={values.province}
         onChange={(province) => update("province", province)}
         options={(options?.provinces ?? []).map((province) => ({
           value: province,
-          label: province,
+          label: label("province", province),
         }))}
-        placeholder={optionsLoading ? "Loading…" : "Any location"}
+        placeholder={optionsLoading ? loadingText : t("filters.anyLocation")}
         disabled={optionsLoading}
       />
 
       <Input
-        label="Color"
-        placeholder="e.g. White, Black"
+        label={t("filters.color")}
+        placeholder={t("filters.colorPlaceholder")}
         value={values.color}
         onChange={(event) => update("color", event.target.value)}
       />
 
       <div className="grid w-full grid-cols-2 gap-3">
         <SearchableSelect
-          label="Min Year"
+          label={t("filters.minYear")}
           value={values.minYear}
           onChange={(year) => update("minYear", year)}
           options={yearOptions}
-          placeholder={optionsLoading ? "Loading…" : "Any year"}
+          placeholder={optionsLoading ? loadingText : t("filters.anyYear")}
           disabled={optionsLoading}
         />
 
         <SearchableSelect
-          label="Max Year"
+          label={t("filters.maxYear")}
           value={values.maxYear}
           onChange={(year) => update("maxYear", year)}
           options={yearOptions}
-          placeholder={optionsLoading ? "Loading…" : "Any year"}
+          placeholder={optionsLoading ? loadingText : t("filters.anyYear")}
           disabled={optionsLoading}
         />
       </div>
@@ -204,7 +211,7 @@ export const FilterPanel = ({ initialValues, onApply, onReset }) => {
             focus-visible:ring-brass/50
           "
         >
-          Apply Filters
+          {t("filters.apply")}
         </button>
 
         <button
@@ -229,7 +236,7 @@ export const FilterPanel = ({ initialValues, onApply, onReset }) => {
             focus-visible:ring-brass/40
           "
         >
-          Reset
+          {t("filters.reset")}
         </button>
       </div>
     </form>

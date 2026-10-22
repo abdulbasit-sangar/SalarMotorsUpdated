@@ -309,3 +309,30 @@ src/
 - **Phase 5**: ✅ Admin management - Dashboard, Create Listing, Manage Listings
 - **Phase 6**: ✅ Responsive/accessibility/edge-case polish
 - **Phase 7**: ✅ Performance, caching, deployment readiness
+
+## Localization (English · پښتو · دری)
+
+The UI is available in English (`en`, LTR, default), Pashto (`ps`, RTL) and
+Afghan Dari (`fa-AF`, RTL). Built on `i18next` + `react-i18next`.
+
+- **Files:** `src/locales/<lng>/<namespace>.json` — namespaces `common`,
+  `layout`, `home`, `catalog`, `auth`, `admin`, `validation`, `errors`,
+  `options`. English is bundled; Pashto/Dari load on demand.
+- **Use it:** `const { t } = useTranslation("catalog"); t("details.back")`.
+  Plurals use `_one` / `_other`. Never put text in components.
+- **Option values** (provinces, features, fuel types…) are backend data and
+  never change; only their *labels* come from `options.json` via
+  `useOptionLabel()` / `translateOption()`. Unknown values show as-is.
+- **Backend messages** are mapped to `errors.json` in
+  `src/services/api/apiMessageMap.js` (a test fails if the backend adds an
+  `ApiError` message that isn't mapped).
+- **Language & direction:** `src/i18n/` sets `<html lang dir>` on every change,
+  persists the explicit choice in `localStorage` (`safar.language`), and never
+  auto-detects. RTL uses Tailwind logical utilities (`ms-`/`me-`/`ps-`/`pe-`/
+  `start-`/`end-`, `rtl:` variants); directional icons flip automatically.
+- **Numbers/dates:** one number convention everywhere (`12,500`, Latin
+  digits); dates use the Gregorian calendar with localized month names. Wrap
+  phone numbers, emails, VINs in `className="ltr-isolate"`.
+- **Adding a string:** add the key to `en/`, then to `ps/` and `fa-AF/`.
+  `npm test` fails on missing keys, mismatched `{{placeholders}}`, untranslated
+  Pashto/Dari text, or a `t("…")` key that doesn't exist.

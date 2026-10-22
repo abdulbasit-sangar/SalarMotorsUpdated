@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { optionKey, useOptionLabel } from "../../../i18n/optionLabels.js";
 import { FilterPanel, emptyFilters } from "./FilterPanel.jsx";
 import { FilterSheet } from "./FilterSheet.jsx";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
@@ -71,25 +73,20 @@ const DIRECT_LABEL_KEYS = [
   "color",
 ];
 
-const RANGE_KEY_GROUPS = [
-  {
-    minKey: "minYear",
-    maxKey: "maxYear",
-    prefix: "Year",
-    format: (value) => value,
-  },
-];
+// Whole sentences per case (not "prefix + fragment") so each language can
+// order the words naturally. Keys live in catalog.json under chips.*
+const RANGE_KEY_GROUPS = [{ minKey: "minYear", maxKey: "maxYear", chip: "year" }];
 
-const rangeChipLabel = (prefix, min, max, format) => {
+const rangeChipLabel = (t, chip, min, max) => {
   if (min && max) {
     return min === max
-      ? `${prefix}: ${format(min)}`
-      : `${prefix}: ${format(min)} – ${format(max)}`;
+      ? t(`chips.${chip}`, { [chip]: min })
+      : t(`chips.${chip}Range`, { min, max });
   }
 
   return min
-    ? `${prefix}: from ${format(min)}`
-    : `${prefix}: up to ${format(max)}`;
+    ? t(`chips.${chip}From`, { min })
+    : t(`chips.${chip}UpTo`, { max });
 };
 
 const useReveal = (threshold = 0.15) => {
@@ -144,27 +141,29 @@ const Reveal = ({ children, delay = 0, className = "" }) => {
   );
 };
 
-const buildActiveChips = (filters) => {
+const buildActiveChips = (filters, t, label) => {
   const chips = [];
 
   DIRECT_LABEL_KEYS.forEach((key) => {
     if (filters[key]) {
       chips.push({
         id: key,
-        label: filters[key],
+        // Only the province is a fixed backend value with a translation;
+        // brand/model/color stay as selected or typed.
+        label: key === "province" ? label("province", filters[key]) : filters[key],
         keys: [key],
       });
     }
   });
 
-  RANGE_KEY_GROUPS.forEach(({ minKey, maxKey, prefix, format }) => {
+  RANGE_KEY_GROUPS.forEach(({ minKey, maxKey, chip }) => {
     const min = filters[minKey];
     const max = filters[maxKey];
 
     if (min || max) {
       chips.push({
         id: minKey,
-        label: rangeChipLabel(prefix, min, max, format),
+        label: rangeChipLabel(t, chip, min, max),
         keys: [minKey, maxKey],
       });
     }
@@ -177,6 +176,8 @@ export default function FilterResultsPage({
   fixedProvince = "",
   fixedTitle = "",
 }) {
+  const { t } = useTranslation("catalog");
+  const label = useOptionLabel();
   const [searchParams, setSearchParams] = useSearchParams();
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
 
@@ -198,9 +199,15 @@ export default function FilterResultsPage({
       ).length;
 
   const activeChips = useMemo(
-    () => (fixedProvince ? [] : buildActiveChips(filters)),
-    [filters, fixedProvince],
+    () => (fixedProvince ? [] : buildActiveChips(filters, t, label)),
+    [filters, fixedProvince, t, label],
   );
+
+  // The router still passes an English fixedTitle; the shown title is looked
+  // up by the category value and falls back to that English title.
+  const categoryTitle = fixedProvince
+    ? t(`categories.${optionKey(fixedProvince)}`, { defaultValue: fixedTitle })
+    : "";
 
   const showSponsored = activeCount === 0;
 
@@ -319,7 +326,7 @@ export default function FilterResultsPage({
       <Reveal className="relative z-10 mb-8 pt-16 sm:pt-20">
         {fixedProvince && (
           <h1 className="mb-6 font-display text-3xl font-semibold text-bone">
-            {fixedTitle}
+            {categoryTitle}
           </h1>
         )}
 
@@ -336,13 +343,14 @@ export default function FilterResultsPage({
             >
               <SlidersIcon className="h-4 w-4 shrink-0 text-brass-dark" />
               <span>
-                Filters{activeCount > 0 && ` (${activeCount})`}
+                {t("results.filters")}
+                {activeCount > 0 && ` (${activeCount})`}
               </span>
             </button>
           )}
 
           <label htmlFor="filter-sort" className="sr-only">
-            Sort listings
+            {t("results.sortLabel")}
           </label>
 
           <div className="relative shrink-0">
@@ -351,11 +359,11 @@ export default function FilterResultsPage({
               value={sort}
               onChange={(event) => handleSortChange(event.target.value)}
               className="peer absolute inset-0 z-10 h-11 w-full cursor-pointer opacity-0"
-              aria-label="Sort options"
+              aria-label={t("results.sortOptions")}
             >
               {SORT_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {label("sort", option.value)}
                 </option>
               ))}
             </select>
@@ -364,7 +372,7 @@ export default function FilterResultsPage({
               type="button"
               className="inline-flex h-11 min-w-[105px] items-center justify-center gap-2 rounded-full glass-panel px-5 text-sm font-semibold text-bone shadow-sm transition-all duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-brass/40"
             >
-              <span>Sort</span>
+              <span>{t("results.sortButton")}</span>
               <ChevronDownIcon className="h-4 w-4 shrink-0 text-brass-dark" />
             </button>
           </div>
@@ -375,7 +383,6 @@ export default function FilterResultsPage({
         <FilterSheet
           open={mobilePanelOpen}
           onClose={() => setMobilePanelOpen(false)}
-          title="Filter Vehicles"
         >
           <FilterPanel
             initialValues={filters}
@@ -392,7 +399,7 @@ export default function FilterResultsPage({
               key={chip.id}
               type="button"
               onClick={() => removeChip(chip.keys)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-brass/30 bg-brass/12 py-1.5 pl-3.5 pr-2.5 text-xs font-semibold text-brass-dark transition-colors hover:bg-brass/20"
+              className="inline-flex items-center gap-1.5 rounded-full border border-brass/30 bg-brass/12 py-1.5 ps-3.5 pe-2.5 text-xs font-semibold text-brass-dark transition-colors hover:bg-brass/20"
             >
               {chip.label}
               <CloseIcon className="h-3 w-3" />
@@ -404,7 +411,7 @@ export default function FilterResultsPage({
             onClick={resetFilters}
             className="inline-flex items-center rounded-full bg-brass px-4 py-1.5 text-xs font-semibold text-graphite-950 shadow-sm transition-all hover:bg-brass-light"
           >
-            Reset Filter
+            {t("results.resetFilter")}
           </button>
         </Reveal>
       )}
@@ -417,10 +424,10 @@ export default function FilterResultsPage({
               id="sponsored-heading"
               className="mb-4 font-display text-xl font-bold leading-tight text-section-light sm:text-2xl"
             >
-              Sponsored Vehicles
+              {t("results.sponsored")}
             </h2>
 
-            <CarCardRow label="Sponsored vehicles">
+            <CarCardRow label={t("results.sponsoredRow")}>
               {sponsoredCars.map((car) => (
                 <CarCard
                   key={car._id}
@@ -449,7 +456,7 @@ export default function FilterResultsPage({
             {gridCars.length > 0 && (
               <>
                 <p className="mb-4 text-sm text-ash">
-                  {totalCars} result{totalCars === 1 ? "" : "s"}
+                  {t("results.count", { count: totalCars })}
                 </p>
 
                 <CarCardGrid dense>
@@ -474,13 +481,13 @@ export default function FilterResultsPage({
         ) : (
           <EmptyState
             icon={<CarSilhouetteIcon className="h-9 w-14" />}
-            title="No matches"
+            title={t("results.noMatchesTitle")}
             description={
               fixedProvince
-                ? `No vehicles are currently listed for ${fixedTitle}.`
-                : "Nothing fits these filters yet. Try changing a field or clearing a filter."
+                ? t("results.noMatchesCategory", { title: categoryTitle })
+                : t("results.noMatchesFilters")
             }
-            actionLabel={activeCount > 0 ? "Clear filters" : undefined}
+            actionLabel={activeCount > 0 ? t("results.clearFilters") : undefined}
             onAction={activeCount > 0 ? resetFilters : undefined}
           />
         )}

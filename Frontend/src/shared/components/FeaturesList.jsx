@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { useOptionLabel } from "../../i18n/optionLabels.js";
 import { CheckIcon } from "./icons.jsx";
 
 /**
@@ -9,6 +11,8 @@ import { CheckIcon } from "./icons.jsx";
  * simply default to an empty array — see car.model.js).
  */
 export const FeaturesList = ({ featureGroups, selectedFeatures }) => {
+  const { t } = useTranslation();
+  const label = useOptionLabel();
   const selected = new Set(selectedFeatures || []);
   if (!selected.size) return null;
 
@@ -23,18 +27,20 @@ export const FeaturesList = ({ featureGroups, selectedFeatures }) => {
 
   return (
     <div className="mt-8">
-      <h2 className="font-display text-lg font-semibold text-bone mb-4">Features</h2>
+      <h2 className="font-display text-lg font-semibold text-bone mb-4">
+        {t("features.title")}
+      </h2>
       <div className="grid sm:grid-cols-2 gap-x-6 gap-y-5">
         {groups.map((g) => (
           <div key={g.group}>
             <p className="font-mono text-[11px] uppercase tracking-widest text-brass mb-2">
-              {g.group}
+              {label("featureGroup", g.group)}
             </p>
             <ul className="space-y-1.5">
               {g.features.map((feature) => (
                 <li key={feature} className="flex items-center gap-2 text-sm text-ash">
                   <CheckIcon className="h-3.5 w-3.5 text-signal shrink-0" />
-                  <span>{feature}</span>
+                  <span>{label("feature", feature)}</span>
                 </li>
               ))}
             </ul>

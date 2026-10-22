@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { isolateLtr } from "../../../shared/utils/format.js";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "../../../store/ui/ToastContext.jsx";
 import { Input } from "../../../shared/components/Input.jsx";
@@ -28,6 +30,7 @@ const OTP_SECONDS = 60;
 const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation("auth");
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -85,7 +88,7 @@ export default function ForgotPasswordPage() {
     setSubmitting(true);
     try {
       await apiForgotPassword({ email: email.trim().toLowerCase() });
-      toast.success("If an account exists for this email, a verification code has been sent.");
+      toast.success(t("forgot.codeSent"));
       setStep("otp");
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (err) {
@@ -123,7 +126,7 @@ export default function ForgotPasswordPage() {
     setSubmitting(true);
     try {
       await apiResendOtp({ email: email.trim().toLowerCase() });
-      toast.success("A new verification code has been sent.");
+      toast.success(t("forgot.resent"));
       setOtp("");
       setSecondsLeft(OTP_SECONDS);
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
@@ -159,7 +162,7 @@ export default function ForgotPasswordPage() {
         confirmPassword: resetForm.confirmPassword,
       });
       setStep("done");
-      toast.success("Password reset successfully.");
+      toast.success(t("forgot.resetDone"));
     } catch (err) {
       const parsed = parseApiError(err);
       setFormError(parsed.errors.length ? parsed.errors : [parsed.message]);
@@ -173,15 +176,15 @@ export default function ForgotPasswordPage() {
       {step === "email" && (
         <>
           <AuthHeading
-            eyebrow="Admin Access"
-            title="Forgot Password"
-            subtitle="Enter your registered email and we'll send you a verification code."
+            eyebrow={t("forgot.eyebrow")}
+            title={t("forgot.title")}
+            subtitle={t("forgot.subtitle")}
           />
           <AuthCardPanel>
             <form onSubmit={handleSendOtp} className="space-y-4" noValidate>
               <AuthFormError messages={formError} />
               <Input
-                label="Email"
+                label={t("common.email")}
                 type="email"
                 autoComplete="email"
                 required
@@ -193,14 +196,14 @@ export default function ForgotPasswordPage() {
                 error={fieldErrors.email}
               />
               <Button type="submit" variant="primary" className="w-full" loading={submitting}>
-                Send OTP
+                {t("forgot.sendOtp")}
               </Button>
             </form>
           </AuthCardPanel>
           <AuthFootnote>
-            Remembered your password?{" "}
+            {t("forgot.remembered")}{" "}
             <Link to="/admin/login" className="text-brass-dark font-medium hover:underline">
-              Back to Sign In
+              {t("forgot.backToSignIn")}
             </Link>
           </AuthFootnote>
         </>
@@ -209,15 +212,16 @@ export default function ForgotPasswordPage() {
       {step === "otp" && (
         <>
           <AuthHeading
-            eyebrow="Admin Access"
-            title="Enter Verification Code"
-            subtitle={`We sent a verification code to ${email}.`}
+            eyebrow={t("forgot.eyebrow")}
+            title={t("forgot.otpTitle")}
+            subtitle={t("forgot.otpSubtitle", { email: isolateLtr(email) })}
           />
           <AuthCardPanel>
             <form onSubmit={handleVerifyOtp} className="space-y-4" noValidate>
               <AuthFormError messages={formError} />
               <Input
-                label="Verification Code"
+                label={t("common.verificationCode")}
+                dir="ltr"
                 inputMode="numeric"
                 maxLength={6}
                 autoComplete="one-time-code"
@@ -231,25 +235,33 @@ export default function ForgotPasswordPage() {
                 className="text-center tracking-[0.5em] text-lg font-mono"
               />
               <p className="text-xs text-ash text-center">
-                Code expires in:{" "}
-                <span className={secondsLeft === 0 ? "text-danger font-mono" : "text-bone font-mono"}>
+                {t("forgot.expiresIn")}{" "}
+                <span
+                  className={
+                    secondsLeft === 0
+                      ? "ltr-isolate text-danger font-mono"
+                      : "ltr-isolate text-bone font-mono"
+                  }
+                >
                   {formatTime(secondsLeft)}
                 </span>
               </p>
 
               <Button type="submit" variant="primary" className="w-full" loading={submitting}>
-                Verify OTP
+                {t("forgot.verifyOtp")}
               </Button>
 
               <p className="text-center text-ash text-xs">
-                Didn't receive the code?{" "}
+                {t("forgot.noCode")}{" "}
                 <button
                   type="button"
                   onClick={handleResendOtp}
                   disabled={resendCooldown > 0 || submitting}
                   className="text-brass-dark font-medium hover:underline disabled:text-ash disabled:no-underline disabled:cursor-not-allowed"
                 >
-                  {resendCooldown > 0 ? `Resend OTP (${resendCooldown}s)` : "Resend OTP"}
+                  {resendCooldown > 0
+                    ? t("forgot.resendIn", { seconds: resendCooldown })
+                    : t("forgot.resend")}
                 </button>
               </p>
             </form>
@@ -264,7 +276,10 @@ export default function ForgotPasswordPage() {
               }}
               className="text-brass-dark font-medium hover:underline"
             >
-              ← Use a different email
+              <span aria-hidden="true" className="inline-block rtl:-scale-x-100">
+                ←
+              </span>{" "}
+              {t("forgot.differentEmail")}
             </button>
           </AuthFootnote>
         </>
@@ -272,22 +287,29 @@ export default function ForgotPasswordPage() {
 
       {step === "reset" && (
         <>
-          <AuthHeading eyebrow="Admin Access" title="Reset Password" />
+          <AuthHeading
+            eyebrow={t("forgot.eyebrow")}
+            title={t("forgot.resetTitle")}
+          />
           <AuthCardPanel>
             <form onSubmit={handleResetPassword} className="space-y-4" noValidate>
               <AuthFormError messages={formError} />
               <Input
-                label="New Password"
+                label={t("common.newPassword")}
                 type="password"
                 autoComplete="new-password"
-                hint={!fieldErrors.newPassword ? "At least 8 characters." : undefined}
+                hint={
+                  !fieldErrors.newPassword
+                    ? t("forgot.passwordHint", { min: 8 })
+                    : undefined
+                }
                 required
                 value={resetForm.newPassword}
                 onChange={updateResetField("newPassword")}
                 error={fieldErrors.newPassword}
               />
               <Input
-                label="Confirm New Password"
+                label={t("common.confirmNewPassword")}
                 type="password"
                 autoComplete="new-password"
                 required
@@ -296,7 +318,7 @@ export default function ForgotPasswordPage() {
                 error={fieldErrors.confirmPassword}
               />
               <Button type="submit" variant="primary" className="w-full" loading={submitting}>
-                Reset Password
+                {t("forgot.resetSubmit")}
               </Button>
             </form>
           </AuthCardPanel>
@@ -306,16 +328,16 @@ export default function ForgotPasswordPage() {
       {step === "done" && (
         <>
           <AuthHeading
-            eyebrow="Admin Access"
-            title="Password Reset"
-            subtitle="Your password has been reset successfully. Please log in with your new password."
+            eyebrow={t("forgot.eyebrow")}
+            title={t("forgot.doneTitle")}
+            subtitle={t("forgot.doneSubtitle")}
           />
           <Button
             variant="primary"
             className="w-full"
             onClick={() => navigate("/admin/login", { replace: true })}
           >
-            Go to Sign In
+            {t("forgot.goToSignIn")}
           </Button>
         </>
       )}

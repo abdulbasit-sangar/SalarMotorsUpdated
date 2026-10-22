@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { CloseIcon } from "./icons.jsx";
 
 /**
@@ -9,6 +10,7 @@ import { CloseIcon } from "./icons.jsx";
  * needed, not just for Edit Features.
  */
 export const Modal = ({ open, onClose, title, children }) => {
+  const { t } = useTranslation();
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose();
@@ -43,7 +45,7 @@ export const Modal = ({ open, onClose, title, children }) => {
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t("actions.close")}
             className="p-1.5 rounded-full text-card-muted hover:bg-graphite-800 hover:text-card transition-colors"
           >
             <CloseIcon className="w-4 h-4" />

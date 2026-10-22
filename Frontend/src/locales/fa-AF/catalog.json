@@ -1,0 +1,107 @@
+{
+  "specs": {
+    "brand": "برند",
+    "model": "مدل",
+    "year": "سال",
+    "price": "قیمت",
+    "mileage": "کیلومتر پیموده شده",
+    "condition": "وضعیت",
+    "color": "رنگ",
+    "fuelType": "نوع سوخت",
+    "bodyType": "نوع بدنه",
+    "transmission": "گیربکس",
+    "engine": "انجن",
+    "engineCc": "{{value}} سی‌سی",
+    "location": "موقعیت",
+    "vin": "VIN",
+    "imported": "تاریخ واردات"
+  },
+  "gallery": {
+    "viewFullScreen": "دیدن تصویر در تمام صفحه",
+    "viewAll": "دیدن همه {{count}} تصویر",
+    "viewImage": "دیدن تصویر {{index}} از {{total}}",
+    "imageAlt": "{{title}} — تصویر {{index}} از {{total}}",
+    "viewerLabel": "{{title}} — نمایشگر تصاویر در تمام صفحه",
+    "closeViewer": "بستن نمایش تمام صفحه",
+    "previous": "تصویر قبلی",
+    "next": "تصویر بعدی",
+    "viewImageN": "دیدن تصویر {{index}}"
+  },
+  "details": {
+    "back": "بازگشت به همه اعلان‌ها",
+    "notFoundTitle": "اعلان پیدا نشد",
+    "loadErrorTitle": "این اعلان بارگیری نشد",
+    "notFoundDescription": "ممکن است این موتر فروخته شده یا پنهان شده باشد، یا لینک درست نباشد.",
+    "featured": "ویژه",
+    "specification": "مشخصات",
+    "description": "توضیحات",
+    "similarEyebrow": "ممکن است شما را هم خوش آید",
+    "similarTitle": "اعلان‌های مشابه",
+    "similarEmpty": "هنوز برای این موتر اعلان مشابهی پیدا نشد."
+  },
+  "favorites": {
+    "eyebrow": "ذخیره شده",
+    "title": "علاقه‌مندی‌های شما",
+    "emptyTitle": "هنوز علاقه‌مندی‌ای ندارید",
+    "emptyDescription": "روی قلب هر اعلان بزنید تا اینجا ذخیره شود.",
+    "browse": "دیدن اعلان‌ها"
+  },
+  "search": {
+    "eyebrow": "جستجو",
+    "resultsFor": "نتایج برای",
+    "title": "جستجوی اعلان‌ها",
+    "promptTitle": "برای جستجو چیزی بنویسید",
+    "promptDescription": "یک برند، مدل یا ولایت را امتحان کنید — مثلاً “Toyota” یا “کابل”.",
+    "results_one": "{{count}} نتیجه",
+    "results_other": "{{count}} نتیجه",
+    "noMatchesTitle": "موردی پیدا نشد",
+    "noMatchesDescription": "چیزی با “{{keyword}}” مطابقت نکرد. برند، مدل یا ولایت دیگری را امتحان کنید."
+  },
+  "filters": {
+    "sheetTitle": "فلتر موترها",
+    "closeFilters": "بستن فلترها",
+    "optionsUnavailable": "گزینه‌های فلتر در دسترس نیست",
+    "optionsUnavailableDescription": "بعضی گزینه‌ها بارگیری نشد.",
+    "retry": "تلاش دوباره",
+    "brand": "برند",
+    "model": "مدل",
+    "location": "موقعیت",
+    "color": "رنگ",
+    "colorPlaceholder": "مثلاً سفید، سیاه",
+    "minYear": "حداقل سال",
+    "maxYear": "حداکثر سال",
+    "anyBrand": "هر برند",
+    "anyModel": "هر مدل",
+    "selectBrandFirst": "اول برند را انتخاب کنید",
+    "anyLocation": "هر موقعیت",
+    "anyYear": "هر سال",
+    "apply": "اعمال فلترها",
+    "reset": "بازنشانی"
+  },
+  "categories": {
+    "dubai": "موترهای دوبی",
+    "from_america_to_herat": "از امریکا به هرات",
+    "from_dubai_to_herat": "از دوبی به هرات"
+  },
+  "results": {
+    "filters": "فلترها",
+    "sortLabel": "ترتیب اعلان‌ها",
+    "sortOptions": "گزینه‌های ترتیب",
+    "sortButton": "ترتیب",
+    "resetFilter": "بازنشانی فلتر",
+    "sponsored": "موترهای تبلیغاتی",
+    "sponsoredRow": "موترهای تبلیغاتی",
+    "count_one": "{{count}} نتیجه",
+    "count_other": "{{count}} نتیجه",
+    "noMatchesTitle": "موردی پیدا نشد",
+    "noMatchesCategory": "در حال حاضر هیچ موتری برای {{title}} ثبت نشده است.",
+    "noMatchesFilters": "هنوز چیزی با این فلترها مطابقت ندارد. یک فیلد را تغییر دهید یا فلتری را پاک کنید.",
+    "clearFilters": "پاک کردن فلترها"
+  },
+  "chips": {
+    "year": "سال: {{year}}",
+    "yearRange": "سال: {{min}} – {{max}}",
+    "yearFrom": "سال: از {{min}}",
+    "yearUpTo": "سال: تا {{max}}"
+  }
+}

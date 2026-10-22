@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../store/auth/AuthContext.jsx";
 import {
   DashboardIcon,
@@ -10,17 +11,17 @@ import {
 } from "../../shared/components/icons.jsx";
 
 const LINKS = [
-  { to: "/admin/dashboard", label: "Dashboard", end: true, icon: DashboardIcon },
-  { to: "/admin/listings", label: "Manage Listings", icon: CarSilhouetteIcon },
-  { to: "/admin/listings/create", label: "Create Listing", icon: PlusIcon },
-  { to: "/admin/profile", label: "Profile", icon: UserIcon },
+  { to: "/admin/dashboard", labelKey: "admin.dashboard", end: true, icon: DashboardIcon },
+  { to: "/admin/listings", labelKey: "admin.manageListings", icon: CarSilhouetteIcon },
+  { to: "/admin/listings/create", labelKey: "admin.createListing", icon: PlusIcon },
+  { to: "/admin/profile", labelKey: "admin.profile", icon: UserIcon },
 ];
 
 // Manager/Sub-Admin RBAC — visible only to superadmin. This is purely a
 // navigation convenience; the actual security boundary lives on the
 // backend (requireRole("superadmin") on /api/managers routes) and on the
 // SuperAdminOnlyRoute wrapper for this page.
-const SUPERADMIN_LINKS = [{ to: "/admin/managers", label: "Managers", icon: UsersIcon }];
+const SUPERADMIN_LINKS = [{ to: "/admin/managers", labelKey: "admin.managers", icon: UsersIcon }];
 
 const linkClass = ({ isActive }) =>
   clsx(
@@ -31,6 +32,7 @@ const linkClass = ({ isActive }) =>
   );
 
 export const AdminSidebar = ({ onNavigate }) => {
+  const { t } = useTranslation("layout");
   const { admin } = useAuth();
   const links =
     admin?.role === "superadmin" ? [...LINKS, ...SUPERADMIN_LINKS] : LINKS;
@@ -46,7 +48,7 @@ export const AdminSidebar = ({ onNavigate }) => {
           onClick={onNavigate}
         >
           <link.icon className="w-[18px] h-[18px] shrink-0" />
-          {link.label}
+          {t(link.labelKey)}
         </NavLink>
       ))}
     </nav>

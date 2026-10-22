@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CarCard, CarCardGrid } from "../../../shared/components/CarCard.jsx";
 import { CarCardSkeleton } from "../../../shared/components/Skeleton.jsx";
 import { EmptyState } from "../../../shared/components/EmptyState.jsx";
@@ -8,6 +9,7 @@ import { useFavorites } from "../../../store/favorites/FavoritesContext.jsx";
 import { fetchFavorites } from "../../../services/favorites/favoritesApi.js";
 
 export default function FavoritesPage() {
+  const { t } = useTranslation("catalog");
   const { favoriteIds, ready } = useFavorites();
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,10 +40,10 @@ export default function FavoritesPage() {
   return (
     <div className="container-page pb-8 pt-28 sm:pb-10 sm:pt-32">
       <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
-        Saved
+        {t("favorites.eyebrow")}
       </p>
       <h1 className="font-display text-4xl font-semibold text-bone mb-8">
-        Your Favorites
+        {t("favorites.title")}
       </h1>
 
       {error ? (
@@ -61,9 +63,9 @@ export default function FavoritesPage() {
       ) : (
         <EmptyState
           icon={<HeartIcon className="w-10 h-10" />}
-          title="No favorites yet"
-          description="Tap the heart on any listing to save it here."
-          actionLabel="Browse listings"
+          title={t("favorites.emptyTitle")}
+          description={t("favorites.emptyDescription")}
+          actionLabel={t("favorites.browse")}
           onAction={() => (window.location.href = "/listings")}
         />
       )}

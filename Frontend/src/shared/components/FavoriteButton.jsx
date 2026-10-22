@@ -1,5 +1,6 @@
 import { useState } from "react";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
 import { HeartIcon } from "./icons.jsx";
 import { useFavorites } from "../../store/favorites/FavoritesContext.jsx";
 import { useToast } from "../../store/ui/ToastContext.jsx";
@@ -11,6 +12,7 @@ import { parseApiError } from "../../services/api/client.js";
  * card (see CarCard.jsx) without triggering navigation to the details page.
  */
 export const FavoriteButton = ({ carId, className, size = "md" }) => {
+  const { t } = useTranslation();
   const { isFavorited, toggleFavorite } = useFavorites();
   const toast = useToast();
   const [pending, setPending] = useState(false);
@@ -25,7 +27,7 @@ export const FavoriteButton = ({ carId, className, size = "md" }) => {
     try {
       await toggleFavorite(carId);
     } catch (err) {
-      toast.error(parseApiError(err).message || "Couldn't update favorites.");
+      toast.error(parseApiError(err).message || t("favorites.updateError"));
     } finally {
       setPending(false);
     }
@@ -40,7 +42,7 @@ export const FavoriteButton = ({ carId, className, size = "md" }) => {
       onClick={handleClick}
       disabled={pending}
       aria-pressed={active}
-      aria-label={active ? "Remove from favorites" : "Add to favorites"}
+      aria-label={active ? t("favorites.remove") : t("favorites.add")}
       className={clsx(
         "flex items-center justify-center rounded-full glass-panel transition-all duration-200",
         "hover:scale-105 active:scale-95 disabled:opacity-60",

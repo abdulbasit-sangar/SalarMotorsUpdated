@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   MailIcon,
   FacebookIcon,
@@ -14,16 +15,16 @@ import {
 import logo from "../../assets/salarmotors.svg";
 
 const QUICK_LINKS = [
-  { to: "/", label: "Home" },
-  { to: "/listings", label: "All Cars" },
-  { to: dubaiCarsPath(), label: "Dubai Cars" },
+  { to: "/", labelKey: "nav.home" },
+  { to: "/listings", labelKey: "nav.allCars" },
+  { to: dubaiCarsPath(), labelKey: "nav.dubaiCars" },
   {
     to: onTheWayPath(LOCATION_ON_THE_WAY.AMERICA_TO_HERAT),
-    label: "On the Way: America to Herat",
+    labelKey: "footer.onTheWayAmerica",
   },
   {
     to: onTheWayPath(LOCATION_ON_THE_WAY.DUBAI_TO_HERAT),
-    label: "On the Way: Dubai to Herat",
+    labelKey: "footer.onTheWayDubai",
   },
 ];
 
@@ -51,7 +52,9 @@ const SOCIAL_LINKS = [
   },
 ];
 
-export const Footer = () => (
+export const Footer = () => {
+  const { t } = useTranslation("layout");
+  return (
   <footer className="border-t border-card bg-graphite-900 text-bone">
     {/* Main Content Container */}
     <div className="container-page py-12 sm:py-14">
@@ -70,15 +73,13 @@ export const Footer = () => (
           </Link>
 
           <p className="max-w-md text-sm leading-relaxed text-ash">
-            The benchmark in luxury and imported vehicle logistics. Delivering
-            verified inventory, unmatched global sourcing transparency, and
-            seamless direct transit from international hubs to your destination.
+            {t("footer.about")}
           </p>
 
           {/* Social Icons with Brand Hover States */}
           <div>
             <span className="mb-3 block text-[11px] font-semibold uppercase tracking-wider text-ash">
-              Official Channels
+              {t("footer.channels")}
             </span>
             <div className="flex items-center gap-3">
               {SOCIAL_LINKS.map(({ href, label, icon: Icon, accent }) => (
@@ -101,7 +102,7 @@ export const Footer = () => (
         <div className="lg:col-span-3">
           <h3 className="mb-4 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-bone">
             <span className="h-3.5 w-1 rounded-sm bg-brass" />
-            Quick Navigation
+            {t("footer.quickNavigation")}
           </h3>
           <ul className="space-y-3">
             {QUICK_LINKS.map((link) => (
@@ -110,8 +111,8 @@ export const Footer = () => (
                   to={link.to}
                   className="group inline-flex items-center text-sm text-ash transition-colors hover:text-brass-dark"
                 >
-                  <span className="mr-3 h-1.5 w-1.5 shrink-0 rounded-full bg-steel transition-colors group-hover:bg-brass" />
-                  <span className="font-medium">{link.label}</span>
+                  <span className="me-3 h-1.5 w-1.5 shrink-0 rounded-full bg-steel transition-colors group-hover:bg-brass" />
+                  <span className="font-medium">{t(link.labelKey)}</span>
                 </Link>
               </li>
             ))}
@@ -122,7 +123,7 @@ export const Footer = () => (
         <div className="lg:col-span-4">
           <h3 className="mb-4 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-bone">
             <span className="h-3.5 w-1 rounded-sm bg-brass" />
-            Direct Support Hub
+            {t("footer.supportHub")}
           </h3>
           <div className="space-y-3">
             {/* Phone Card */}
@@ -135,9 +136,9 @@ export const Footer = () => (
               </div>
               <div className="min-w-0">
                 <span className="block text-[11px] font-semibold uppercase tracking-wider text-ash">
-                  Call Hotline
+                  {t("footer.callHotline")}
                 </span>
-                <span className="block truncate text-sm font-semibold text-bone transition-colors group-hover:text-brass-dark">
+                <span className="ltr-isolate block truncate text-sm font-semibold text-bone transition-colors group-hover:text-brass-dark rtl:text-end">
                   +93 (0) 770957493
                 </span>
               </div>
@@ -153,9 +154,9 @@ export const Footer = () => (
               </div>
               <div className="min-w-0">
                 <span className="block text-[11px] font-semibold uppercase tracking-wider text-ash">
-                  Email Desk
+                  {t("footer.emailDesk")}
                 </span>
-                <span className="block truncate text-xs font-semibold text-bone transition-colors group-hover:text-brass-dark sm:text-sm">
+                <span className="ltr-isolate block truncate text-xs font-semibold text-bone transition-colors group-hover:text-brass-dark sm:text-sm rtl:text-end">
                   salar.motors10@gmail.com
                 </span>
               </div>
@@ -170,17 +171,18 @@ export const Footer = () => (
       <div className="container-page flex flex-col gap-3 py-4 text-xs text-ash sm:flex-row sm:items-center sm:justify-between">
         <p className="flex items-center gap-2 font-medium">
           <span className="text-bone">
-            © {new Date().getFullYear()} Salar Motors.
+            {t("footer.copyright", { year: new Date().getFullYear() })}
           </span>
           <span className="hidden h-1 w-1 rounded-full bg-ash sm:inline" />
-          <span>All rights reserved.</span>
+          <span>{t("footer.rights")}</span>
         </p>
         <div className="flex items-center">
           <span className="text-ash">
-            All listings subject to availability & professional verification.
+            {t("footer.disclaimer")}
           </span>
         </div>
       </div>
     </div>
   </footer>
-);
+  );
+};

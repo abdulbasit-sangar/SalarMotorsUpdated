@@ -1,15 +1,18 @@
 import { useEffect } from "react";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
 import { useEscapeKey } from "../../../shared/hooks/useEscapeKey.js";
 import { CloseIcon } from "../../../shared/components/icons.jsx";
 
 export const FilterSheet = ({
   open,
   onClose,
-  title = "Filter Vehicles",
+  title,
   description,
   children,
 }) => {
+  const { t } = useTranslation("catalog");
+  const sheetTitle = title ?? t("filters.sheetTitle");
   useEscapeKey(onClose, open);
 
   useEffect(() => {
@@ -35,7 +38,7 @@ export const FilterSheet = ({
       )}
       role="dialog"
       aria-modal="true"
-      aria-label={title}
+      aria-label={sheetTitle}
       aria-hidden={!open}
     >
       {/* BACKDROP */}
@@ -81,7 +84,7 @@ export const FilterSheet = ({
       >
         {/* HEADER */}
         <SheetHeader
-          title={title}
+          title={sheetTitle}
           description={description}
           onClose={onClose}
         />
@@ -139,7 +142,9 @@ export const FilterSheet = ({
   );
 };
 
-const SheetHeader = ({ title, description, onClose }) => (
+const SheetHeader = ({ title, description, onClose }) => {
+  const { t } = useTranslation("catalog");
+  return (
   <header
     className="
       flex
@@ -190,7 +195,7 @@ const SheetHeader = ({ title, description, onClose }) => (
     <button
       type="button"
       onClick={onClose}
-      aria-label="Close filters"
+      aria-label={t("filters.closeFilters")}
       className="
         flex
         h-9
@@ -218,4 +223,5 @@ const SheetHeader = ({ title, description, onClose }) => (
       <CloseIcon className="h-4 w-4 sm:h-[17px] sm:w-[17px]" />
     </button>
   </header>
-);
+  );
+};

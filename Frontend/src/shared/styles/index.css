@@ -10,6 +10,11 @@
   :root {
     --header-h: 76px;
 
+    /* Single font token behind Tailwind's font-display/body/mono. RTL
+       languages swap it below; Inter stays the fallback for Latin runs
+       (vehicle names, VINs, prices) inside RTL text. */
+    --font-sans: "Inter", sans-serif;
+
     /* Bright automotive-glass palette. Names are kept stable so every
        screen that already references these tokens updates together. */
     --color-graphite-50: #fdfcfa;
@@ -302,5 +307,33 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+
+/* ── RTL (Pashto / Dari) ─────────────────────────────────────────────────────
+   Direction itself comes from <html dir>, set by src/i18n on every language
+   change. Layout flips through flex/grid + Tailwind logical utilities; this
+   block only covers what cannot be expressed per component. */
+@layer base {
+  html[dir="rtl"] {
+    --font-sans: "Noto Sans Arabic", "Inter", system-ui, sans-serif;
+  }
+
+  /* Letter-spacing and forced uppercase are Latin typographic devices. In
+     Arabic script, tracking pulls connected letters apart and breaks words,
+     so both are neutralised for every element under RTL. */
+  html[dir="rtl"] *,
+  html[dir="rtl"] *::before,
+  html[dir="rtl"] *::after {
+    letter-spacing: normal !important;
+    text-transform: none !important;
+  }
+
+  /* Keep inline numeric/identifier text (phones, VINs, URLs, emails) in
+     left-to-right order even inside right-to-left sentences. */
+  .ltr-isolate {
+    unicode-bidi: isolate;
+    direction: ltr;
   }
 }

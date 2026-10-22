@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { isolateLtr } from "../../../shared/utils/format.js";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "../../../store/ui/ToastContext.jsx";
 import { Input } from "../../../shared/components/Input.jsx";
@@ -30,6 +32,7 @@ const RESEND_COOLDOWN_SECONDS = 60;
 // account can log in. This mirrors ForgotPasswordPage.jsx's step pattern
 // and OTP UI so it feels like a natural extension of the existing app.
 export default function ManagerRegisterPage() {
+  const { t } = useTranslation("auth");
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -90,7 +93,7 @@ export default function ManagerRegisterPage() {
     setSubmitting(true);
     try {
       await apiRegisterManager(form);
-      toast.success("Manager account created. Check your email for a verification code.");
+      toast.success(t("manager.created"));
       setStep("verify");
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (err) {
@@ -113,7 +116,7 @@ export default function ManagerRegisterPage() {
     try {
       await apiVerifyManagerEmail({ email: form.email.trim().toLowerCase(), otp: otp.trim() });
       setStep("done");
-      toast.success("Email verified successfully.");
+      toast.success(t("manager.verified"));
     } catch (err) {
       const parsed = parseApiError(err);
       setFormError(parsed.errors.length ? parsed.errors : [parsed.message]);
@@ -128,7 +131,7 @@ export default function ManagerRegisterPage() {
     setSubmitting(true);
     try {
       await apiResendManagerVerificationOtp({ email: form.email.trim().toLowerCase() });
-      toast.success("A new verification code has been sent.");
+      toast.success(t("manager.resent"));
       setOtp("");
       setSecondsLeft(OTP_SECONDS);
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
@@ -145,15 +148,15 @@ export default function ManagerRegisterPage() {
       {step === "register" && (
         <>
           <AuthHeading
-            eyebrow="Manager Access"
-            title="Register as Manager"
-            subtitle="Create a sub-admin account. You'll need to verify your email before you can log in."
+            eyebrow={t("manager.eyebrow")}
+            title={t("manager.title")}
+            subtitle={t("manager.subtitle")}
           />
           <AuthCardPanel>
             <form onSubmit={handleRegister} className="space-y-4" noValidate>
               <AuthFormError messages={formError} />
               <Input
-                label="Username"
+                label={t("common.username")}
                 autoComplete="username"
                 required
                 value={form.username}
@@ -161,7 +164,7 @@ export default function ManagerRegisterPage() {
                 error={fieldErrors.username}
               />
               <Input
-                label="Email"
+                label={t("common.email")}
                 type="email"
                 autoComplete="email"
                 required
@@ -170,17 +173,21 @@ export default function ManagerRegisterPage() {
                 error={fieldErrors.email}
               />
               <Input
-                label="Password"
+                label={t("common.password")}
                 type="password"
                 autoComplete="new-password"
-                hint={!fieldErrors.password ? "At least 8 characters." : undefined}
+                hint={
+                  !fieldErrors.password
+                    ? t("manager.passwordHint", { min: 8 })
+                    : undefined
+                }
                 required
                 value={form.password}
                 onChange={updateField("password")}
                 error={fieldErrors.password}
               />
               <Input
-                label="Confirm Password"
+                label={t("common.confirmPassword")}
                 type="password"
                 autoComplete="new-password"
                 required
@@ -190,14 +197,14 @@ export default function ManagerRegisterPage() {
               />
 
               <Button type="submit" variant="primary" className="w-full" loading={submitting}>
-                Create Manager Account
+                {t("manager.submit")}
               </Button>
             </form>
           </AuthCardPanel>
           <AuthFootnote>
-            Already verified?{" "}
+            {t("manager.alreadyVerified")}{" "}
             <Link to="/admin/login" className="text-brass-dark font-medium hover:underline">
-              Sign in
+              {t("manager.signIn")}
             </Link>
           </AuthFootnote>
         </>
@@ -206,15 +213,18 @@ export default function ManagerRegisterPage() {
       {step === "verify" && (
         <>
           <AuthHeading
-            eyebrow="Manager Access"
-            title="Verify Your Email"
-            subtitle={`We sent a verification code to ${form.email}.`}
+            eyebrow={t("manager.eyebrow")}
+            title={t("manager.verifyTitle")}
+            subtitle={t("manager.verifySubtitle", {
+              email: isolateLtr(form.email),
+            })}
           />
           <AuthCardPanel>
             <form onSubmit={handleVerifyOtp} className="space-y-4" noValidate>
               <AuthFormError messages={formError} />
               <Input
-                label="Verification Code"
+                label={t("common.verificationCode")}
+                dir="ltr"
                 inputMode="numeric"
                 maxLength={6}
                 autoComplete="one-time-code"
@@ -228,25 +238,33 @@ export default function ManagerRegisterPage() {
                 className="text-center tracking-[0.5em] text-lg font-mono"
               />
               <p className="text-xs text-ash text-center">
-                Code expires in:{" "}
-                <span className={secondsLeft === 0 ? "text-danger font-mono" : "text-bone font-mono"}>
+                {t("manager.expiresIn")}{" "}
+                <span
+                  className={
+                    secondsLeft === 0
+                      ? "ltr-isolate text-danger font-mono"
+                      : "ltr-isolate text-bone font-mono"
+                  }
+                >
                   {formatTime(secondsLeft)}
                 </span>
               </p>
 
               <Button type="submit" variant="primary" className="w-full" loading={submitting}>
-                Verify Email
+                {t("common.verifyEmail")}
               </Button>
 
               <p className="text-center text-ash text-xs">
-                Didn't receive the code?{" "}
+                {t("manager.noCode")}{" "}
                 <button
                   type="button"
                   onClick={handleResendOtp}
                   disabled={resendCooldown > 0 || submitting}
                   className="text-brass-dark font-medium hover:underline disabled:text-ash disabled:no-underline disabled:cursor-not-allowed"
                 >
-                  {resendCooldown > 0 ? `Resend OTP (${resendCooldown}s)` : "Resend OTP"}
+                  {resendCooldown > 0
+                    ? t("manager.resendIn", { seconds: resendCooldown })
+                    : t("manager.resend")}
                 </button>
               </p>
             </form>
@@ -257,16 +275,16 @@ export default function ManagerRegisterPage() {
       {step === "done" && (
         <>
           <AuthHeading
-            eyebrow="Manager Access"
-            title="Email Verified"
-            subtitle="Your manager account is now active. You can log in."
+            eyebrow={t("manager.eyebrow")}
+            title={t("manager.doneTitle")}
+            subtitle={t("manager.doneSubtitle")}
           />
           <Button
             variant="primary"
             className="w-full"
             onClick={() => navigate("/admin/login", { replace: true })}
           >
-            Go to Sign In
+            {t("manager.goToSignIn")}
           </Button>
         </>
       )}

@@ -1,4 +1,5 @@
 import { Component } from "react";
+import i18n from "../../i18n/index.js";
 import { Button } from "./Button.jsx";
 
 export class ErrorBoundary extends Component {
@@ -31,13 +32,13 @@ export class ErrorBoundary extends Component {
               <span className="text-danger font-display text-xl font-semibold">!</span>
             </div>
             <h1 className="font-display text-3xl font-semibold text-bone mb-3">
-              Something broke
+              {i18n.t("errorBoundary.title", { ns: "common" })}
             </h1>
             <p className="text-ash text-sm mb-8">
-              The page hit an unexpected error. Reloading usually fixes it.
+              {i18n.t("errorBoundary.description", { ns: "common" })}
             </p>
             <Button variant="primary" onClick={this.handleReload}>
-              Reload the page
+              {i18n.t("actions.reload", { ns: "common" })}
             </Button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -45,6 +46,7 @@ export const Pagination = ({
   pagination,
   onPageChange,
 }) => {
+  const { t } = useTranslation();
   if (
     !pagination ||
     pagination.totalPages <= 1
@@ -68,7 +70,7 @@ export const Pagination = ({
     <nav
       className="flex flex-col items-center gap-4"
       role="navigation"
-      aria-label="Pagination"
+      aria-label={t("pagination.label")}
     >
       <div className="flex flex-wrap items-center justify-center gap-1.5">
         <button
@@ -77,7 +79,7 @@ export const Pagination = ({
             onPageChange(page - 1)
           }
           disabled={!hasPrevPage}
-          aria-label="Previous page"
+          aria-label={t("pagination.previous")}
           className="flex h-10 w-10 items-center justify-center rounded-xl border border-card bg-white/70 text-ash shadow-sm backdrop-blur-sm transition-all hover:border-brass/50 hover:bg-white hover:text-brass-dark active:scale-95 disabled:pointer-events-none disabled:opacity-30"
         >
           <ChevronLeftIcon className="h-4 w-4" />
@@ -121,7 +123,7 @@ export const Pagination = ({
             onPageChange(page + 1)
           }
           disabled={!hasNextPage}
-          aria-label="Next page"
+          aria-label={t("pagination.next")}
           className="flex h-10 w-10 items-center justify-center rounded-xl border border-card bg-white/70 text-ash shadow-sm backdrop-blur-sm transition-all hover:border-brass/50 hover:bg-white hover:text-brass-dark active:scale-95 disabled:pointer-events-none disabled:opacity-30"
         >
           <ChevronRightIcon className="h-4 w-4" />
@@ -129,7 +131,7 @@ export const Pagination = ({
       </div>
 
       <p className="text-xs text-ash">
-        Page {page} of {totalPages}
+        {t("pagination.pageOf", { page, total: totalPages })}
       </p>
     </nav>
   );

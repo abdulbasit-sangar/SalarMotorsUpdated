@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { WhatsappIcon, PhoneIcon, MapPinIcon } from "./icons.jsx";
 import { Button } from "./Button.jsx";
 
@@ -18,6 +19,7 @@ const digitsOnly = (phone) => (phone || "").replace(/[^\d+]/g, "").replace(/(?!^
  * (e.g. an older listing created before this field existed).
  */
 export const SellerCard = ({ car }) => {
+  const { t } = useTranslation();
   const { sellerPhone, sellerWhatsapp, sellerLocation } = car || {};
   const whatsappDigits = digitsOnly(sellerWhatsapp || sellerPhone);
   const callDigits = digitsOnly(sellerPhone);
@@ -29,7 +31,7 @@ export const SellerCard = ({ car }) => {
   return (
     <div className="mt-8 glass-panel rounded-premium-lg p-5 sm:p-6">
       <h2 className="font-display text-lg font-semibold text-bone mb-4">
-        Seller Information
+        {t("seller.title")}
       </h2>
 
       {sellerLocation && (
@@ -51,13 +53,13 @@ export const SellerCard = ({ car }) => {
               className="!bg-[#25D366] !text-white hover:!brightness-105"
             >
               <WhatsappIcon className="w-4 h-4" />
-              WhatsApp Seller
+              {t("seller.whatsapp")}
             </Button>
           )}
           {hasCall && (
             <Button as="a" href={`tel:${callDigits}`} variant="secondary">
               <PhoneIcon className="w-4 h-4" />
-              Call Seller
+              {t("seller.call")}
             </Button>
           )}
         </div>

@@ -1,0 +1,107 @@
+{
+  "specs": {
+    "brand": "Brand",
+    "model": "Model",
+    "year": "Year",
+    "price": "Price",
+    "mileage": "Mileage",
+    "condition": "Condition",
+    "color": "Color",
+    "fuelType": "Fuel Type",
+    "bodyType": "Body Type",
+    "transmission": "Transmission",
+    "engine": "Engine",
+    "engineCc": "{{value}} cc",
+    "location": "Location",
+    "vin": "VIN",
+    "imported": "Imported"
+  },
+  "gallery": {
+    "viewFullScreen": "View full-screen image",
+    "viewAll": "View all {{count}} photos",
+    "viewImage": "View image {{index}} of {{total}}",
+    "imageAlt": "{{title}} — image {{index}} of {{total}}",
+    "viewerLabel": "{{title}} — full-screen photo viewer",
+    "closeViewer": "Close full-screen view",
+    "previous": "Previous image",
+    "next": "Next image",
+    "viewImageN": "View image {{index}}"
+  },
+  "details": {
+    "back": "Back to all listings",
+    "notFoundTitle": "Listing not found",
+    "loadErrorTitle": "Couldn't load this listing",
+    "notFoundDescription": "This car may have been sold, hidden, or the link is incorrect.",
+    "featured": "Featured",
+    "specification": "Specification",
+    "description": "Description",
+    "similarEyebrow": "You may also like",
+    "similarTitle": "Similar Listings",
+    "similarEmpty": "No similar listings found for this car yet."
+  },
+  "favorites": {
+    "eyebrow": "Saved",
+    "title": "Your Favorites",
+    "emptyTitle": "No favorites yet",
+    "emptyDescription": "Tap the heart on any listing to save it here.",
+    "browse": "Browse listings"
+  },
+  "search": {
+    "eyebrow": "Search",
+    "resultsFor": "Results for",
+    "title": "Search listings",
+    "promptTitle": "Type something to search",
+    "promptDescription": "Try a brand, model, or province — for example “Toyota” or “Kabul”.",
+    "results_one": "{{count}} result",
+    "results_other": "{{count}} results",
+    "noMatchesTitle": "No matches found",
+    "noMatchesDescription": "Nothing matched “{{keyword}}”. Try a different brand, model, or province."
+  },
+  "filters": {
+    "sheetTitle": "Filter Vehicles",
+    "closeFilters": "Close filters",
+    "optionsUnavailable": "Filter options unavailable",
+    "optionsUnavailableDescription": "Some dropdown options could not be loaded.",
+    "retry": "Retry",
+    "brand": "Brand",
+    "model": "Model",
+    "location": "Location",
+    "color": "Color",
+    "colorPlaceholder": "e.g. White, Black",
+    "minYear": "Min Year",
+    "maxYear": "Max Year",
+    "anyBrand": "Any brand",
+    "anyModel": "Any model",
+    "selectBrandFirst": "Select brand first",
+    "anyLocation": "Any location",
+    "anyYear": "Any year",
+    "apply": "Apply Filters",
+    "reset": "Reset"
+  },
+  "categories": {
+    "dubai": "Dubai Cars",
+    "from_america_to_herat": "From America to Herat",
+    "from_dubai_to_herat": "From Dubai to Herat"
+  },
+  "results": {
+    "filters": "Filters",
+    "sortLabel": "Sort listings",
+    "sortOptions": "Sort options",
+    "sortButton": "Sort",
+    "resetFilter": "Reset Filter",
+    "sponsored": "Sponsored Vehicles",
+    "sponsoredRow": "Sponsored vehicles",
+    "count_one": "{{count}} result",
+    "count_other": "{{count}} results",
+    "noMatchesTitle": "No matches",
+    "noMatchesCategory": "No vehicles are currently listed for {{title}}.",
+    "noMatchesFilters": "Nothing fits these filters yet. Try changing a field or clearing a filter.",
+    "clearFilters": "Clear filters"
+  },
+  "chips": {
+    "year": "Year: {{year}}",
+    "yearRange": "Year: {{min}} – {{max}}",
+    "yearFrom": "Year: from {{min}}",
+    "yearUpTo": "Year: up to {{max}}"
+  }
+}

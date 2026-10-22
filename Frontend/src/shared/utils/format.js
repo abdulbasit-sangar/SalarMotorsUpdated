@@ -5,6 +5,23 @@
  * runs everywhere (cards, details, admin tables) without guaranteed access
  * to the async `/cars/options` response.
  */
+import i18n from "../../i18n/index.js";
+import { intlLocale, isRtlLanguage, NUMBER_LOCALE } from "../../i18n/config.js";
+import { translateOption } from "../../i18n/optionLabels.js";
+
+// Locale-aware formatting (see i18n/config.js): dates follow the active
+// language with the Gregorian calendar; numbers use one unambiguous
+// convention everywhere. Reads the active language at call time; components
+// that call these re-render on language change through useTranslation.
+export const formatNumber = (value) =>
+  new Intl.NumberFormat(NUMBER_LOCALE).format(value);
+
+// Left-to-right isolate: keeps "12,000 AED" / "85,000 km" in reading order
+// inside right-to-left sentences. Only applied under RTL so English output is
+// byte-for-byte unchanged.
+export const isolateLtr = (text) =>
+  isRtlLanguage(i18n.language) ? `\u2066${text}\u2069` : text;
+
 const CURRENCY_SYMBOLS = {
   USD: "$",
   EUR: "€",
@@ -20,9 +37,9 @@ const CURRENCY_SYMBOLS = {
  */
 export const formatPrice = (price, currency = "USD") => {
   if (price === undefined || price === null) return "—";
-  const amount = new Intl.NumberFormat("en-US").format(price);
+  const amount = formatNumber(price);
   const symbol = CURRENCY_SYMBOLS[currency] || currency || "";
-  return symbol ? `${amount} ${symbol}` : amount;
+  return isolateLtr(symbol ? `${amount} ${symbol}` : amount);
 };
 
 /**
@@ -34,7 +51,7 @@ export const formatPrice = (price, currency = "USD") => {
 export const formatMileage = (mileage, unit = "km") => {
   if (mileage === undefined || mileage === null) return null;
   const label = unit === "miles" ? "mi" : "km";
-  return `${new Intl.NumberFormat("en-US").format(mileage)} ${label}`;
+  return isolateLtr(`${formatNumber(mileage)} ${label}`);
 };
 
 /**
@@ -49,15 +66,33 @@ export const imageCount = (car) => car?.images?.length || 0;
 export const carTitle = (car) =>
   car?.title || [car?.brand, car?.model, car?.year].filter(Boolean).join(" ");
 
-export const carLocation = (car) => [car?.city, car?.province].filter(Boolean).join(", ");
+// City is free text entered with the listing (kept as written); the province
+// is one of the backend's fixed values, so its label is translated.
+export const carLocation = (car) =>
+  [car?.city, translateOption("province", car?.province)]
+    .filter(Boolean)
+    .join(isRtlLanguage(i18n.language) ? "، " : ", ");
 
 export const formatDate = (dateValue) => {
   if (!dateValue) return null;
   try {
-    return new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long" }).format(
-      new Date(dateValue)
-    );
+    return new Intl.DateTimeFormat(intlLocale(i18n.language), {
+      year: "numeric",
+      month: "long",
+    }).format(new Date(dateValue));
   } catch {
     return null;
+  }
+};
+
+/** Generic locale-aware date formatter (Gregorian, Latin digits). */
+export const formatDateTime = (value, options = { dateStyle: "medium" }) => {
+  if (!value) return "";
+  try {
+    return new Intl.DateTimeFormat(intlLocale(i18n.language), options).format(
+      new Date(value),
+    );
+  } catch {
+    return "";
   }
 };

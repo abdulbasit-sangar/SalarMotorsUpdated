@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../store/auth/AuthContext.jsx";
 import { useToast } from "../../../store/ui/ToastContext.jsx";
@@ -15,6 +16,7 @@ import { validateRegisterForm, hasErrors } from "../../../shared/utils/validator
 import { parseApiError } from "../../../services/api/client.js";
 
 export default function RegisterPage() {
+  const { t } = useTranslation("auth");
   const { register } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
@@ -41,7 +43,7 @@ export default function RegisterPage() {
     setSubmitting(true);
     try {
       await register(form);
-      toast.success("Admin account created.");
+      toast.success(t("register.success"));
       navigate("/admin/dashboard", { replace: true });
     } catch (err) {
       const parsed = parseApiError(err);
@@ -60,9 +62,9 @@ export default function RegisterPage() {
   return (
     <AuthShell>
       <AuthHeading
-        eyebrow="First-Time Setup"
-        title="Create Admin"
-        subtitle="This one-time form creates the initial admin account for this AutoMarket instance."
+        eyebrow={t("register.eyebrow")}
+        title={t("register.title")}
+        subtitle={t("register.subtitle")}
       />
 
       <AuthCardPanel>
@@ -71,14 +73,17 @@ export default function RegisterPage() {
             {alreadySetUp && (
               <p className="text-danger text-sm mt-1">
                 <Link to="/admin/login" className="underline font-medium">
-                  Go to the login page instead →
+                  {t("register.goToLogin")}{" "}
+                  <span aria-hidden="true" className="inline-block rtl:-scale-x-100">
+                    →
+                  </span>
                 </Link>
               </p>
             )}
           </AuthFormError>
 
           <Input
-            label="Username"
+            label={t("common.username")}
             autoComplete="username"
             required
             value={form.username}
@@ -86,7 +91,7 @@ export default function RegisterPage() {
             error={fieldErrors.username}
           />
           <Input
-            label="Email"
+            label={t("common.email")}
             type="email"
             autoComplete="email"
             required
@@ -95,10 +100,12 @@ export default function RegisterPage() {
             error={fieldErrors.email}
           />
           <Input
-            label="Password"
+            label={t("common.password")}
             type="password"
             autoComplete="new-password"
-            hint={!fieldErrors.password ? "At least 8 characters." : undefined}
+            hint={
+              !fieldErrors.password ? t("register.passwordHint", { min: 8 }) : undefined
+            }
             required
             value={form.password}
             onChange={updateField("password")}
@@ -106,15 +113,15 @@ export default function RegisterPage() {
           />
 
           <Button type="submit" variant="primary" className="w-full" loading={submitting}>
-            Create Admin Account
+            {t("register.submit")}
           </Button>
         </form>
       </AuthCardPanel>
 
       <AuthFootnote>
-        Already set up?{" "}
+        {t("register.alreadySetUp")}{" "}
         <Link to="/admin/login" className="text-brass-dark font-medium hover:underline">
-          Sign in
+          {t("register.signIn")}
         </Link>
       </AuthFootnote>
     </AuthShell>

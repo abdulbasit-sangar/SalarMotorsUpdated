@@ -1,5 +1,7 @@
 import axios from "axios";
 import { getDeviceId } from "../../shared/utils/deviceId.js";
+import i18n from "../../i18n/index.js";
+import { localizeApiMessage } from "./apiMessages.js";
 
 // Base URL comes from env — set VITE_API_URL in .env for each environment.
 export const BASE_URL =
@@ -152,20 +154,22 @@ export const parseApiError = (error) => {
   if (error?.response?.data) {
     const { message, errors } = error.response.data;
     return {
-      message: message || "Something went wrong. Please try again.",
-      errors: Array.isArray(errors) ? errors : [],
+      message: message
+        ? localizeApiMessage(message)
+        : i18n.t("server.generic", { ns: "errors" }),
+      errors: Array.isArray(errors) ? errors.map(localizeApiMessage) : [],
       status: error.response.status,
     };
   }
   if (error?.request) {
     return {
-      message: "Can't reach the server. Check your connection and try again.",
+      message: i18n.t("server.network", { ns: "errors" }),
       errors: [],
       status: null,
     };
   }
   return {
-    message: error?.message || "Unexpected error.",
+    message: error?.message || i18n.t("server.unexpected", { ns: "errors" }),
     errors: [],
     status: null,
   };

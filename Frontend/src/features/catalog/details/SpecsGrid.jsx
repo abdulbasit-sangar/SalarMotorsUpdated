@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import { useOptionLabel } from "../../../i18n/optionLabels.js";
 import {
   formatDate,
   formatMileage,
@@ -21,7 +23,7 @@ const SpecCell = ({ icon: Icon, label, value }) => {
         {Icon && <Icon className="w-4 h-4 text-brass-dark shrink-0" />}
         {label}
       </span>
-      <span className="text-bone text-sm font-mono text-right">{value}</span>
+      <span className="text-bone text-sm font-mono text-end">{value}</span>
     </div>
   );
 };
@@ -35,37 +37,52 @@ const SpecCell = ({ icon: Icon, label, value }) => {
  * intentionally the ONLY place these are repeated (title/price panel above
  * it stay focused on the at-a-glance figures, not a full spec dump).
  */
-export const SpecsGrid = ({ car }) => (
+export const SpecsGrid = ({ car }) => {
+  const { t } = useTranslation("catalog");
+  const label = useOptionLabel();
+  return (
   <div className="grid sm:grid-cols-2 gap-x-10">
     <div>
-      <SpecCell label="Brand" value={car.brand} />
-      <SpecCell label="Model" value={car.model} />
-      <SpecCell icon={CalendarIcon} label="Year" value={car.year} />
-      <SpecCell label="Price" value={formatPrice(car.price, car.currency)} />
+      <SpecCell label={t("specs.brand")} value={car.brand} />
+      <SpecCell label={t("specs.model")} value={car.model} />
+      <SpecCell icon={CalendarIcon} label={t("specs.year")} value={car.year} />
+      <SpecCell label={t("specs.price")} value={formatPrice(car.price, car.currency)} />
       <SpecCell
         icon={GaugeIcon}
-        label="Mileage"
+        label={t("specs.mileage")}
         value={formatMileage(car.mileage, car.mileageUnit)}
       />
-      <SpecCell label="Condition" value={car.condition} />
-      <SpecCell label="Color" value={car.color} />
+      <SpecCell
+        label={t("specs.condition")}
+        value={label("condition", car.condition)}
+      />
+      <SpecCell label={t("specs.color")} value={car.color} />
     </div>
     <div>
-      <SpecCell icon={FuelIcon} label="Fuel Type" value={car.fuelType} />
-      <SpecCell label="Body Type" value={car.bodyType} />
-      <SpecCell icon={GearIcon} label="Transmission" value={car.transmission} />
+      <SpecCell icon={FuelIcon} label={t("specs.fuelType")}
+        value={label("fuelType", car.fuelType)} />
+      <SpecCell
+        label={t("specs.bodyType")}
+        value={label("bodyType", car.bodyType)}
+      />
+      <SpecCell icon={GearIcon} label={t("specs.transmission")}
+        value={label("transmission", car.transmission)} />
       <SpecCell
         icon={EngineIcon}
-        label="Engine"
-        value={car.engineCC ? `${car.engineCC} cc` : null}
+        label={t("specs.engine")}
+        value={car.engineCC ? t("specs.engineCc", { value: car.engineCC }) : null}
       />
-      <SpecCell icon={MapPinIcon} label="Location" value={carLocation(car)} />
-      <SpecCell label="VIN" value={car.vin} />
+      <SpecCell icon={MapPinIcon} label={t("specs.location")} value={carLocation(car)} />
+      <SpecCell
+        label={t("specs.vin")}
+        value={car.vin ? <span className="ltr-isolate">{car.vin}</span> : null}
+      />
       <SpecCell
         icon={CalendarIcon}
-        label="Imported"
+        label={t("specs.imported")}
         value={formatDate(car.importedDate)}
       />
     </div>
   </div>
-);
+  );
+};

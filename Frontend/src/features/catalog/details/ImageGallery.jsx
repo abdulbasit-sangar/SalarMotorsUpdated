@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "../../../i18n/useLanguage.js";
 import {
   CarSilhouetteIcon,
   ChevronLeftIcon,
@@ -16,6 +18,7 @@ import {
 const MOSAIC_TILE_COUNT = 6;
 
 export const ImageGallery = ({ images = [], title }) => {
+  const { t } = useTranslation("catalog");
   const [active, setActive] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
@@ -39,7 +42,7 @@ export const ImageGallery = ({ images = [], title }) => {
         <button
           type="button"
           onClick={() => openLightboxAt(0)}
-          aria-label="View full-screen image"
+          aria-label={t("gallery.viewFullScreen")}
           className="relative block w-full bg-graphite-100 border border-card rounded-premium-lg overflow-hidden aspect-[4/3] sm:aspect-[16/10] shadow-card cursor-zoom-in"
         >
           <img
@@ -82,8 +85,8 @@ export const ImageGallery = ({ images = [], title }) => {
               onClick={() => openLightboxAt(i)}
               aria-label={
                 isLastTile
-                  ? `View all ${images.length} photos`
-                  : `View image ${i + 1} of ${images.length}`
+                  ? t("gallery.viewAll", { count: images.length })
+                  : t("gallery.viewImage", { index: i + 1, total: images.length })
               }
               className="relative aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden bg-graphite-100 border border-card shadow-card cursor-zoom-in group"
             >
@@ -91,7 +94,7 @@ export const ImageGallery = ({ images = [], title }) => {
                 src={optimizedImageUrl(img.url, { width: 480 })}
                 srcSet={buildSrcSet(img.url, [320, 480, 640])}
                 sizes="(min-width: 1024px) 300px, 45vw"
-                alt={`${title} — image ${i + 1} of ${images.length}`}
+                alt={t("gallery.imageAlt", { title, index: i + 1, total: images.length })}
                 loading={i === 0 ? "eager" : "lazy"}
                 decoding="async"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
@@ -100,7 +103,7 @@ export const ImageGallery = ({ images = [], title }) => {
               {isLastTile && (
                 <div className="absolute inset-0 bg-graphite/60 flex items-center justify-center">
                   <span className="text-white font-display text-lg sm:text-xl font-semibold">
-                    +{remainingCount}
+                    <span dir="ltr">+{remainingCount}</span>
                   </span>
                 </div>
               )}
@@ -129,6 +132,8 @@ export const ImageGallery = ({ images = [], title }) => {
  * strip.
  */
 const ImageLightbox = ({ images, title, active, onChangeActive, onClose }) => {
+  const { t } = useTranslation("catalog");
+  const { isRtl } = useLanguage();
   const showNav = images.length > 1;
 
   const goPrev = useCallback(
@@ -153,8 +158,10 @@ const ImageLightbox = ({ images, title, active, onChangeActive, onClose }) => {
 
     const handleKeyDown = (event) => {
       if (event.key === "Escape") onClose();
-      else if (event.key === "ArrowLeft" && showNav) goPrev();
-      else if (event.key === "ArrowRight" && showNav) goNext();
+      // Arrow keys follow what is on screen: the "next" button sits on the
+      // left in RTL, so ArrowLeft advances there.
+      else if (event.key === "ArrowLeft" && showNav) (isRtl ? goNext : goPrev)();
+      else if (event.key === "ArrowRight" && showNav) (isRtl ? goPrev : goNext)();
     };
     window.addEventListener("keydown", handleKeyDown);
 
@@ -162,27 +169,27 @@ const ImageLightbox = ({ images, title, active, onChangeActive, onClose }) => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onClose, goPrev, goNext, showNav]);
+  }, [onClose, goPrev, goNext, showNav, isRtl]);
 
   return (
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`${title} — full-screen photo viewer`}
+      aria-label={t("gallery.viewerLabel", { title })}
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black"
       onClick={onClose}
     >
       <button
         type="button"
         onClick={onClose}
-        aria-label="Close full-screen view"
-        className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white transition-colors duration-200 hover:bg-white/25"
+        aria-label={t("gallery.closeViewer")}
+        className="absolute top-4 end-4 sm:top-6 sm:end-6 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white transition-colors duration-200 hover:bg-white/25"
       >
         <CloseIcon className="h-5 w-5" />
       </button>
 
       {showNav && (
-        <span className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 chip-glass !bg-white/15 !border-white/20 !text-white font-mono normal-case tracking-normal">
+        <span className="ltr-isolate absolute top-4 start-4 sm:top-6 sm:start-6 z-20 chip-glass !bg-white/15 !border-white/20 !text-white font-mono normal-case tracking-normal">
           {active + 1} / {images.length}
         </span>
       )}
@@ -194,8 +201,8 @@ const ImageLightbox = ({ images, title, active, onChangeActive, onClose }) => {
             event.stopPropagation();
             goPrev();
           }}
-          aria-label="Previous image"
-          className="absolute left-2 sm:left-6 top-1/2 z-20 flex h-11 w-11 sm:h-14 sm:w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition-colors duration-200 hover:bg-white/25 active:scale-95"
+          aria-label={t("gallery.previous")}
+          className="absolute start-2 sm:start-6 top-1/2 z-20 flex h-11 w-11 sm:h-14 sm:w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition-colors duration-200 hover:bg-white/25 active:scale-95"
         >
           <ChevronLeftIcon className="h-6 w-6" />
         </button>
@@ -205,7 +212,7 @@ const ImageLightbox = ({ images, title, active, onChangeActive, onClose }) => {
         src={optimizedImageUrl(images[active]?.url, { width: 1600 })}
         srcSet={buildSrcSet(images[active]?.url, [640, 900, 1200, 1600, 2000])}
         sizes="100vw"
-        alt={`${title} — image ${active + 1} of ${images.length}`}
+        alt={t("gallery.imageAlt", { title, index: active + 1, total: images.length })}
         decoding="async"
         className={clsx(
           "object-contain select-none max-w-[96vw]",
@@ -221,8 +228,8 @@ const ImageLightbox = ({ images, title, active, onChangeActive, onClose }) => {
             event.stopPropagation();
             goNext();
           }}
-          aria-label="Next image"
-          className="absolute right-2 sm:right-6 top-1/2 z-20 flex h-11 w-11 sm:h-14 sm:w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition-colors duration-200 hover:bg-white/25 active:scale-95"
+          aria-label={t("gallery.next")}
+          className="absolute end-2 sm:end-6 top-1/2 z-20 flex h-11 w-11 sm:h-14 sm:w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition-colors duration-200 hover:bg-white/25 active:scale-95"
         >
           <ChevronRightIcon className="h-6 w-6" />
         </button>
@@ -239,7 +246,7 @@ const ImageLightbox = ({ images, title, active, onChangeActive, onClose }) => {
                 key={img.public_id || i}
                 type="button"
                 onClick={() => onChangeActive(i)}
-                aria-label={`View image ${i + 1}`}
+                aria-label={t("gallery.viewImageN", { index: i + 1 })}
                 aria-current={i === active}
                 className={clsx(
                   "shrink-0 w-14 h-10 sm:w-16 sm:h-12 rounded-lg overflow-hidden border-2 transition-all duration-200",

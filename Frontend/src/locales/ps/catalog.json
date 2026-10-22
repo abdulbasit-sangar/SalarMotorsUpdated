@@ -1,0 +1,107 @@
+{
+  "specs": {
+    "brand": "برانډ",
+    "model": "ماډل",
+    "year": "کال",
+    "price": "بیه",
+    "mileage": "تللی واټن",
+    "condition": "حالت",
+    "color": "رنګ",
+    "fuelType": "د تېلو ډول",
+    "bodyType": "د بدنې ډول",
+    "transmission": "ګیر سیستم",
+    "engine": "انجن",
+    "engineCc": "{{value}} سي سي",
+    "location": "موقعیت",
+    "vin": "VIN",
+    "imported": "د واردولو نېټه"
+  },
+  "gallery": {
+    "viewFullScreen": "انځور په بشپړ سکرین وګورئ",
+    "viewAll": "ټول {{count}} انځورونه وګورئ",
+    "viewImage": "{{total}} انځورونو څخه {{index}} وګورئ",
+    "imageAlt": "{{title}} — {{total}} انځورونو څخه {{index}} انځور",
+    "viewerLabel": "{{title}} — د انځورونو بشپړ سکرین کتونکی",
+    "closeViewer": "بشپړ سکرین بندول",
+    "previous": "مخکینی انځور",
+    "next": "راتلونکی انځور",
+    "viewImageN": "{{index}} انځور وګورئ"
+  },
+  "details": {
+    "back": "ټولو اعلانونو ته ستنېدل",
+    "notFoundTitle": "اعلان ونه موندل شو",
+    "loadErrorTitle": "دا اعلان نه شو بارېدای",
+    "notFoundDescription": "ښايي دا موټر پلورل شوی، پټ شوی یا لینک ناسم وي.",
+    "featured": "ځانګړی",
+    "specification": "مشخصات",
+    "description": "تشریح",
+    "similarEyebrow": "ښايي تاسو ته هم خوښ شي",
+    "similarTitle": "ورته اعلانونه",
+    "similarEmpty": "د دې موټر لپاره تر اوسه ورته اعلانونه ونه موندل شول."
+  },
+  "favorites": {
+    "eyebrow": "خوندي شوي",
+    "title": "ستاسو خوښې",
+    "emptyTitle": "تر اوسه خوښې نشته",
+    "emptyDescription": "د هر اعلان په زړه کېکاږئ چې دلته خوندي شي.",
+    "browse": "اعلانونه وګورئ"
+  },
+  "search": {
+    "eyebrow": "لټون",
+    "resultsFor": "د دې لپاره پایلې",
+    "title": "د اعلانونو لټون",
+    "promptTitle": "د لټون لپاره یو څه ولیکئ",
+    "promptDescription": "یو برانډ، ماډل یا ولایت وازمویئ — د بېلګې په توګه “Toyota” یا “کابل”.",
+    "results_one": "{{count}} پایله",
+    "results_other": "{{count}} پایلې",
+    "noMatchesTitle": "هیڅ سمون ونه موندل شو",
+    "noMatchesDescription": "د “{{keyword}}” سره هیڅ سمون ونه خوړ. بل برانډ، ماډل یا ولایت وازمویئ."
+  },
+  "filters": {
+    "sheetTitle": "د موټرو فلټر",
+    "closeFilters": "فلټرونه بندول",
+    "optionsUnavailable": "د فلټر اختیارونه نشته",
+    "optionsUnavailableDescription": "ځینې اختیارونه و نه بارېدل.",
+    "retry": "بیا هڅه",
+    "brand": "برانډ",
+    "model": "ماډل",
+    "location": "موقعیت",
+    "color": "رنګ",
+    "colorPlaceholder": "د بېلګې په توګه سپین، تور",
+    "minYear": "لږ تر لږه کال",
+    "maxYear": "تر ټولو زیات کال",
+    "anyBrand": "هر برانډ",
+    "anyModel": "هر ماډل",
+    "selectBrandFirst": "لومړی برانډ وټاکئ",
+    "anyLocation": "هر موقعیت",
+    "anyYear": "هر کال",
+    "apply": "فلټرونه پلي کړئ",
+    "reset": "بیا تنظیم"
+  },
+  "categories": {
+    "dubai": "د دوبي موټر",
+    "from_america_to_herat": "له امریکا څخه هرات ته",
+    "from_dubai_to_herat": "له دوبي څخه هرات ته"
+  },
+  "results": {
+    "filters": "فلټرونه",
+    "sortLabel": "د اعلانونو ترتیب",
+    "sortOptions": "د ترتیب اختیارونه",
+    "sortButton": "ترتیب",
+    "resetFilter": "فلټر بیا تنظیم کړئ",
+    "sponsored": "سپانسر شوي موټر",
+    "sponsoredRow": "سپانسر شوي موټر",
+    "count_one": "{{count}} پایله",
+    "count_other": "{{count}} پایلې",
+    "noMatchesTitle": "هیڅ سمون نشته",
+    "noMatchesCategory": "اوس مهال د {{title}} لپاره هیڅ موټر نه دی لیست شوی.",
+    "noMatchesFilters": "تر اوسه هیڅ شی له دې فلټرونو سره نه سمون خوري. یو ډګر بدل کړئ یا یو فلټر پاک کړئ.",
+    "clearFilters": "فلټرونه پاک کړئ"
+  },
+  "chips": {
+    "year": "کال: {{year}}",
+    "yearRange": "کال: {{min}} – {{max}}",
+    "yearFrom": "کال: له {{min}} څخه",
+    "yearUpTo": "کال: تر {{max}} پورې"
+  }
+}

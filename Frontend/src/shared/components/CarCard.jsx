@@ -1,3 +1,4 @@
+
 import {
   Children,
   useCallback,
@@ -7,6 +8,8 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "../../i18n/useLanguage.js";
 import { Badge } from "./Badge.jsx";
 import { SoldRibbon, SoldSrLabel } from "./SoldRibbon.jsx";
 import { FavoriteButton } from "./FavoriteButton.jsx";
@@ -23,7 +26,9 @@ import {
   carLocation,
   carTitle,
   formatMileage,
+  formatNumber,
   formatPrice,
+  isolateLtr,
   getPrimaryImage,
 } from "../utils/format.js";
 
@@ -34,9 +39,9 @@ const PREFIX_CURRENCIES = { USD: "$", EUR: "€" };
 
 const compactPrice = (price, currency = "USD") => {
   if (price === undefined || price === null) return "—";
-  const amount = new Intl.NumberFormat("en-US").format(price);
+  const amount = formatNumber(price);
   const prefix = PREFIX_CURRENCIES[currency] || currency || "";
-  return `${prefix} ${amount}`.trim();
+  return isolateLtr(`${prefix} ${amount}`.trim());
 };
 
 /**
@@ -50,6 +55,7 @@ export const CarCard = ({
   sponsored = false,
   variant = "default",
 }) => {
+  const { t } = useTranslation();
   const compact = variant === "compact";
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -149,8 +155,8 @@ export const CarCard = ({
             <button
               type="button"
               onClick={handlePrevious}
-              aria-label="View previous image"
-              className="absolute left-2.5 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/75 text-graphite opacity-0 shadow-lg backdrop-blur-md transition-all duration-200 group-hover:opacity-100 hover:bg-white active:scale-95 sm:left-3"
+              aria-label={t("carCard.previousImage")}
+              className="absolute start-2.5 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/75 text-graphite opacity-0 shadow-lg backdrop-blur-md transition-all duration-200 group-hover:opacity-100 hover:bg-white active:scale-95 sm:start-3"
             >
               <ChevronLeftIcon className="h-4 w-4" />
             </button>
@@ -158,8 +164,8 @@ export const CarCard = ({
             <button
               type="button"
               onClick={handleNext}
-              aria-label="View next image"
-              className="absolute right-2.5 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/75 text-graphite opacity-0 shadow-lg backdrop-blur-md transition-all duration-200 group-hover:opacity-100 hover:bg-white active:scale-95 sm:right-3"
+              aria-label={t("carCard.nextImage")}
+              className="absolute end-2.5 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/75 text-graphite opacity-0 shadow-lg backdrop-blur-md transition-all duration-200 group-hover:opacity-100 hover:bg-white active:scale-95 sm:end-3"
             >
               <ChevronRightIcon className="h-4 w-4" />
             </button>
@@ -168,20 +174,17 @@ export const CarCard = ({
 
         {/* Image count */}
         {imageTotal > 0 && (
-          <div className="absolute left-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/40 bg-black/35 px-2.5 py-1.5 text-[11px] font-medium text-white shadow-sm backdrop-blur-md">
+          <div className="absolute start-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/40 bg-black/35 px-2.5 py-1.5 text-[11px] font-medium text-white shadow-sm backdrop-blur-md">
             <CameraIcon className="h-3.5 w-3.5" />
             {imageTotal}
           </div>
         )}
 
-        {/* Featured */}
-
-
         {/* Favorite */}
         <FavoriteButton
           carId={car._id}
           size="sm"
-          className="absolute right-3 top-3 z-10 border border-white/40 bg-white/75 shadow-lg backdrop-blur-md"
+          className="absolute end-3 top-3 z-10 border border-white/40 bg-white/75 shadow-lg backdrop-blur-md"
         />
       </div>
 
@@ -237,12 +240,22 @@ export const CarCard = ({
   );
 };
 
+/**
+ * CarCardGrid — responsive vehicle listing grid.
+ *
+ * Mobile:       1 column
+ * Small:        2 columns
+ * Medium:       3 columns
+ * Large:        4 columns
+ *
+ * Keeps the existing outer container and its horizontal spacing untouched.
+ */
 export const CarCardGrid = ({ children, dense = false }) => (
   <div
     className={
       dense
-        ? "grid grid-cols-1 items-stretch gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
-        : "grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4"
+        ? "grid grid-cols-1 items-stretch gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
+        : "grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-4"
     }
   >
     {children}
@@ -250,25 +263,34 @@ export const CarCardGrid = ({ children, dense = false }) => (
 );
 
 /**
- * CarCardRow — one horizontally scrollable row of cards (used for the
+ * CarCardRow — one horizontally scrollable row of cards (used by the
  * Sponsored section). Scrolls both ways with: touch swipe, trackpad /
  * shift+wheel, mouse click-and-drag, and the left/right arrow buttons.
  * Must sit inside a `.container-listing` (it bleeds into that padding).
  */
-export const CarCardRow = ({ children, label = "Vehicles" }) => {
+export const CarCardRow = ({ children, label }) => {
+  const { t } = useTranslation();
+  const { isRtl } = useLanguage();
+  const rowLabel = label ?? t("carRow.defaultLabel");
   const scrollerRef = useRef(null);
   const trackRef = useRef(null);
   const drag = useRef({ active: false, moved: false, startX: 0, startLeft: 0 });
 
-  const [canLeft, setCanLeft] = useState(false);
-  const [canRight, setCanRight] = useState(false);
+  // "start" / "end" follow reading direction (left/right in English,
+  // right/left in Pashto and Dari).
+  const [canStart, setCanStart] = useState(false);
+  const [canEnd, setCanEnd] = useState(false);
   const [dragging, setDragging] = useState(false);
 
   const updateEdges = useCallback(() => {
     const el = scrollerRef.current;
     if (!el) return;
-    setCanLeft(el.scrollLeft > 4);
-    setCanRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    // scrollLeft is 0 at the start edge in both directions but goes negative
+    // in RTL, so measure the distance travelled from the start edge.
+    const travelled = Math.abs(el.scrollLeft);
+    const max = el.scrollWidth - el.clientWidth;
+    setCanStart(travelled > 4);
+    setCanEnd(travelled < max - 4);
   }, []);
 
   useEffect(() => {
@@ -302,7 +324,9 @@ export const CarCardRow = ({ children, label = "Vehicles" }) => {
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     el.scrollBy({
-      left: direction * el.clientWidth * 0.85,
+      // direction: -1 = toward the start, 1 = toward the end. Physically, the
+      // end is to the left in RTL, so the sign flips.
+      left: (isRtl ? -direction : direction) * el.clientWidth * 0.85,
       behavior: reduceMotion ? "auto" : "smooth",
     });
   };
@@ -327,7 +351,7 @@ export const CarCardRow = ({ children, label = "Vehicles" }) => {
 
     const deltaX = event.clientX - state.startX;
     if (!state.moved) {
-      if (Math.abs(deltaX) < 6) return; // still a click, not a drag
+      if (Math.abs(deltaX) < 6) return;
       state.moved = true;
       setDragging(true);
       event.currentTarget.setPointerCapture?.(event.pointerId);
@@ -358,23 +382,23 @@ export const CarCardRow = ({ children, label = "Vehicles" }) => {
 
   return (
     <div className="relative">
-      {canLeft && (
+      {canStart && (
         <button
           type="button"
           onClick={() => scrollByPage(-1)}
-          aria-label={`Scroll ${label} left`}
-          className={clsx(arrowClass, "left-1")}
+          aria-label={t("carRow.scrollPrevious", { label: rowLabel })}
+          className={clsx(arrowClass, "start-1")}
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
       )}
 
-      {canRight && (
+      {canEnd && (
         <button
           type="button"
           onClick={() => scrollByPage(1)}
-          aria-label={`Scroll ${label} right`}
-          className={clsx(arrowClass, "right-1")}
+          aria-label={t("carRow.scrollNext", { label: rowLabel })}
+          className={clsx(arrowClass, "end-1")}
         >
           <ChevronRightIcon className="h-5 w-5" />
         </button>
@@ -383,7 +407,7 @@ export const CarCardRow = ({ children, label = "Vehicles" }) => {
       <div
         ref={scrollerRef}
         role="region"
-        aria-label={label}
+        aria-label={rowLabel}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={endDrag}
@@ -391,7 +415,7 @@ export const CarCardRow = ({ children, label = "Vehicles" }) => {
         onClickCapture={handleClickCapture}
         onDragStart={(event) => event.preventDefault()}
         className={clsx(
-          "no-scrollbar -mx-3 overflow-x-auto overscroll-x-contain scroll-pl-3 sm:-mx-4 sm:scroll-pl-4 lg:-mx-5 lg:scroll-pl-5",
+          "no-scrollbar -mx-3 overflow-x-auto overscroll-x-contain scroll-ps-3 sm:-mx-4 sm:scroll-ps-4 lg:-mx-5 lg:scroll-ps-5",
           dragging ? "cursor-grabbing snap-none" : "snap-x snap-proximity",
         )}
       >

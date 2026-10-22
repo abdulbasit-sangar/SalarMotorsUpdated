@@ -1,5 +1,7 @@
 import { useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useOptionLabel } from "../../../i18n/optionLabels.js";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
 import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
 import {
@@ -26,6 +28,8 @@ import {
 } from "../../../shared/components/icons.jsx";
 
 export default function CarDetailsPage() {
+  const { t } = useTranslation("catalog");
+  const label = useOptionLabel();
   const { id } = useParams();
 
   const carFetcher = useCallback(() => fetchCarById(id), [id]);
@@ -70,11 +74,11 @@ export default function CarDetailsPage() {
       <div className="container-page pb-16 pt-28 sm:pt-32">
         <ErrorState
           title={
-            isNotFound ? "Listing not found" : "Couldn't load this listing"
+            isNotFound ? t("details.notFoundTitle") : t("details.loadErrorTitle")
           }
           description={
             isNotFound
-              ? "This car may have been sold, hidden, or the link is incorrect."
+              ? t("details.notFoundDescription")
               : carError.message
           }
           onRetry={isNotFound ? undefined : refetch}
@@ -84,7 +88,10 @@ export default function CarDetailsPage() {
             to="/listings"
             className="text-brass-dark text-sm font-semibold"
           >
-            ← Back to all listings
+            <span aria-hidden="true" className="inline-block rtl:-scale-x-100">
+              ←
+            </span>{" "}
+            {t("details.back")}
           </Link>
         </div>
       </div>
@@ -103,7 +110,7 @@ export default function CarDetailsPage() {
           className="inline-flex items-center gap-1.5 text-ash hover:text-brass-dark text-sm font-medium mb-6 transition-colors"
         >
           <ChevronLeftIcon className="w-4 h-4" />
-          Back to all listings
+          {t("details.back")}
         </Link>
 
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
@@ -115,7 +122,7 @@ export default function CarDetailsPage() {
                 right-column narrative text. */}
             <div className="mt-8 glass-panel rounded-premium-lg p-5 sm:p-6">
               <h2 className="font-display text-lg font-semibold text-bone mb-4">
-                Specification
+                {t("details.specification")}
               </h2>
               <SpecsGrid car={car} />
             </div>
@@ -127,10 +134,16 @@ export default function CarDetailsPage() {
           <div>
             <div className="flex items-center justify-between gap-2 mb-3">
               <div className="flex items-center gap-2 flex-wrap">
-                {car.isSold && <Badge variant="danger">Sold</Badge>}
-                {car.featured && <Badge variant="brass">Featured</Badge>}
+                {car.isSold && (
+                  <Badge variant="danger">{t("sold.label", { ns: "common" })}</Badge>
+                )}
+                {car.featured && (
+                  <Badge variant="brass">{t("details.featured")}</Badge>
+                )}
                 {car.condition && (
-                  <Badge variant="neutral">{car.condition}</Badge>
+                  <Badge variant="neutral">
+                    {label("condition", car.condition)}
+                  </Badge>
                 )}
               </div>
               <FavoriteButton carId={car._id} />
@@ -156,7 +169,7 @@ export default function CarDetailsPage() {
             {car.description && (
               <div className="mt-8">
                 <h2 className="font-display text-lg font-semibold text-bone mb-2">
-                  Description
+                  {t("details.description")}
                 </h2>
                 <p className="text-ash text-sm leading-relaxed whitespace-pre-line">
                   {car.description}
@@ -176,13 +189,13 @@ export default function CarDetailsPage() {
 
       <div className="border-t border-card bg-graphite-100/60">
         <CarSection
-          eyebrow="You may also like"
-          title="Similar Listings"
+          eyebrow={t("details.similarEyebrow")}
+          title={t("details.similarTitle")}
           cars={similarData?.cars}
           loading={similarLoading}
           error={similarError}
           onRetry={refetchSimilar}
-          emptyMessage="No similar listings found for this car yet."
+          emptyMessage={t("details.similarEmpty")}
         />
       </div>
     </div>

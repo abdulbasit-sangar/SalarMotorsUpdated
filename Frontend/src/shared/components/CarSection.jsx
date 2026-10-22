@@ -5,6 +5,7 @@ import { EmptyState } from "./EmptyState.jsx";
 import { ErrorState } from "./ErrorState.jsx";
 import { CarSilhouetteIcon } from "./icons.jsx";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
 
 export const CarSection = ({
   title,
@@ -15,10 +16,12 @@ export const CarSection = ({
   error,
   onRetry,
   skeletonCount = 4,
-  emptyMessage = "No listings match this section yet.",
+  emptyMessage,
   dark = false,
   sponsored = false,
-}) => (
+}) => {
+  const { t } = useTranslation();
+  return (
   <section className={clsx(dark ? "" : "container-page py-12 sm:py-16")}>
     <div className={clsx(dark && "container-page")}>
       <div className="flex items-end justify-between mb-8 sm:mb-10">
@@ -39,13 +42,16 @@ export const CarSection = ({
           <Link
             to={viewAllTo}
             className={clsx(
-              "text-sm font-semibold transition-colors shrink-0 ml-4",
+              "text-sm font-semibold transition-colors shrink-0 ms-4",
               dark
                 ? "text-ash hover:text-brass"
                 : "text-section-light-muted hover:text-brass",
             )}
           >
-            View all →
+            {t("actions.viewAll")}{" "}
+            <span aria-hidden="true" className="inline-block rtl:-scale-x-100">
+              →
+            </span>
           </Link>
         )}
       </div>
@@ -67,10 +73,11 @@ export const CarSection = ({
       ) : (
         <EmptyState
           icon={<CarSilhouetteIcon className="w-14 h-9" />}
-          title="No listings yet"
-          description={emptyMessage}
+          title={t("sections.noListingsTitle")}
+          description={emptyMessage ?? t("sections.noListingsMessage")}
         />
       )}
     </div>
   </section>
-);
+  );
+};

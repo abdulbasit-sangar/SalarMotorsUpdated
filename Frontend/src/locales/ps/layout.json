@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "home": "کورپاڼه",
+    "allCars": "ټول موټر",
+    "dubaiCars": "د دوبي موټر",
+    "onTheWay": "په لاره کې",
+    "fromAmericaToHerat": "له امریکا څخه هرات ته",
+    "fromDubaiToHerat": "له دوبي څخه هرات ته",
+    "favorites": "خوښې",
+    "favoritesCount": "خوښې ({{count}})",
+    "searchVehicles": "موټر ولټوئ",
+    "openMenu": "مېنو خلاصه کړئ",
+    "closeMenu": "مېنو بنده کړئ",
+    "mobileNavigation": "د موبایل مېنو",
+    "search": "لټون",
+    "closeSearch": "لټون بندول",
+    "searchCars": "موټر ولټوئ",
+    "searchPlaceholder": "برانډ، ماډل یا موقعیت ولټوئ…",
+    "logoAlt": "د Salar Motors لوګو",
+    "language": "ژبه"
+  },
+  "footer": {
+    "about": "د عیاشۍ او وارد شویو موټرو په لوژستیک کې معیار. تایید شوی موجودي، د نړیوالو سرچینو بې ساري شفافیت، او له نړیوالو مرکزونو تر ستاسو منزل پورې اسانه مستقیم ترانزیت وړاندې کوو.",
+    "channels": "رسمي چینلونه",
+    "quickNavigation": "چټکې لارښوونې",
+    "onTheWayAmerica": "په لاره کې: له امریکا څخه هرات ته",
+    "onTheWayDubai": "په لاره کې: له دوبي څخه هرات ته",
+    "supportHub": "د مستقیم ملاتړ مرکز",
+    "callHotline": "ګرم لاین ته زنګ ووهئ",
+    "emailDesk": "د بریښنالیک مرکز",
+    "copyright": "© {{year}} Salar Motors.",
+    "rights": "ټول حقوق خوندي دي.",
+    "disclaimer": "ټول اعلانونه د موجودیت او مسلکي تایید تابع دي."
+  },
+  "admin": {
+    "navigation": "د اډمین مېنو",
+    "logout": "وتل",
+    "loggedOut": "په بریالیتوب سره ووتلئ",
+    "dashboard": "ډشبورډ",
+    "manageListings": "د اعلانونو اداره",
+    "createListing": "اعلان جوړول",
+    "profile": "پروفایل",
+    "managers": "مدیران"
+  }
+}

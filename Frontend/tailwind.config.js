@@ -40,9 +40,12 @@ export default {
         // collapsing them to one so existing `font-display`/`font-mono`
         // classes across the app don't all need renaming — they just all
         // render as Inter now.
-        display: ["'Inter'", "sans-serif"],
-        body: ["'Inter'", "sans-serif"],
-        mono: ["'Inter'", "sans-serif"],
+        // All three resolve to --font-sans (see index.css): Inter for
+        // English, an Arabic-script font for Pashto/Dari (Inter has no
+        // glyphs for them).
+        display: ["var(--font-sans)"],
+        body: ["var(--font-sans)"],
+        mono: ["var(--font-sans)"],
       },
       borderRadius: {
         tag: "2px",

@@ -44,14 +44,26 @@ export const getPublishStatus = (count, limits = IMAGE_LIMITS) => {
     canPublish: safeCount >= min,
     missing,
     remaining: Math.max(0, max - safeCount),
-    counterLabel: `${safeCount} / ${max} images`,
-    requirementMessage: `Upload at least ${min} images to publish this listing.`,
-    missingMessage:
-      missing > 0
-        ? `You have ${safeCount} of the ${min} required — add ${missing} more image${missing === 1 ? "" : "s"}.`
-        : null,
   };
 };
+
+// Human-readable text for a status. Kept out of getPublishStatus so that
+// function stays pure data; `t` is the i18n function for the "catalog"-free
+// "admin" namespace (keys under images.*), so every language gets whole
+// sentences with its own word order and plural forms.
+export const getPublishMessages = (t, status) => ({
+  counterLabel: t("images.counter", { count: status.count, max: status.max }),
+  requirementMessage: t("images.requirement", { min: status.min }),
+  missingMessage:
+    status.missing > 0
+      ? // plural form follows the number still missing
+        t("images.missing", {
+          count: status.missing,
+          have: status.count,
+          min: status.min,
+        })
+      : null,
+});
 
 // How many more files can be added given what's already attached.
 export const remainingSlots = (attachedCount, limits = IMAGE_LIMITS) =>

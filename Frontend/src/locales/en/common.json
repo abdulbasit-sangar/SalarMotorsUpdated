@@ -1,0 +1,109 @@
+{
+  "meta": {
+    "title": "SalarMotors | Premium Imported Vehicle Marketplace",
+    "description": "SalarMotors is a trusted marketplace for verified imported vehicles. Browse, compare, and find quality cars with confidence."
+  },
+  "language": {
+    "label": "Language"
+  },
+  "a11y": {
+    "skipToContent": "Skip to content"
+  },
+  "status": {
+    "offline": "You're offline — some content may not load until your connection is back.",
+    "loading": "Loading"
+  },
+  "actions": {
+    "close": "Close",
+    "tryAgain": "Try again",
+    "reload": "Reload the page",
+    "backToHome": "Back to Home",
+    "viewAll": "View all"
+  },
+  "errorState": {
+    "title": "Couldn't load this",
+    "description": "Something went wrong on our end. Try again in a moment."
+  },
+  "emptyState": {
+    "title": "Nothing here yet"
+  },
+  "notFound": {
+    "title": "Route Not Found",
+    "description": "There's no listing or page at this address. It may have been moved, hidden, or never existed."
+  },
+  "errorBoundary": {
+    "title": "Something broke",
+    "description": "The page hit an unexpected error. Reloading usually fixes it."
+  },
+  "sold": {
+    "label": "Sold",
+    "srLabel": "This vehicle has been sold"
+  },
+  "favorites": {
+    "add": "Add to favorites",
+    "remove": "Remove from favorites",
+    "updateError": "Couldn't update favorites."
+  },
+  "search": {
+    "label": "Search cars by brand, model, or location",
+    "submit": "Search",
+    "placeholder": "Search brand, model, or location…"
+  },
+  "toast": {
+    "region": "Notifications",
+    "dismiss": "Dismiss notification"
+  },
+  "pagination": {
+    "label": "Pagination",
+    "previous": "Previous page",
+    "next": "Next page",
+    "pageOf": "Page {{page}} of {{total}}"
+  },
+  "seller": {
+    "title": "Seller Information",
+    "whatsapp": "WhatsApp Seller",
+    "call": "Call Seller"
+  },
+  "features": {
+    "title": "Features",
+    "vehicleFeatures": "Vehicle Features",
+    "selectedCount": "{{count}} selected"
+  },
+  "sections": {
+    "noListingsTitle": "No listings yet",
+    "noListingsMessage": "No listings match this section yet."
+  },
+  "sort": {
+    "prefix": "Sort: {{label}}",
+    "aria": "Sort listings"
+  },
+  "select": {
+    "any": "Any",
+    "loading": "Loading…",
+    "search": "Search",
+    "noMatches": "No matches"
+  },
+  "carCard": {
+    "previousImage": "View previous image",
+    "nextImage": "View next image"
+  },
+  "carRow": {
+    "defaultLabel": "Vehicles",
+    "scrollPrevious": "Scroll {{label}} back",
+    "scrollNext": "Scroll {{label}} forward"
+  },
+  "uploader": {
+    "photos": "Photos",
+    "hint": "(up to {{max}}, JPEG/PNG/WEBP, 5MB each)",
+    "drop": "Drop images here, or click to browse",
+    "status": "{{selected}} selected · {{remaining}} more can be added",
+    "badFormat": "“{{name}}” isn't a supported format. Use JPEG, PNG, or WEBP.",
+    "tooBig": "“{{name}}” is over 5MB.",
+    "maxTotal": "Maximum {{max}} images per listing — only the first {{capacity}} were kept.",
+    "maxWithExisting": "Maximum {{max}} images per listing — it already has {{existing}}, so only {{capacity}} more can be added.",
+    "ready": "Images are ready to upload.",
+    "previewAlt": "Upload preview {{index}}",
+    "removeImage": "Remove image {{index}}",
+    "cover": "Cover"
+  }
+}

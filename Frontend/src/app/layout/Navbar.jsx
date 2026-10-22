@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
 import { useFavorites } from "../../store/favorites/FavoritesContext.jsx";
 import { useEscapeKey } from "../../shared/hooks/useEscapeKey.js";
 import {
@@ -20,25 +21,26 @@ import {
   dubaiCarsPath,
   onTheWayPath,
 } from "../../shared/constants/locations.js";
+import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher.jsx";
 import logo from "../../assets/salarmotors.svg";
 
 const FAVORITES_PATH = "/favorites";
 
 const NAV_LINKS = [
-  { to: "/", label: "Home", end: true, icon: HomeIcon },
-  { to: "/listings", label: "All Cars", icon: CarSilhouetteIcon },
-  { to: dubaiCarsPath(), label: "Dubai Cars", icon: GlobeIcon },
+  { to: "/", labelKey: "nav.home", end: true, icon: HomeIcon },
+  { to: "/listings", labelKey: "nav.allCars", icon: CarSilhouetteIcon },
+  { to: dubaiCarsPath(), labelKey: "nav.dubaiCars", icon: GlobeIcon },
 ];
 
 const ON_THE_WAY_LINKS = [
   {
     to: onTheWayPath(LOCATION_ON_THE_WAY.AMERICA_TO_HERAT),
-    label: "From America to Herat",
+    labelKey: "nav.fromAmericaToHerat",
     icon: PlaneIcon,
   },
   {
     to: onTheWayPath(LOCATION_ON_THE_WAY.DUBAI_TO_HERAT),
-    label: "From Dubai to Herat",
+    labelKey: "nav.fromDubaiToHerat",
     icon: ShipIcon,
   },
 ];
@@ -113,11 +115,13 @@ const FavoritesBadge = ({ count, className }) => {
   );
 };
 
-const FavoritesIconLink = ({ count }) => (
+const FavoritesIconLink = ({ count }) => {
+  const { t } = useTranslation("layout");
+  return (
   <NavLink
     to={FAVORITES_PATH}
-    aria-label={count ? `Favorites (${count})` : "Favorites"}
-    title="Favorites"
+    aria-label={count ? t("nav.favoritesCount", { count }) : t("nav.favorites")}
+    title={t("nav.favorites")}
     className={({ isActive }) =>
       clsx(
         "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-graphite-100 lg:h-9 lg:w-9",
@@ -129,11 +133,13 @@ const FavoritesIconLink = ({ count }) => (
       className="h-5 w-5 lg:h-[18px] lg:w-[18px]"
       aria-hidden="true"
     />
-    <FavoritesBadge count={count} className="absolute -right-0.5 -top-0.5" />
+    <FavoritesBadge count={count} className="absolute -end-0.5 -top-0.5" />
   </NavLink>
-);
+  );
+};
 
 const OnTheWayDropdown = () => {
+  const { t } = useTranslation("layout");
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
   const location = useLocation();
@@ -177,7 +183,7 @@ const OnTheWayDropdown = () => {
           className="h-4 w-4 shrink-0 lg:h-[15px] lg:w-[15px]"
           aria-hidden="true"
         />
-        <span>On the Way</span>
+        <span>{t("nav.onTheWay")}</span>
         <ChevronDownIcon
           className={clsx(
             "h-3.5 w-3.5 shrink-0 transition-transform duration-200",
@@ -199,7 +205,7 @@ const OnTheWayDropdown = () => {
           <CategoryNavLink
             key={link.to}
             to={link.to}
-            label={link.label}
+            label={t(link.labelKey)}
             icon={link.icon}
             onClick={() => setOpen(false)}
             className={({ isActive }) =>
@@ -218,6 +224,7 @@ const OnTheWayDropdown = () => {
 };
 
 const MobileOnTheWaySection = ({ onNavigate }) => {
+  const { t } = useTranslation("layout");
   const [expanded, setExpanded] = useState(false);
   const location = useLocation();
 
@@ -235,11 +242,11 @@ const MobileOnTheWaySection = ({ onNavigate }) => {
       >
         <span className="flex items-center gap-2.5">
           <ShipIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
-          On the Way
+          {t("nav.onTheWay")}
         </span>
         <ChevronDownIcon
           className={clsx(
-            "ml-auto h-4 w-4 shrink-0 text-ash transition-transform duration-200",
+            "ms-auto h-4 w-4 shrink-0 text-ash transition-transform duration-200",
             expanded && "rotate-180",
           )}
         />
@@ -251,12 +258,12 @@ const MobileOnTheWaySection = ({ onNavigate }) => {
           expanded ? "max-h-40 mt-1" : "max-h-0",
         )}
       >
-        <div className="flex flex-col gap-1 pl-4">
+        <div className="flex flex-col gap-1 ps-4">
           {ON_THE_WAY_LINKS.map((link) => (
             <CategoryNavLink
               key={link.to}
               to={link.to}
-              label={link.label}
+              label={t(link.labelKey)}
               icon={link.icon}
               onClick={onNavigate}
               className={({ isActive }) =>
@@ -276,6 +283,7 @@ const MobileOnTheWaySection = ({ onNavigate }) => {
 };
 
 export const Navbar = () => {
+  const { t } = useTranslation("layout");
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [keyword, setKeyword] = useState("");
@@ -316,7 +324,7 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 z-50 w-full">
+    <header className="fixed top-0 start-0 z-50 w-full">
       {/* Desktop Floating Pill Navbar Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 lg:pt-3">
         <div className="glass-nav lg:rounded-full lg:shadow-lg lg:border lg:border-white/10">
@@ -329,7 +337,7 @@ export const Navbar = () => {
             >
               <img
                 src={logo}
-                alt="Salar Motors logo"
+                alt={t("nav.logoAlt")}
                 className="h-9 md:h-10 lg:h-9 w-auto object-contain"
               />
             </NavLink>
@@ -348,13 +356,13 @@ export const Navbar = () => {
                       className="h-4 w-4 shrink-0 lg:h-[15px] lg:w-[15px]"
                       aria-hidden="true"
                     />
-                    <span>{link.label}</span>
+                    <span>{t(link.labelKey)}</span>
                   </NavLink>
                 ) : (
                   <CategoryNavLink
                     key={link.to}
                     to={link.to}
-                    label={link.label}
+                    label={t(link.labelKey)}
                     icon={link.icon}
                     className={navLinkClass}
                   />
@@ -365,11 +373,14 @@ export const Navbar = () => {
 
             {/* Right Action Group: Search and Favorites Icons */}
             <div className="flex items-center gap-1">
+              {/* Language selector (English / پښتو / دری) */}
+              <LanguageSwitcher />
+
               {/* Search Trigger Button */}
               <button
                 type="button"
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100 lg:h-9 lg:w-9"
-                aria-label="Search vehicles"
+                aria-label={t("nav.searchVehicles")}
                 onClick={() => setSearchOpen(true)}
               >
                 <SearchIcon className="h-5 w-5 lg:h-[18px] lg:w-[18px]" />
@@ -382,7 +393,7 @@ export const Navbar = () => {
               <button
                 type="button"
                 className="lg:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100"
-                aria-label={open ? "Close menu" : "Open menu"}
+                aria-label={open ? t("nav.closeMenu") : t("nav.openMenu")}
                 aria-expanded={open}
                 onClick={() => setOpen((v) => !v)}
               >
@@ -411,10 +422,12 @@ export const Navbar = () => {
       {/* Mobile Slide-out Nav */}
       <nav
         className={clsx(
-          "fixed right-0 top-0 z-50 flex h-[100dvh] w-[84%] max-w-[360px] flex-col glass-panel-strong transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden",
-          open ? "translate-x-0 shadow-2xl" : "translate-x-full",
+          "fixed end-0 top-0 z-50 flex h-[100dvh] w-[84%] max-w-[360px] flex-col glass-panel-strong transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden",
+          open
+            ? "translate-x-0 shadow-2xl"
+            : "ltr:translate-x-full rtl:-translate-x-full",
         )}
-        aria-label="Mobile navigation"
+        aria-label={t("nav.mobileNavigation")}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-card px-4 py-4">
@@ -425,14 +438,14 @@ export const Navbar = () => {
           >
             <img
               src={logo}
-              alt="Salar Motors logo"
+              alt={t("nav.logoAlt")}
               className="h-8 w-auto object-contain"
             />
           </NavLink>
           <button
             type="button"
             className="flex h-10 w-10 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100"
-            aria-label="Close menu"
+            aria-label={t("nav.closeMenu")}
             onClick={() => setOpen(false)}
           >
             <CloseIcon className="h-5 w-5" />
@@ -455,15 +468,20 @@ export const Navbar = () => {
                       className="h-4 w-4 shrink-0"
                       aria-hidden="true"
                     />
-                    {link.label}
+                    {t(link.labelKey)}
                   </span>
-                  <span className="ml-auto text-ash">↗</span>
+                  <span
+                    className="ms-auto inline-block text-ash rtl:-scale-x-100"
+                    aria-hidden="true"
+                  >
+                    ↗
+                  </span>
                 </NavLink>
               ) : (
                 <CategoryNavLink
                   key={link.to}
                   to={link.to}
-                  label={link.label}
+                  label={t(link.labelKey)}
                   icon={link.icon}
                   onClick={() => setOpen(false)}
                   className={mobileNavLinkClass}
@@ -472,6 +490,13 @@ export const Navbar = () => {
             )}
 
             <MobileOnTheWaySection onNavigate={() => setOpen(false)} />
+          </div>
+
+          <div className="mt-6 border-t border-card pt-4">
+            <p className="mb-2 px-4 text-xs font-semibold text-ash">
+              {t("nav.language")}
+            </p>
+            <LanguageSwitcher variant="list" onChanged={() => setOpen(false)} />
           </div>
         </div>
       </nav>
@@ -497,12 +522,12 @@ export const Navbar = () => {
         >
           <div className="mb-3 flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-[0.3em] text-ash">
-              Search
+              {t("nav.search")}
             </span>
             <button
               type="button"
               className="flex h-9 w-9 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100"
-              aria-label="Close search"
+              aria-label={t("nav.closeSearch")}
               onClick={() => setSearchOpen(false)}
             >
               <CloseIcon className="h-[18px] w-[18px]" />
@@ -511,7 +536,7 @@ export const Navbar = () => {
 
           <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3">
             <label htmlFor="global-search-input" className="sr-only">
-              Search cars
+              {t("nav.searchCars")}
             </label>
 
             <input
@@ -520,7 +545,7 @@ export const Navbar = () => {
               type="search"
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
-              placeholder="Search brand, model, or location…"
+              placeholder={t("nav.searchPlaceholder")}
               className="h-12 w-full rounded-2xl border border-card bg-white/80 px-4 text-sm text-bone outline-none transition focus:border-brass focus:ring-2 focus:ring-brass/20"
             />
 
@@ -528,7 +553,7 @@ export const Navbar = () => {
               type="submit"
               className="h-12 w-full rounded-2xl bg-brass text-sm font-semibold text-graphite-950 transition hover:bg-brass-light"
             >
-              Search
+              {t("nav.search")}
             </button>
           </form>
         </div>

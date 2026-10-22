@@ -1,11 +1,15 @@
-export const Spinner = ({ size = 20, className = "" }) => (
+import { useTranslation } from "react-i18next";
+
+export const Spinner = ({ size = 20, className = "" }) => {
+  const { t } = useTranslation();
+  return (
   <svg
     className={`animate-spin ${className}`}
     style={{ width: size, height: size }}
     viewBox="0 0 24 24"
     fill="none"
     role="status"
-    aria-label="Loading"
+    aria-label={t("status.loading")}
   >
     <circle
       className="opacity-20"
@@ -22,4 +26,5 @@ export const Spinner = ({ size = 20, className = "" }) => (
       strokeLinecap="round"
     />
   </svg>
-);
+  );
+};

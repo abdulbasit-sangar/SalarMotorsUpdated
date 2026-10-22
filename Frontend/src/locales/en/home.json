@@ -1,0 +1,71 @@
+{
+  "hero": {
+    "tagline": "Find & Buy."
+  },
+  "search": {
+    "brand": "Brand",
+    "year": "Year",
+    "location": "Location",
+    "model": "Model",
+    "anyBrand": "Any brand",
+    "anyYear": "Any year",
+    "anyProvince": "Any province",
+    "anyModel": "Any model",
+    "selectBrandFirst": "Select brand first",
+    "submit": "Search Cars"
+  },
+  "why": {
+    "eyebrow": "Why Salar Motors",
+    "title": "Why Choose Salar Motors",
+    "subtitle": "We combine verified inventory, transparent pricing, and dedicated support to make importing your next car effortless.",
+    "items": {
+      "verified": {
+        "title": "Verified Vehicles",
+        "description": "Every listing is screened and verified so you can browse with complete confidence."
+      },
+      "inspection": {
+        "title": "Quality Inspection",
+        "description": "Detailed condition reports and transparent specs help you make informed decisions."
+      },
+      "import": {
+        "title": "Trusted Import Process",
+        "description": "From sourcing to delivery, our import process is built on reliability and trust."
+      },
+      "support": {
+        "title": "Customer Support",
+        "description": "Our dedicated team guides you through every step of your car buying journey."
+      }
+    }
+  },
+  "how": {
+    "eyebrow": "Simple Process",
+    "title": "How It Works",
+    "subtitle": "Four straightforward steps from browsing to ownership — no complexity, no surprises.",
+    "steps": {
+      "browse": {
+        "title": "Browse",
+        "description": "Explore our curated catalog and filter by brand, price, year, and vehicle specifications."
+      },
+      "contact": {
+        "title": "Contact",
+        "description": "Reach out to our team or the seller directly to ask questions and confirm details."
+      },
+      "inspect": {
+        "title": "Inspect",
+        "description": "Arrange a viewing or inspection to verify the vehicle meets your expectations."
+      },
+      "purchase": {
+        "title": "Purchase",
+        "description": "Complete your purchase with confidence through our guided, transparent process."
+      }
+    }
+  },
+  "about": {
+    "eyebrow": "About Us",
+    "title": "Your Trusted Automotive Marketplace",
+    "p1": "Salar Motors is a premium vehicle marketplace specializing in imported cars. We connect buyers with verified, quality vehicles sourced from Japan, America, Dubai, and beyond.",
+    "p2": "Our platform is designed with transparency at its core. Every listing includes detailed specifications, clear pricing, and location information so you can compare options and make confident decisions without leaving the catalog.",
+    "p3": "Whether you are looking for a reliable daily driver, a luxury import, or a family SUV, Salar Motors provides the tools and support to help you find exactly what you need.",
+    "cta": "View All Listings"
+  }
+}

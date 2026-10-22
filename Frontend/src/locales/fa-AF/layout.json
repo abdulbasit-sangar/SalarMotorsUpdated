@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "home": "صفحه اصلی",
+    "allCars": "همه موترها",
+    "dubaiCars": "موترهای دوبی",
+    "onTheWay": "در راه",
+    "fromAmericaToHerat": "از امریکا به هرات",
+    "fromDubaiToHerat": "از دوبی به هرات",
+    "favorites": "علاقه‌مندی‌ها",
+    "favoritesCount": "علاقه‌مندی‌ها ({{count}})",
+    "searchVehicles": "جستجوی موتر",
+    "openMenu": "باز کردن منو",
+    "closeMenu": "بستن منو",
+    "mobileNavigation": "منوی موبایل",
+    "search": "جستجو",
+    "closeSearch": "بستن جستجو",
+    "searchCars": "جستجوی موتر",
+    "searchPlaceholder": "برند، مدل یا موقعیت را جستجو کنید…",
+    "logoAlt": "لوگوی Salar Motors",
+    "language": "زبان"
+  },
+  "footer": {
+    "about": "معیار برتر در لوجستیک موترهای لوکس و وارداتی. موجودی تایید شده، شفافیت بی‌نظیر در تهیه از بازارهای جهانی، و انتقال مستقیم و روان از مراکز بین‌المللی تا مقصد شما.",
+    "channels": "کانال‌های رسمی",
+    "quickNavigation": "دسترسی سریع",
+    "onTheWayAmerica": "در راه: از امریکا به هرات",
+    "onTheWayDubai": "در راه: از دوبی به هرات",
+    "supportHub": "مرکز پشتیبانی مستقیم",
+    "callHotline": "تماس با خط گرم",
+    "emailDesk": "میز ایمیل",
+    "copyright": "© {{year}} Salar Motors.",
+    "rights": "تمام حقوق محفوظ است.",
+    "disclaimer": "تمام اعلان‌ها تابع موجودی و تایید مسلکی هستند."
+  },
+  "admin": {
+    "navigation": "منوی ادمین",
+    "logout": "خروج",
+    "loggedOut": "با موفقیت خارج شدید",
+    "dashboard": "داشبورد",
+    "manageListings": "مدیریت اعلان‌ها",
+    "createListing": "ایجاد اعلان",
+    "profile": "پروفایل",
+    "managers": "مدیران"
+  }
+}

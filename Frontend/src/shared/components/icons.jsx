@@ -20,6 +20,7 @@
  *     logo's recognizability IS its function, so these keep minimal,
  *     accurate brand-mark SVGs rather than a generic Lucide stand-in.
  */
+import clsx from "clsx";
 import {
   Car,
   ChevronLeft,
@@ -68,6 +69,7 @@ import {
   Globe,
   Plane,
   Ship,
+  Languages,
 } from "lucide-react";
 
 const STROKE = 1.75;
@@ -78,11 +80,17 @@ const STROKE = 1.75;
 const iconProps = { strokeWidth: STROKE, "aria-hidden": true };
 
 export const CarSilhouetteIcon = (props) => <Car {...iconProps} {...props} />;
-export const ChevronLeftIcon = (props) => (
-  <ChevronLeft {...iconProps} {...props} />
+// Directional glyphs mirror automatically in RTL (they point "back/forward",
+// which swap sides). Non-directional icons (chevron-down, search, etc.) never
+// flip. Call sites place the buttons themselves with logical start/end
+// utilities so the icon and its position always agree.
+const mirrorInRtl = (className) => clsx("rtl:-scale-x-100", className);
+
+export const ChevronLeftIcon = ({ className, ...props }) => (
+  <ChevronLeft {...iconProps} {...props} className={mirrorInRtl(className)} />
 );
-export const ChevronRightIcon = (props) => (
-  <ChevronRight {...iconProps} {...props} />
+export const ChevronRightIcon = ({ className, ...props }) => (
+  <ChevronRight {...iconProps} {...props} className={mirrorInRtl(className)} />
 );
 export const ChevronDownIcon = (props) => (
   <ChevronDown {...iconProps} {...props} />
@@ -92,9 +100,10 @@ export const MapPinIcon = (props) => <MapPin {...iconProps} {...props} />;
 export const SearchIcon = (props) => <Search {...iconProps} {...props} />;
 export const CloseIcon = (props) => <X {...iconProps} {...props} />;
 export const MenuIcon = (props) => <Menu {...iconProps} {...props} />;
-export const ArrowRightIcon = (props) => (
-  <ArrowRight {...iconProps} {...props} />
+export const ArrowRightIcon = ({ className, ...props }) => (
+  <ArrowRight {...iconProps} {...props} className={mirrorInRtl(className)} />
 );
+export const LanguagesIcon = (props) => <Languages {...iconProps} {...props} />;
 export const CalendarIcon = (props) => <Calendar {...iconProps} {...props} />;
 export const FuelIcon = (props) => <Fuel {...iconProps} {...props} />;
 export const CheckIcon = (props) => <Check {...iconProps} {...props} />;

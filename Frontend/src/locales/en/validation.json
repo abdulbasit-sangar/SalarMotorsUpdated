@@ -1,0 +1,66 @@
+{
+  "email": {
+    "required": "Email is required",
+    "invalid": "Please provide a valid email address"
+  },
+  "password": {
+    "required": "Password is required",
+    "min": "Password must be at least {{min}} characters"
+  },
+  "username": {
+    "required": "Username is required",
+    "min": "Username must be at least {{min}} characters",
+    "max": "Username must not exceed {{max}} characters"
+  },
+  "confirmPassword": {
+    "required": "Please confirm your password",
+    "mismatch": "Passwords do not match"
+  },
+  "confirmNewPassword": {
+    "required": "Please confirm your new password"
+  },
+  "currentPassword": {
+    "required": "Current password is required"
+  },
+  "newPassword": {
+    "required": "New password is required",
+    "min": "New password must be at least {{min}} characters"
+  },
+  "otp": {
+    "required": "Verification code is required",
+    "digits": "Verification code must be {{count}} digits"
+  },
+  "car": {
+    "title": {
+      "required": "Title is required",
+      "max": "Title must not exceed {{max}} characters"
+    },
+    "brand": {
+      "required": "Brand is required"
+    },
+    "model": {
+      "required": "Model is required"
+    },
+    "year": {
+      "required": "Year is required",
+      "min": "Year must be {{min}} or later",
+      "future": "Year cannot be in the future"
+    },
+    "price": {
+      "required": "Price is required",
+      "negative": "Price cannot be negative"
+    },
+    "province": {
+      "required": "Location is required"
+    },
+    "mileage": {
+      "negative": "Mileage cannot be negative"
+    },
+    "engineCC": {
+      "negative": "Engine CC cannot be negative"
+    },
+    "description": {
+      "max": "Description must not exceed {{max}} characters"
+    }
+  }
+}

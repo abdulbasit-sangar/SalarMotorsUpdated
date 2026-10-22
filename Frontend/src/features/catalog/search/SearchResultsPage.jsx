@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
 import { searchCars } from "../../../services/cars/carsApi.js";
 import { CarCard, CarCardGrid } from "../../../shared/components/CarCard.jsx";
@@ -13,6 +14,7 @@ import { CarSilhouetteIcon } from "../../../shared/components/icons.jsx";
 const LIMIT = 12;
 
 export default function SearchResultsPage() {
+  const { t } = useTranslation("catalog");
   const [searchParams, setSearchParams] = useSearchParams();
   const keyword = searchParams.get("keyword") || "";
   const page = Math.max(1, parseInt(searchParams.get("page")) || 1);
@@ -39,16 +41,16 @@ export default function SearchResultsPage() {
   return (
     <div className="container-page pb-10 pt-28 sm:pb-14 sm:pt-32">
       <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
-        Search
+        {t("search.eyebrow")}
       </p>
       <h1 className="font-display text-4xl sm:text-5xl font-semibold text-bone mb-6">
         {keyword ? (
           <>
-            Results for{" "}
-            <span className="text-brass">&ldquo;{keyword}&rdquo;</span>
+            {t("search.resultsFor")}{" "}
+            <bdi className="text-brass">&ldquo;{keyword}&rdquo;</bdi>
           </>
         ) : (
-          "Search listings"
+          t("search.title")
         )}
       </h1>
 
@@ -59,8 +61,8 @@ export default function SearchResultsPage() {
       {!keyword.trim() ? (
         <EmptyState
           icon={<CarSilhouetteIcon className="w-14 h-9" />}
-          title="Type something to search"
-          description="Try a brand, model, or province — for example “Toyota” or “Punjab”."
+          title={t("search.promptTitle")}
+          description={t("search.promptDescription")}
         />
       ) : error ? (
         <ErrorState onRetry={refetch} />
@@ -73,8 +75,7 @@ export default function SearchResultsPage() {
       ) : data?.cars?.length ? (
         <>
           <p className="text-ash text-sm mb-6">
-            {data.pagination.totalCars} result
-            {data.pagination.totalCars === 1 ? "" : "s"}
+            {t("search.results", { count: data.pagination.totalCars })}
           </p>
           <CarCardGrid>
             {data.cars.map((car) => (
@@ -91,8 +92,8 @@ export default function SearchResultsPage() {
       ) : (
         <EmptyState
           icon={<CarSilhouetteIcon className="w-14 h-9" />}
-          title="No matches found"
-          description={`Nothing matched "${keyword}". Try a different brand, model, or province.`}
+          title={t("search.noMatchesTitle")}
+          description={t("search.noMatchesDescription", { keyword })}
         />
       )}
     </div>

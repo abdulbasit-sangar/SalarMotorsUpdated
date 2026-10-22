@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { formatDateTime as formatDate } from "../../../shared/utils/format.js";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
 import {
   fetchManagers,
@@ -14,15 +16,13 @@ import { EmptyState } from "../../../shared/components/EmptyState.jsx";
 import { useToast } from "../../../store/ui/ToastContext.jsx";
 import { parseApiError } from "../../../services/api/client.js";
 
-const formatDateTime = (value) => {
-  if (!value) return "Never";
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-};
-
-const ManagerRow = ({ manager, pending, onActivate, onDeactivate, onDelete }) => (
+const ManagerRow = ({ manager, pending, onActivate, onDeactivate, onDelete }) => {
+  const { t } = useTranslation("admin");
+  const stamp = (value) =>
+    value
+      ? formatDate(value, { dateStyle: "medium", timeStyle: "short" })
+      : t("managers.never");
+  return (
   <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-card border border-card rounded-premium-lg p-4 shadow-card">
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-2 flex-wrap">
@@ -30,16 +30,20 @@ const ManagerRow = ({ manager, pending, onActivate, onDeactivate, onDelete }) =>
           {manager.username}
         </h3>
         <Badge variant={manager.isActive ? "signal" : "danger"}>
-          {manager.isActive ? "Active" : "Deactivated"}
+          {manager.isActive ? t("managers.active") : t("managers.deactivated")}
         </Badge>
         <Badge variant={manager.emailVerified ? "neutral" : "danger"}>
-          {manager.emailVerified ? "Email Verified" : "Email Unverified"}
+          {manager.emailVerified
+            ? t("managers.emailVerified")
+            : t("managers.emailUnverified")}
         </Badge>
       </div>
-      <p className="text-ash text-xs mt-1 font-mono">{manager.email}</p>
+      <p className="ltr-isolate text-ash text-xs mt-1 font-mono rtl:text-end">
+        {manager.email}
+      </p>
       <p className="text-ash text-xs mt-1">
-        Last login: {formatDateTime(manager.lastLogin)} · Created:{" "}
-        {formatDateTime(manager.createdAt)}
+        {t("managers.lastLogin", { date: stamp(manager.lastLogin) })} ·{" "}
+        {t("managers.created", { date: stamp(manager.createdAt) })}
       </p>
     </div>
 
@@ -51,7 +55,7 @@ const ManagerRow = ({ manager, pending, onActivate, onDeactivate, onDelete }) =>
           loading={pending === "deactivate"}
           onClick={() => onDeactivate(manager)}
         >
-          Deactivate
+          {t("managers.deactivate")}
         </Button>
       ) : (
         <Button
@@ -60,7 +64,7 @@ const ManagerRow = ({ manager, pending, onActivate, onDeactivate, onDelete }) =>
           loading={pending === "activate"}
           onClick={() => onActivate(manager)}
         >
-          Activate
+          {t("managers.activate")}
         </Button>
       )}
       <Button
@@ -69,13 +73,15 @@ const ManagerRow = ({ manager, pending, onActivate, onDeactivate, onDelete }) =>
         loading={pending === "delete"}
         onClick={() => onDelete(manager)}
       >
-        Delete
+        {t("managers.delete")}
       </Button>
     </div>
   </div>
-);
+  );
+};
 
 export default function ManagersPage() {
+  const { t } = useTranslation("admin");
   const toast = useToast();
   const { data: managers, loading, error, refetch } = useAsyncData(fetchManagers, []);
   const [localManagers, setLocalManagers] = useState(null);
@@ -94,7 +100,7 @@ export default function ManagersPage() {
       syncLocal((prev) =>
         prev.map((m) => (m._id === manager._id ? { ...m, ...updated } : m)),
       );
-      toast.success("Manager activated successfully.");
+      toast.success(t("managers.activated"));
     } catch (err) {
       toast.error(parseApiError(err).message);
     } finally {
@@ -104,7 +110,7 @@ export default function ManagersPage() {
 
   const handleDeactivate = async (manager) => {
     const confirmed = window.confirm(
-      `Deactivate "${manager.username}"? They will not be able to log in until reactivated.`,
+      t("managers.confirmDeactivate", { name: manager.username }),
     );
     if (!confirmed) return;
 
@@ -114,7 +120,7 @@ export default function ManagersPage() {
       syncLocal((prev) =>
         prev.map((m) => (m._id === manager._id ? { ...m, ...updated } : m)),
       );
-      toast.success("Manager deactivated successfully.");
+      toast.success(t("managers.deactivatedToast"));
     } catch (err) {
       toast.error(parseApiError(err).message);
     } finally {
@@ -124,7 +130,7 @@ export default function ManagersPage() {
 
   const handleDelete = async (manager) => {
     const confirmed = window.confirm(
-      `Delete manager "${manager.username}"? This cannot be undone.`,
+      t("managers.confirmDelete", { name: manager.username }),
     );
     if (!confirmed) return;
 
@@ -132,7 +138,7 @@ export default function ManagersPage() {
     try {
       await deleteManager(manager._id);
       syncLocal((prev) => prev.filter((m) => m._id !== manager._id));
-      toast.success("Manager deleted successfully.");
+      toast.success(t("managers.deleted"));
     } catch (err) {
       toast.error(parseApiError(err).message);
     } finally {
@@ -143,12 +149,13 @@ export default function ManagersPage() {
   return (
     <div className="container-page py-8 sm:py-10">
       <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
-        Team
+        {t("managers.eyebrow")}
       </p>
-      <h1 className="font-display text-4xl font-semibold text-bone mb-1">Managers</h1>
+      <h1 className="font-display text-4xl font-semibold text-bone mb-1">
+        {t("managers.title")}
+      </h1>
       <p className="text-ash text-sm mb-8">
-        View and manage sub-admin accounts. Only superadmins can activate,
-        deactivate, or delete a manager.
+        {t("managers.subtitle")}
       </p>
 
       {error ? (
@@ -174,8 +181,8 @@ export default function ManagersPage() {
         </div>
       ) : (
         <EmptyState
-          title="No managers yet"
-          description="Managers who register will appear here once created."
+          title={t("managers.emptyTitle")}
+          description={t("managers.emptyDescription")}
         />
       )}
     </div>

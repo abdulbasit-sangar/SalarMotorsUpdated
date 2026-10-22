@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useToast } from "../../store/ui/ToastContext.jsx";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
+import { isolateLtr } from "../utils/format.js";
 import { CloseIcon } from "./icons.jsx";
 import { IMAGE_LIMITS, remainingSlots } from "../utils/imageRules.js";
 
@@ -26,6 +28,7 @@ export const ImageUploader = ({
 }) => {
   const maxTotal = limits.max;
   const capacity = remainingSlots(existingCount, limits); // how many files may be selected
+  const { t } = useTranslation();
   const toast = useToast();
   const inputRef = useRef(null);
   const [dragActive, setDragActive] = useState(false);
@@ -49,11 +52,11 @@ export const ImageUploader = ({
 
       for (const file of incomingArr) {
         if (!ALLOWED_TYPES.includes(file.type)) {
-          rejectReason = `"${file.name}" isn't a supported format. Use JPEG, PNG, or WEBP.`;
+          rejectReason = t("uploader.badFormat", { name: isolateLtr(file.name) });
           continue;
         }
         if (file.size > MAX_FILE_SIZE) {
-          rejectReason = `"${file.name}" is over 5MB.`;
+          rejectReason = t("uploader.tooBig", { name: isolateLtr(file.name) });
           continue;
         }
         accepted.push(file);
@@ -63,8 +66,12 @@ export const ImageUploader = ({
       if (combined.length > capacity) {
         rejectReason =
           existingCount > 0
-            ? `Maximum ${maxTotal} images per listing — it already has ${existingCount}, so only ${capacity} more can be added.`
-            : `Maximum ${maxTotal} images per listing — only the first ${capacity} were kept.`;
+            ? t("uploader.maxWithExisting", {
+                max: maxTotal,
+                existing: existingCount,
+                capacity,
+              })
+            : t("uploader.maxTotal", { max: maxTotal, capacity });
       }
 
       const finalFiles = combined.slice(0, capacity);
@@ -72,13 +79,13 @@ export const ImageUploader = ({
       onChange(finalFiles);
 
       if (accepted.length > 0) {
-        toast.success("Pictures uploaded successfully.");
+        toast.success(t("uploader.ready"));
       }
       if (rejectReason) {
         toast.error(rejectReason);
       }
     },
-    [files, onChange, capacity, maxTotal, existingCount],
+    [files, onChange, capacity, maxTotal, existingCount, t],
   );
 
   const handleInputChange = (e) => {
@@ -99,9 +106,9 @@ export const ImageUploader = ({
   return (
     <div>
       <p className="field-label">
-        Photos{" "}
+        {t("uploader.photos")}{" "}
         <span className="text-ash normal-case font-normal">
-          (up to {maxTotal}, JPEG/PNG/WEBP, 5MB each)
+          {t("uploader.hint", { max: maxTotal })}
         </span>
       </p>
 
@@ -124,10 +131,13 @@ export const ImageUploader = ({
         )}
       >
         <p className="text-bone text-sm font-semibold">
-          Drop images here, or click to browse
+          {t("uploader.drop")}
         </p>
         <p className="text-ash text-xs mt-1">
-          {files.length} selected · {Math.max(0, capacity - files.length)} more can be added
+          {t("uploader.status", {
+            selected: files.length,
+            remaining: Math.max(0, capacity - files.length),
+          })}
         </p>
         <input
           ref={inputRef}
@@ -154,7 +164,7 @@ export const ImageUploader = ({
             >
               <img
                 src={previews[i]}
-                alt={`Upload preview ${i + 1}`}
+                alt={t("uploader.previewAlt", { index: i + 1 })}
                 className="w-full h-full object-cover"
               />
               <button
@@ -163,14 +173,14 @@ export const ImageUploader = ({
                   e.stopPropagation();
                   removeAt(i);
                 }}
-                aria-label={`Remove image ${i + 1}`}
-                className="absolute top-1.5 right-1.5 w-7 h-7 flex items-center justify-center chip-glass !p-0 !rounded-full !bg-graphite/55 !border-white/15 text-white opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                aria-label={t("uploader.removeImage", { index: i + 1 })}
+                className="absolute top-1.5 end-1.5 w-7 h-7 flex items-center justify-center chip-glass !p-0 !rounded-full !bg-graphite/55 !border-white/15 text-white opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
               >
                 <CloseIcon className="h-3.5 w-3.5" />
               </button>
               {i === 0 && (
-                <span className="absolute bottom-0 left-0 right-0 bg-graphite/70 text-brass-light text-[10px] font-mono uppercase tracking-wider text-center py-1">
-                  Cover
+                <span className="absolute bottom-0 inset-x-0 bg-graphite/70 text-brass-light text-[10px] font-mono uppercase tracking-wider text-center py-1">
+                  {t("uploader.cover")}
                 </span>
               )}
             </div>

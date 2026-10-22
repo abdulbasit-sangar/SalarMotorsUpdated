@@ -1,7 +1,10 @@
+
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { HeroSearchBar } from "./HeroSearchBar.jsx";
 
 export const HeroSection = () => {
+  const { t } = useTranslation("home");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -10,9 +13,13 @@ export const HeroSection = () => {
   }, []);
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-graphite-950 flex flex-col justify-between">
-      <div className="absolute inset-0 overflow-hidden">
-        <picture className="absolute inset-0 block w-full h-full">
+    <section className="relative isolate flex min-h-[760px] min-h-screen flex-col justify-between overflow-hidden bg-graphite-950">
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 -z-10 overflow-hidden"
+        aria-hidden="true"
+      >
+        <picture className="absolute inset-0 flex h-full w-full items-center justify-center">
           <source media="(max-width: 767px)" srcSet="/Images/Pic2-Mobile.jpg" />
           <source
             media="(max-width: 1023px)"
@@ -21,52 +28,66 @@ export const HeroSection = () => {
           <img
             src="/Images/Pic2.jpg"
             alt=""
-            className={
-              "absolute inset-0 w-full h-full object-contain object-top sm:object-fill " +
-              "transition-transform duration-[16000ms] ease-out will-change-transform " +
-              (mounted ? "scale-100" : "scale-100")
-            }
+            fetchPriority="high"
+            className="h-full w-full object-cover object-center"
           />
         </picture>
 
-        <div className="absolute z-10 inset-x-0 top-[18%] sm:top-[20%] md:top-[22%] lg:top-[24%]">
-          <div className="container-page">
-            <h1
-              className={
-                "font-display text-[25px] sm:text-5xl md:text-6xl lg:text-7xl " +
-                "font-semibold leading-[1.05] tracking-tight text-black " +
-                "max-w-[90%] sm:max-w-xl md:max-w-2xl " +
-                "transition-all duration-700 ease-out " +
-                (mounted
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-6")
-              }
-            >
-              <span
-                className="text-black"
-                style={{ fontFamily: '"Rockwell", serif' }}
-              >
-                S A F A R
-              </span>
-              <br />
-              <span className="text-brass-dark">Find &amp; Buy.</span>
-            </h1>
+        {/* Light overall shading keeps the background image visible. */}
+        <div className="absolute inset-0 bg-black/10" />
+
+        {/* Gentle side shading preserves contrast without hiding the car. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/10" />
+
+        {/* Subtle top shading helps the hero content stand out. */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-transparent" />
+      </div>
+
+      {/* Hero Content */}
+      <div className="container-page relative z-10 flex min-h-screen flex-col justify-between px-4 pb-6 pt-28 sm:px-6 sm:pb-8 sm:pt-32 lg:px-8 lg:pb-10 lg:pt-36">
+        {/* Headline */}
+        <div
+          style={{ transitionDelay: mounted ? "120ms" : "0ms" }}
+          className={[
+            "mx-auto w-full max-w-4xl text-center",
+            "rounded-2xl px-4 py-5 sm:px-6 sm:py-6",
+            "[background:radial-gradient(ellipse_at_center,rgba(0,0,0,0.38)_0%,rgba(0,0,0,0.20)_48%,rgba(0,0,0,0.06)_68%,transparent_78%)]",
+            "transition-[opacity,transform] duration-700 ease-out",
+            mounted ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0",
+          ].join(" ")}
+        >
+          <p className="mb-3 text-[9px] font-semibold uppercase tracking-[0.24em] text-[#D9AD68] sm:mb-4 sm:text-[10px] sm:tracking-[0.3em]">
+            SAFAR ONLINE VEHICLES MARKETPLACE
+          </p>
+
+          <h1 className="font-serif text-2xl font-medium uppercase leading-[1.15] tracking-[0.01em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)] sm:text-3xl md:text-4xl lg:text-5xl">
+            Your Journey to the
+            <span className="mt-1 block text-[#E5C18B]">
+              Perfect Car Starts Here.
+            </span>
+          </h1>
+
+          <p className="mx-auto mt-3 max-w-xl text-[11px] font-normal leading-5 text-white/90 drop-shadow-[0_1px_5px_rgba(0,0,0,0.75)] sm:mt-4 sm:text-xs md:text-sm">
+            Explore exceptional vehicles and find the right car for your next
+            journey.
+          </p>
+
+          {/* Decorative accent */}
+          <div className="mx-auto mt-5 flex items-center justify-center gap-2.5 sm:mt-6">
+            <span className="h-px w-7 bg-gradient-to-r from-transparent to-[#D9AD68]/80 sm:w-10" />
+            <span className="h-1 w-1 rotate-45 bg-[#D9AD68]" />
+            <span className="h-px w-7 bg-gradient-to-l from-transparent to-[#D9AD68]/80 sm:w-10" />
           </div>
         </div>
 
+        {/* Search */}
         <div
-          className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-graphite-950/55 to-transparent pointer-events-none"
-          aria-hidden="true"
-        />
-      </div>
-
-      <div className="container-page relative z-10 min-h-screen flex flex-col justify-end pb-6 sm:pb-8 md:pb-10 lg:pb-12">
-        <div
-          style={{ transitionDelay: mounted ? "280ms" : "0ms" }}
-          className={
-            "mt-5 sm:mt-6 md:mt-8 w-full transition-all duration-700 ease-out " +
-            (mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6")
-          }
+          style={{ transitionDelay: mounted ? "260ms" : "0ms" }}
+          className={[
+            "w-full",
+            "transition-[opacity,transform] duration-700 ease-out",
+            mounted ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0",
+          ].join(" ")}
         >
           <HeroSearchBar />
         </div>

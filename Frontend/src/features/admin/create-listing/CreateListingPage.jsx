@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useOptionLabel } from "../../../i18n/optionLabels.js";
 
 import { useNavigate } from "react-router-dom";
 
@@ -12,6 +14,7 @@ import {
   resolveImageLimits,
   countSelectableFiles,
   getPublishStatus,
+  getPublishMessages,
 } from "../../../shared/utils/imageRules.js";
 
 import { FeaturesSelector } from "../../../shared/components/FeaturesSelector.jsx";
@@ -60,6 +63,8 @@ const INITIAL_FORM = {
 };
 
 export default function CreateListingPage() {
+  const { t } = useTranslation("admin");
+  const label = useOptionLabel();
   const navigate = useNavigate();
   const toast = useToast();
   const {
@@ -84,6 +89,7 @@ export default function CreateListingPage() {
     countSelectableFiles(images),
     imageLimits,
   );
+  const publishText = getPublishMessages(t, publishStatus);
 
   const updateField = (key) => (e) => {
     setForm((prev) => ({
@@ -125,15 +131,15 @@ export default function CreateListingPage() {
     setFormError(null);
 
     if (hasErrors(errors)) {
-      toast.error("Please fix the highlighted fields.");
+      toast.error(t("create.fixFields"));
       return;
     }
 
     if (!publishStatus.canPublish) {
       // Also covers keyboard submission, which a disabled button alone
       // would not explain.
-      setFormError([publishStatus.requirementMessage, publishStatus.missingMessage]);
-      toast.error(publishStatus.requirementMessage);
+      setFormError([publishText.requirementMessage, publishText.missingMessage]);
+      toast.error(publishText.requirementMessage);
       return;
     }
 
@@ -142,9 +148,7 @@ export default function CreateListingPage() {
     try {
       const car = await createCar(form, images, creationRequestId.current);
 
-      toast.success(
-        `"${car.title}" listed successfully. Pictures uploaded successfully.`,
-      );
+      toast.success(t("create.success", { title: car.title }));
 
       navigate("/admin/listings");
     } catch (err) {
@@ -153,9 +157,7 @@ export default function CreateListingPage() {
           const statusCar = await waitForCreationStatus(
             creationRequestId.current,
           );
-          toast.success(
-            `"${statusCar.title}" listed successfully. Pictures uploaded successfully.`,
-          );
+          toast.success(t("create.success", { title: statusCar.title }));
           navigate("/admin/listings");
           return;
         } catch {
@@ -180,11 +182,11 @@ export default function CreateListingPage() {
   return (
     <div className="container-page py-8 sm:py-10 max-w-3xl">
       <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
-        Inventory
+        {t("create.eyebrow")}
       </p>
 
       <h1 className="font-display text-4xl font-semibold text-bone mb-8">
-        Create Listing
+        {t("create.title")}
       </h1>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-8">
@@ -207,14 +209,14 @@ export default function CreateListingPage() {
             className="bg-danger/8 border border-danger/25 rounded-xl px-4 py-3 flex items-center justify-between gap-3"
           >
             <p className="text-danger text-sm">
-              Couldn't load dropdown options (brand, location, engine, year).
+              {t("create.optionsError")}
             </p>
             <button
               type="button"
               onClick={refetchOptions}
               className="text-danger text-sm font-semibold underline shrink-0"
             >
-              Retry
+              {t("create.retry")}
             </button>
           </div>
         )}
@@ -223,13 +225,13 @@ export default function CreateListingPage() {
 
         <section className="glass-panel rounded-premium-lg p-5 sm:p-6 space-y-4">
           <h2 className="font-display text-lg font-semibold text-bone">
-            Core Details
+            {t("create.sections.core")}
           </h2>
 
           <Input
-            label="Title"
+            label={t("create.fields.title")}
             required
-            placeholder="e.g. 2020 Toyota Corolla Altis"
+            placeholder={t("create.fields.titlePlaceholder")}
             value={form.title}
             onChange={updateField("title")}
             error={fieldErrors.title}
@@ -238,7 +240,7 @@ export default function CreateListingPage() {
           <div className="grid sm:grid-cols-2 gap-4">
             {/* BRAND DROPDOWN */}
             <Select
-              label="Brand"
+              label={t("create.fields.brand")}
               required
               value={form.brand}
               onChange={updateBrand}
@@ -246,7 +248,9 @@ export default function CreateListingPage() {
               disabled={optionsLoading}
             >
               <option value="">
-                {optionsLoading ? "Loading brands…" : "Select brand"}
+                {optionsLoading
+                  ? t("create.select.loadingBrands")
+                  : t("create.select.brand")}
               </option>
               {(options?.brands ?? []).map((v) => (
                 <option key={v} value={v}>
@@ -257,16 +261,20 @@ export default function CreateListingPage() {
 
             <SearchableSelect
               id="listing-model"
-              label="Model"
+              label={t("create.fields.model")}
               required
               value={form.model}
               onChange={updateModel}
               options={(options?.modelsByBrand?.[form.brand] ?? []).map(
                 (model) => ({ value: model, label: model }),
               )}
-              placeholder={form.brand ? "Select model" : "Select brand first"}
+              placeholder={
+                form.brand
+                  ? t("create.select.model")
+                  : t("create.select.brandFirst")
+              }
               disabled={!form.brand}
-              disabledLabel="Select brand first"
+              disabledLabel={t("create.select.brandFirst")}
               error={fieldErrors.model}
             />
           </div>
@@ -274,7 +282,7 @@ export default function CreateListingPage() {
           <div className="grid sm:grid-cols-3 gap-4">
             {/* YEAR DROPDOWN */}
             <Select
-              label="Year"
+              label={t("create.fields.year")}
               required
               value={form.year}
               onChange={updateField("year")}
@@ -282,7 +290,9 @@ export default function CreateListingPage() {
               disabled={optionsLoading}
             >
               <option value="">
-                {optionsLoading ? "Loading years…" : "Select year"}
+                {optionsLoading
+                  ? t("create.select.loadingYears")
+                  : t("create.select.year")}
               </option>
               {(options?.years ?? []).map((v) => (
                 <option key={v} value={v}>
@@ -292,7 +302,7 @@ export default function CreateListingPage() {
             </Select>
 
             <Input
-              label="Price"
+              label={t("create.fields.price")}
               type="number"
               required
               placeholder="1500000"
@@ -305,7 +315,7 @@ export default function CreateListingPage() {
                 are stored separately (see Backend/src/models/car.model.js)
                 and only combined at display time (shared/utils/format.js). */}
             <Select
-              label="Currency"
+              label={t("create.fields.currency")}
               value={form.currency}
               onChange={updateField("currency")}
               error={fieldErrors.currency}
@@ -319,9 +329,10 @@ export default function CreateListingPage() {
           </div>
 
           <Input
-            label="VIN (Vehicle Identification Number)"
+            label={t("create.fields.vin")}
+            dir="ltr"
             placeholder="1HGCM82633A004352"
-            hint="Optional — 5–17 letters/numbers. Used to search for this listing."
+            hint={t("create.fields.vinHint")}
             value={form.vin}
             onChange={updateField("vin")}
             error={fieldErrors.vin}
@@ -332,7 +343,7 @@ export default function CreateListingPage() {
 
         <section className="glass-panel rounded-premium-lg p-5 sm:p-6 space-y-4">
           <h2 className="font-display text-lg font-semibold text-bone">
-            Location
+            {t("create.sections.location")}
           </h2>
 
           <div className="grid sm:grid-cols-2 gap-4">
@@ -342,7 +353,7 @@ export default function CreateListingPage() {
                 still the same underlying `province` field (see
                 Backend/src/constants/car.constants.js LOCATIONS). */}
             <Select
-              label="Location"
+              label={t("create.fields.location")}
               required
               value={form.province}
               onChange={updateField("province")}
@@ -350,33 +361,35 @@ export default function CreateListingPage() {
               disabled={optionsLoading}
             >
               <option value="">
-                {optionsLoading ? "Loading locations…" : "Select location"}
+                {optionsLoading
+                  ? t("create.select.loadingLocations")
+                  : t("create.select.location")}
               </option>
               {(options?.locationGroups?.specialLocations?.length ?? 0) > 0 && (
-                <optgroup label="Categories">
+                <optgroup label={t("create.select.categories")}>
                   {options.locationGroups.specialLocations.map((v) => (
                     <option key={v} value={v}>
-                      {v}
+                      {label("province", v)}
                     </option>
                   ))}
                 </optgroup>
               )}
-              <optgroup label="Afghan Provinces">
+              <optgroup label={t("create.select.provinces")}>
                 {(
                   options?.locationGroups?.provinces ??
                   options?.provinces ??
                   []
                 ).map((v) => (
                   <option key={v} value={v}>
-                    {v}
+                    {label("province", v)}
                   </option>
                 ))}
               </optgroup>
             </Select>
 
             <Input
-              label="City"
-              placeholder="Jalalabad"
+              label={t("create.fields.city")}
+              placeholder={t("create.fields.cityPlaceholder")}
               value={form.city}
               onChange={updateField("city")}
             />
@@ -387,12 +400,12 @@ export default function CreateListingPage() {
 
         <section className="glass-panel rounded-premium-lg p-5 sm:p-6 space-y-4">
           <h2 className="font-display text-lg font-semibold text-bone">
-            Specifications
+            {t("create.sections.specs")}
           </h2>
 
           <div className="grid sm:grid-cols-2 gap-4">
             <Input
-              label="Mileage"
+              label={t("create.fields.mileage")}
               type="number"
               placeholder="30000"
               value={form.mileage}
@@ -403,13 +416,13 @@ export default function CreateListingPage() {
             {/* MILEAGE UNIT — spec requirement #4: stored separately from
                 the numeric mileage (never "85000 km" as one string). */}
             <Select
-              label="Unit"
+              label={t("create.fields.unit")}
               value={form.mileageUnit}
               onChange={updateField("mileageUnit")}
             >
               {(options?.mileageUnits ?? ["km", "miles"]).map((u) => (
                 <option key={u} value={u}>
-                  {u === "miles" ? "Miles" : "KM"}
+                  {label("mileageUnit", u)}
                 </option>
               ))}
             </Select>
@@ -417,47 +430,49 @@ export default function CreateListingPage() {
 
           {/* ENGINE DROPDOWN */}
           <Select
-            label="Engine (cc)"
+            label={t("create.fields.engine")}
             value={form.engineCC}
             onChange={updateField("engineCC")}
             error={fieldErrors.engineCC}
             disabled={optionsLoading}
           >
             <option value="">
-              {optionsLoading ? "Loading engine sizes…" : "Select engine"}
+              {optionsLoading
+                ? t("create.select.loadingEngines")
+                : t("create.select.engine")}
             </option>
             {(options?.engineCC ?? []).map((v) => (
               <option key={v} value={v}>
-                {v} cc
+                {t("specs.engineCc", { ns: "catalog", value: v })}
               </option>
             ))}
           </Select>
 
           <div className="grid sm:grid-cols-2 gap-4">
             <Select
-              label="Fuel Type"
+              label={t("create.fields.fuelType")}
               value={form.fuelType}
               onChange={updateField("fuelType")}
             >
-              <option value="">Select fuel type</option>
+              <option value="">{t("create.select.fuelType")}</option>
 
               {(options?.fuelTypes ?? []).map((v) => (
                 <option key={v} value={v}>
-                  {v}
+                  {label("fuelType", v)}
                 </option>
               ))}
             </Select>
 
             <Select
-              label="Body Type"
+              label={t("create.fields.bodyType")}
               value={form.bodyType}
               onChange={updateField("bodyType")}
             >
-              <option value="">Select body type</option>
+              <option value="">{t("create.select.bodyType")}</option>
 
               {(options?.bodyTypes ?? []).map((v) => (
                 <option key={v} value={v}>
-                  {v}
+                  {label("bodyType", v)}
                 </option>
               ))}
             </Select>
@@ -465,29 +480,29 @@ export default function CreateListingPage() {
 
           <div className="grid sm:grid-cols-2 gap-4">
             <Select
-              label="Transmission"
+              label={t("create.fields.transmission")}
               value={form.transmission}
               onChange={updateField("transmission")}
             >
-              <option value="">Select transmission</option>
+              <option value="">{t("create.select.transmission")}</option>
 
               {(options?.transmissions ?? []).map((v) => (
                 <option key={v} value={v}>
-                  {v}
+                  {label("transmission", v)}
                 </option>
               ))}
             </Select>
 
             <Select
-              label="Condition"
+              label={t("create.fields.condition")}
               value={form.condition}
               onChange={updateField("condition")}
             >
-              <option value="">Select condition</option>
+              <option value="">{t("create.select.condition")}</option>
 
               {(options?.conditions ?? []).map((v) => (
                 <option key={v} value={v}>
-                  {v}
+                  {label("condition", v)}
                 </option>
               ))}
             </Select>
@@ -495,14 +510,14 @@ export default function CreateListingPage() {
 
           <div className="grid sm:grid-cols-2 gap-4">
             <Input
-              label="Color"
-              placeholder="White"
+              label={t("create.fields.color")}
+              placeholder={t("create.fields.colorPlaceholder")}
               value={form.color}
               onChange={updateField("color")}
             />
 
             <Input
-              label="Imported Date"
+              label={t("create.fields.importedDate")}
               type="date"
               value={form.importedDate}
               onChange={updateField("importedDate")}
@@ -510,8 +525,8 @@ export default function CreateListingPage() {
           </div>
 
           <Textarea
-            label="Description"
-            placeholder="Condition notes, service history, ownership details…"
+            label={t("create.fields.description")}
+            placeholder={t("create.fields.descriptionPlaceholder")}
             value={form.description}
             onChange={updateField("description")}
             error={fieldErrors.description}
@@ -535,24 +550,24 @@ export default function CreateListingPage() {
             list different sellers. */}
         <section className="glass-panel rounded-premium-lg p-5 sm:p-6 space-y-4">
           <h2 className="font-display text-lg font-semibold text-bone">
-            Seller Information
+            {t("create.sections.seller")}
           </h2>
 
           <div className="grid sm:grid-cols-2 gap-4">
             <Input
-              label="Phone Number"
+              label={t("create.fields.phone")}
               type="tel"
               placeholder="+93 70 123 4567"
-              hint="Used for the Call button on the listing."
+              hint={t("create.fields.phoneHint")}
               value={form.sellerPhone}
               onChange={updateField("sellerPhone")}
               error={fieldErrors.sellerPhone}
             />
             <Input
-              label="WhatsApp Number"
+              label={t("create.fields.whatsapp")}
               type="tel"
               placeholder="+93 70 123 4567"
-              hint="Leave blank to reuse the phone number above."
+              hint={t("create.fields.whatsappHint")}
               value={form.sellerWhatsapp}
               onChange={updateField("sellerWhatsapp")}
               error={fieldErrors.sellerWhatsapp}
@@ -560,8 +575,8 @@ export default function CreateListingPage() {
           </div>
 
           <Input
-            label="Seller Location"
-            placeholder="Kabul, Afghanistan"
+            label={t("create.fields.sellerLocation")}
+            placeholder={t("create.fields.sellerLocationPlaceholder")}
             value={form.sellerLocation}
             onChange={updateField("sellerLocation")}
             error={fieldErrors.sellerLocation}
@@ -595,7 +610,7 @@ export default function CreateListingPage() {
             disabled={!publishStatus.canPublish}
             aria-describedby="image-requirement"
           >
-            Publish Listing
+            {t("create.publish")}
           </Button>
 
           <Button
@@ -603,7 +618,7 @@ export default function CreateListingPage() {
             variant="ghost"
             onClick={() => navigate("/admin/listings")}
           >
-            Cancel
+            {t("create.cancel")}
           </Button>
         </div>
       </form>

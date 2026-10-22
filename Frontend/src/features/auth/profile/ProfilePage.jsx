@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useOptionLabel } from "../../../i18n/optionLabels.js";
+import { formatDateTime } from "../../../shared/utils/format.js";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../store/auth/AuthContext.jsx";
 import { useToast } from "../../../store/ui/ToastContext.jsx";
@@ -15,14 +18,6 @@ import {
 import { parseApiError } from "../../../services/api/client.js";
 import { changePassword as apiChangePassword } from "../../../services/auth/authApi.js";
 
-const formatDateTime = (value) => {
-  if (!value) return "Never";
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-};
-
 const ProfileRow = ({ label, children }) => (
   <div className="flex items-center justify-between py-3.5 border-b border-card last:border-b-0">
     <span className="text-ash text-xs uppercase tracking-wider">{label}</span>
@@ -31,13 +26,19 @@ const ProfileRow = ({ label, children }) => (
 );
 
 export default function ProfilePage() {
+  const { t } = useTranslation("auth");
+  const label = useOptionLabel();
+  const stamp = (value) =>
+    value
+      ? formatDateTime(value, { dateStyle: "medium", timeStyle: "short" })
+      : t("profile.never");
   const { admin, logout } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
-    toast.success("Logged out successfully");
+    toast.success(t("profile.loggedOut"));
     navigate("/admin/login");
   };
 
@@ -67,7 +68,7 @@ export default function ProfilePage() {
     setSubmitting(true);
     try {
       await apiChangePassword(passwordForm);
-      toast.success("Password changed successfully. Please log in again.");
+      toast.success(t("profile.passwordChanged"));
       // Backend invalidates the existing session on password change —
       // clear local auth state and send the admin back to Sign In.
       await logout();
@@ -86,9 +87,11 @@ export default function ProfilePage() {
   return (
     <div className="container-page py-10 sm:py-14 max-w-lg">
       <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
-        Account
+        {t("profile.eyebrow")}
       </p>
-      <h1 className="font-display text-4xl font-semibold text-bone mb-8">Admin Profile</h1>
+      <h1 className="font-display text-4xl font-semibold text-bone mb-8">
+        {t("profile.title")}
+      </h1>
 
       <div className="glass-panel rounded-premium-lg p-6">
         <div className="flex items-center gap-4 mb-6">
@@ -103,21 +106,23 @@ export default function ProfilePage() {
               <Badge
                 variant={admin.role === "superadmin" ? "brass" : "neutral"}
               >
-                {admin.role}
+                {label("role", admin.role)}
               </Badge>
               <Badge variant={admin.isActive ? "signal" : "danger"}>
-                {admin.isActive ? "Active" : "Deactivated"}
+                {admin.isActive ? t("profile.active") : t("profile.deactivated")}
               </Badge>
             </div>
           </div>
         </div>
 
-        <ProfileRow label="Email">{admin.email}</ProfileRow>
-        <ProfileRow label="Last Login">
-          {formatDateTime(admin.lastLogin)}
+        <ProfileRow label={t("profile.email")}>
+          <span className="ltr-isolate">{admin.email}</span>
         </ProfileRow>
-        <ProfileRow label="Admin Since">
-          {formatDateTime(admin.createdAt)}
+        <ProfileRow label={t("profile.lastLogin")}>
+          {stamp(admin.lastLogin)}
+        </ProfileRow>
+        <ProfileRow label={t("profile.adminSince")}>
+          {stamp(admin.createdAt)}
         </ProfileRow>
       </div>
 
@@ -125,9 +130,11 @@ export default function ProfilePage() {
         <button
           type="button"
           onClick={() => setShowChangePassword((prev) => !prev)}
-          className="flex items-center justify-between w-full text-left"
+          className="flex items-center justify-between w-full text-start"
         >
-          <h2 className="font-display text-xl font-semibold text-bone">Change Password</h2>
+          <h2 className="font-display text-xl font-semibold text-bone">
+            {t("profile.changePassword")}
+          </h2>
           <ChevronDownIcon
             className={clsx(
               "h-4 w-4 text-ash transition-transform duration-200",
@@ -145,7 +152,7 @@ export default function ProfilePage() {
             <AuthFormError messages={formError} />
 
             <Input
-              label="Current Password"
+              label={t("profile.currentPassword")}
               type="password"
               autoComplete="current-password"
               required
@@ -154,11 +161,13 @@ export default function ProfilePage() {
               error={fieldErrors.currentPassword}
             />
             <Input
-              label="New Password"
+              label={t("common.newPassword")}
               type="password"
               autoComplete="new-password"
               hint={
-                !fieldErrors.newPassword ? "At least 8 characters." : undefined
+                !fieldErrors.newPassword
+                  ? t("register.passwordHint", { min: 8 })
+                  : undefined
               }
               required
               value={passwordForm.newPassword}
@@ -166,7 +175,7 @@ export default function ProfilePage() {
               error={fieldErrors.newPassword}
             />
             <Input
-              label="Confirm New Password"
+              label={t("common.confirmNewPassword")}
               type="password"
               autoComplete="new-password"
               required
@@ -181,14 +190,14 @@ export default function ProfilePage() {
               className="w-full"
               loading={submitting}
             >
-              Change Password
+              {t("profile.changePassword")}
             </Button>
           </form>
         )}
       </div>
 
       <Button variant="secondary" className="mt-6" onClick={handleLogout}>
-        Log Out
+        {t("profile.logout")}
       </Button>
     </div>
   );

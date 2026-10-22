@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const OfflineBanner = () => {
+  const { t } = useTranslation();
   const [isOffline, setIsOffline] = useState(
     typeof navigator !== "undefined" ? !navigator.onLine : false
   );
@@ -23,7 +25,7 @@ export const OfflineBanner = () => {
       role="status"
       className="bg-danger/8 border-b border-danger/25 text-danger text-xs font-semibold text-center py-2 px-4"
     >
-      You're offline — some content may not load until your connection is back.
+      {t("status.offline")}
     </div>
   );
 };

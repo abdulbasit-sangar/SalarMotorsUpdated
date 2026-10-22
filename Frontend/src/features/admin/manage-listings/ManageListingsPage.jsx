@@ -1,11 +1,14 @@
+
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
 import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
 import {
   resolveImageLimits,
   countValidImages,
   getPublishStatus,
+  getPublishMessages,
 } from "../../../shared/utils/imageRules.js";
 import {
   deleteCar,
@@ -31,26 +34,26 @@ import { parseApiError } from "../../../services/api/client.js";
 const LIMIT = 10;
 
 export default function ManageListingsPage() {
+  const { t } = useTranslation("admin");
   const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
-  const page = Math.max(1, parseInt(searchParams.get("page")) || 1);
+
+  const page = Math.max(1, parseInt(searchParams.get("page"), 10) || 1);
   const sort = searchParams.get("sort") || "newest";
 
   const fetcher = useCallback(
     () => fetchAdminCars({ page, limit: LIMIT, sort }),
     [page, sort],
   );
-  const { data, loading, error, refetch } = useAsyncData(fetcher, [page, sort]);
 
-  // Image rules come from the backend (GET /cars/options → imageLimits); the
-  // defaults apply until that response arrives.
+  const { data, loading, error, refetch } = useAsyncData(fetcher, [
+    page,
+    sort,
+  ]);
+
   const { options } = useCarOptions();
   const imageLimits = resolveImageLimits(options?.imageLimits);
 
-  // Cars are mirrored into local state so that hiding a listing doesn't
-  // make it vanish mid-session — see the note below the header. Toggling
-  // updates this local copy directly instead of refetching, since the
-  // backend's public GET /cars excludes isHidden:true results entirely.
   const [cars, setCars] = useState([]);
   const [pendingId, setPendingId] = useState(null);
   const [editingFeaturesCar, setEditingFeaturesCar] = useState(null);
@@ -58,30 +61,48 @@ export default function ManageListingsPage() {
   const [managingImagesCar, setManagingImagesCar] = useState(null);
 
   useEffect(() => {
-    if (data?.cars)
-      setCars(data.cars.map((c) => ({ ...c, isHidden: c.isHidden ?? false })));
+    if (data?.cars) {
+      setCars(
+        data.cars.map((car) => ({
+          ...car,
+          isHidden: car.isHidden ?? false,
+        })),
+      );
+    }
   }, [data]);
 
   const updateParams = (next) => {
     const params = new URLSearchParams(searchParams);
+
     Object.entries(next).forEach(([key, value]) => {
-      if (!value) params.delete(key);
-      else params.set(key, value);
+      if (value === null || value === undefined || value === "") {
+        params.delete(key);
+      } else {
+        params.set(key, String(value));
+      }
     });
+
     setSearchParams(params);
   };
 
   const handleToggleFeatured = async (car) => {
     setPendingId({ id: car._id, action: "feature" });
+
     try {
       const updated = await toggleFeatureCar(car._id);
-      setCars((prev) =>
-        prev.map((c) =>
-          c._id === car._id ? { ...c, featured: updated.featured } : c,
+
+      setCars((previous) =>
+        previous.map((item) =>
+          item._id === car._id
+            ? { ...item, featured: updated.featured }
+            : item,
         ),
       );
+
       toast.success(
-        updated.featured ? "Marked as featured." : "Removed from featured.",
+        updated.featured
+          ? t("listings.markedFeatured")
+          : t("listings.removedFeatured"),
       );
     } catch (err) {
       toast.error(parseApiError(err).message);
@@ -91,28 +112,38 @@ export default function ManageListingsPage() {
   };
 
   const handleToggleHide = async (car) => {
-    // Un-hiding publishes the listing → needs the minimum images. Explain
-    // exactly what is missing instead of making a request that must fail.
-    // (The backend enforces the same rule regardless of this check.)
     if (car.isHidden) {
-      const status = getPublishStatus(countValidImages(car.images), imageLimits);
+      const status = getPublishStatus(
+        countValidImages(car.images),
+        imageLimits,
+      );
+
       if (!status.canPublish) {
-        toast.error(`${status.requirementMessage} ${status.missingMessage}`);
+        const messages = getPublishMessages(t, status);
+        toast.error(
+          `${messages.requirementMessage} ${messages.missingMessage}`,
+        );
         return;
       }
     }
+
     setPendingId({ id: car._id, action: "hide" });
+
     try {
       const updated = await toggleHideCar(car._id);
-      setCars((prev) =>
-        prev.map((c) =>
-          c._id === car._id ? { ...c, isHidden: updated.isHidden } : c,
+
+      setCars((previous) =>
+        previous.map((item) =>
+          item._id === car._id
+            ? { ...item, isHidden: updated.isHidden }
+            : item,
         ),
       );
+
       toast.success(
         updated.isHidden
-          ? "Pictures hidden successfully."
-          : "Pictures restored successfully.",
+          ? t("listings.hiddenToast")
+          : t("listings.visibleToast"),
       );
     } catch (err) {
       toast.error(parseApiError(err).message);
@@ -123,15 +154,21 @@ export default function ManageListingsPage() {
 
   const handleDelete = async (car) => {
     const confirmed = window.confirm(
-      `Delete "${car.title || "this listing"}"? This cannot be undone.`,
+      t("listings.confirmDelete", {
+        title: car.title || t("listings.untitled"),
+      }),
     );
+
     if (!confirmed) return;
 
     setPendingId({ id: car._id, action: "delete" });
+
     try {
       await deleteCar(car._id);
-      setCars((prev) => prev.filter((c) => c._id !== car._id));
-      toast.success("Listing deleted successfully.");
+      setCars((previous) =>
+        previous.filter((item) => item._id !== car._id),
+      );
+      toast.success(t("listings.deleted"));
     } catch (err) {
       toast.error(parseApiError(err).message);
     } finally {
@@ -141,12 +178,23 @@ export default function ManageListingsPage() {
 
   const handleToggleSold = async (car) => {
     setPendingId({ id: car._id, action: "sold" });
+
     try {
       const updated = await toggleSoldCar(car._id);
-      setCars((prev) =>
-        prev.map((c) => (c._id === car._id ? { ...c, isSold: updated.isSold } : c)),
+
+      setCars((previous) =>
+        previous.map((item) =>
+          item._id === car._id
+            ? { ...item, isSold: updated.isSold }
+            : item,
+        ),
       );
-      toast.success(updated.isSold ? "Marked as sold." : "Marked as available.");
+
+      toast.success(
+        updated.isSold
+          ? t("listings.markedSold")
+          : t("listings.markedAvailable"),
+      );
     } catch (err) {
       toast.error(parseApiError(err).message);
     } finally {
@@ -156,12 +204,19 @@ export default function ManageListingsPage() {
 
   const handleSaveFeatures = async (car, features) => {
     setSavingFeatures(true);
+
     try {
       const updated = await updateCarFeatures(car._id, features);
-      setCars((prev) =>
-        prev.map((c) => (c._id === car._id ? { ...c, features: updated.features } : c)),
+
+      setCars((previous) =>
+        previous.map((item) =>
+          item._id === car._id
+            ? { ...item, features: updated.features }
+            : item,
+        ),
       );
-      toast.success("Vehicle features updated.");
+
+      toast.success(t("listings.featuresUpdated"));
       setEditingFeaturesCar(null);
     } catch (err) {
       toast.error(parseApiError(err).message);
@@ -171,11 +226,18 @@ export default function ManageListingsPage() {
   };
 
   const handleImagesUpdated = (updated) => {
-    setCars((prev) =>
-      prev.map((c) => (c._id === updated._id ? { ...c, images: updated.images } : c)),
+    setCars((previous) =>
+      previous.map((item) =>
+        item._id === updated._id
+          ? { ...item, images: updated.images }
+          : item,
+      ),
     );
-    setManagingImagesCar((prev) =>
-      prev && prev._id === updated._id ? { ...prev, images: updated.images } : prev,
+
+    setManagingImagesCar((previous) =>
+      previous && previous._id === updated._id
+        ? { ...previous, images: updated.images }
+        : previous,
     );
   };
 
@@ -185,76 +247,117 @@ export default function ManageListingsPage() {
   };
 
   return (
-    <div className="container-page py-8 sm:py-10">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-4">
-        <div>
-          <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
-            Inventory
+    <main className="container-page min-w-0 py-6 sm:py-8 lg:py-10">
+      <header className="mb-6 flex min-w-0 flex-col gap-5 border-b border-card pb-5 sm:mb-8 sm:pb-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
+          <p className="mb-2 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-brass sm:text-xs">
+            {t("listings.eyebrow")}
           </p>
-          <h1 className="font-display text-4xl font-semibold text-bone">Manage Listings</h1>
+
+          <h1 className="font-display text-3xl font-semibold leading-tight text-bone sm:text-4xl">
+            {t("listings.title")}
+          </h1>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:flex lg:shrink-0 lg:items-center">
+          <div className="min-w-0">
+            <SortSelect
+              value={sort}
+              onChange={(value) =>
+                updateParams({ sort: value, page: null })
+              }
+            />
+          </div>
+
           <Button
             as={Link}
             to="/admin/listings/create"
             variant="primary"
             size="sm"
           >
-            + Create Listing
+            {t("listings.create")}
           </Button>
-          <SortSelect
-            value={sort}
-            onChange={(value) => updateParams({ sort: value, page: null })}
-          />
         </div>
-      </div>
-
-      <div className="bg-brass/8 border border-brass/25 rounded-xl px-4 py-3 mb-8 text-xs text-ash">
-        <strong className="text-brass-dark">Note:</strong> hidden listings remain
-        visible in this admin list and can be restored with the Unhide button.
-      </div>
+      </header>
 
       {error ? (
-        <ErrorState onRetry={refetch} />
+        <div className="rounded-2xl border border-card bg-card p-4 sm:p-6">
+          <ErrorState onRetry={refetch} />
+        </div>
       ) : loading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 w-full" />
+        <div className="space-y-3 sm:space-y-4" aria-busy="true">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div
+              key={index}
+              className="flex flex-col gap-4 rounded-2xl border border-card bg-card p-3 sm:p-4 lg:flex-row"
+            >
+              <Skeleton className="aspect-[16/9] w-full rounded-xl sm:aspect-[16/7] lg:aspect-[4/3] lg:w-48 xl:w-56" />
+
+              <div className="flex min-w-0 flex-1 flex-col gap-3">
+                <Skeleton className="h-6 w-3/5 max-w-64" />
+                <Skeleton className="h-4 w-2/5 max-w-40" />
+                <div className="flex flex-wrap gap-2">
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                  <Skeleton className="h-6 w-24 rounded-full" />
+                </div>
+                <div className="mt-1 flex flex-wrap gap-2 border-t border-card pt-3">
+                  <Skeleton className="h-9 w-20 rounded-lg" />
+                  <Skeleton className="h-9 w-20 rounded-lg" />
+                  <Skeleton className="h-9 w-24 rounded-lg" />
+                </div>
+              </div>
+            </div>
           ))}
         </div>
-      ) : cars.length ? (
+      ) : cars.length > 0 ? (
         <>
-          <div className="space-y-3">
+          <section
+            aria-label={t("listings.title")}
+            className="space-y-3 sm:space-y-4"
+          >
             {cars.map((car) => (
               <AdminCarRow
                 key={car._id}
                 car={car}
-                pending={pendingId?.id === car._id ? pendingId.action : null}
+                pending={
+                  pendingId?.id === car._id ? pendingId.action : null
+                }
                 onToggleFeatured={handleToggleFeatured}
                 onToggleHide={handleToggleHide}
                 onToggleSold={handleToggleSold}
                 onEditFeatures={setEditingFeaturesCar}
                 onManageImages={setManagingImagesCar}
-                imageLimits={imageLimits}
                 onDelete={handleDelete}
+                imageLimits={imageLimits}
               />
             ))}
-          </div>
-          <div className="mt-8">
-            <Pagination
-              pagination={data.pagination}
-              onPageChange={handlePageChange}
-            />
-          </div>
+          </section>
+
+          {data?.pagination && (
+            <nav
+              aria-label="Listings pagination"
+              className="mt-6 overflow-x-auto border-t border-card pt-5 sm:mt-8 sm:pt-6"
+            >
+              <Pagination
+                pagination={data.pagination}
+                onPageChange={handlePageChange}
+              />
+            </nav>
+          )}
         </>
       ) : (
-        <EmptyState
-          icon={<CarSilhouetteIcon className="w-14 h-9" />}
-          title="No listings yet"
-          description="Create your first listing to start managing inventory."
-          actionLabel="Create Listing"
-          onAction={() => (window.location.href = "/admin/listings/create")}
-        />
+        <div className="rounded-2xl border border-card bg-card px-4 py-10 sm:px-6 sm:py-14">
+          <EmptyState
+            icon={<CarSilhouetteIcon className="h-14 w-14" />}
+            title={t("listings.emptyTitle")}
+            description={t("listings.emptyDescription")}
+            actionLabel={t("listings.emptyAction")}
+            onAction={() => {
+              window.location.href = "/admin/listings/create";
+            }}
+          />
+        </div>
       )}
 
       <EditFeaturesModal
@@ -270,6 +373,6 @@ export default function ManageListingsPage() {
         onUpdated={handleImagesUpdated}
         limits={imageLimits}
       />
-    </div>
+    </main>
   );
 }

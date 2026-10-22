@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "home": "Home",
+    "allCars": "All Cars",
+    "dubaiCars": "Dubai Cars",
+    "onTheWay": "On the Way",
+    "fromAmericaToHerat": "From America to Herat",
+    "fromDubaiToHerat": "From Dubai to Herat",
+    "favorites": "Favorites",
+    "favoritesCount": "Favorites ({{count}})",
+    "searchVehicles": "Search vehicles",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "mobileNavigation": "Mobile navigation",
+    "search": "Search",
+    "closeSearch": "Close search",
+    "searchCars": "Search cars",
+    "searchPlaceholder": "Search brand, model, or location…",
+    "logoAlt": "Salar Motors logo",
+    "language": "Language"
+  },
+  "footer": {
+    "about": "The benchmark in luxury and imported vehicle logistics. Delivering verified inventory, unmatched global sourcing transparency, and seamless direct transit from international hubs to your destination.",
+    "channels": "Official Channels",
+    "quickNavigation": "Quick Navigation",
+    "onTheWayAmerica": "On the Way: America to Herat",
+    "onTheWayDubai": "On the Way: Dubai to Herat",
+    "supportHub": "Direct Support Hub",
+    "callHotline": "Call Hotline",
+    "emailDesk": "Email Desk",
+    "copyright": "© {{year}} Salar Motors.",
+    "rights": "All rights reserved.",
+    "disclaimer": "All listings subject to availability & professional verification."
+  },
+  "admin": {
+    "navigation": "Admin navigation",
+    "logout": "Log out",
+    "loggedOut": "Logged out successfully",
+    "dashboard": "Dashboard",
+    "manageListings": "Manage Listings",
+    "createListing": "Create Listing",
+    "profile": "Profile",
+    "managers": "Managers"
+  }
+}

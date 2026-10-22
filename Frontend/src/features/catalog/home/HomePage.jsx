@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { HeroSection } from "./HeroSection.jsx";
 import {
   ShieldIcon,
@@ -13,58 +14,19 @@ import {
   fetchCars,
 } from "../../../services/cars/carsApi.js";
 
+// Copy lives in locales/*/home.json under why.items.<key> / how.steps.<key>.
 const WHY_CHOOSE = [
-  {
-    title: "Verified Vehicles",
-    description:
-      "Every listing is screened and verified so you can browse with complete confidence.",
-    icon: ShieldIcon,
-  },
-  {
-    title: "Quality Inspection",
-    description:
-      "Detailed condition reports and transparent specs help you make informed decisions.",
-    icon: ClipboardCheckIcon,
-  },
-  {
-    title: "Trusted Import Process",
-    description:
-      "From sourcing to delivery, our import process is built on reliability and trust.",
-    icon: ShippingIcon,
-  },
-  {
-    title: "Customer Support",
-    description:
-      "Our dedicated team guides you through every step of your car buying journey.",
-    icon: HeadsetIcon,
-  },
+  { key: "verified", icon: ShieldIcon },
+  { key: "inspection", icon: ClipboardCheckIcon },
+  { key: "import", icon: ShippingIcon },
+  { key: "support", icon: HeadsetIcon },
 ];
 
 const HOW_IT_WORKS = [
-  {
-    step: 1,
-    title: "Browse",
-    description:
-      "Explore our curated catalog and filter by brand, price, year, and vehicle specifications.",
-  },
-  {
-    step: 2,
-    title: "Contact",
-    description:
-      "Reach out to our team or the seller directly to ask questions and confirm details.",
-  },
-  {
-    step: 3,
-    title: "Inspect",
-    description:
-      "Arrange a viewing or inspection to verify the vehicle meets your expectations.",
-  },
-  {
-    step: 4,
-    title: "Purchase",
-    description:
-      "Complete your purchase with confidence through our guided, transparent process.",
-  },
+  { step: 1, key: "browse" },
+  { step: 2, key: "contact" },
+  { step: 3, key: "inspect" },
+  { step: 4, key: "purchase" },
 ];
 
 const loadHomeData = async () => {
@@ -116,6 +78,7 @@ const useReveal = (threshold = 0.15) => {
 };
 
 const IconCard = ({ item, visible, delay }) => {
+  const { t } = useTranslation("home");
   const Icon = item.icon;
   return (
     <div
@@ -129,9 +92,11 @@ const IconCard = ({ item, visible, delay }) => {
       <div className="w-12 h-12 mx-auto flex items-center justify-center rounded-xl bg-graphite-100 text-brass-dark mb-4">
         <Icon className="w-6 h-6" aria-hidden="true" />
       </div>
-      <h3 className="font-display text-lg font-bold text-card">{item.title}</h3>
+      <h3 className="font-display text-lg font-bold text-card">
+        {t(`why.items.${item.key}.title`)}
+      </h3>
       <p className="text-card-muted text-sm mt-3 leading-relaxed">
-        {item.description}
+        {t(`why.items.${item.key}.description`)}
       </p>
     </div>
   );
@@ -161,7 +126,7 @@ const StepCard = ({ step, title, description, isLast, visible, delay }) => (
     </p>
     {!isLast && (
       <div
-        className="hidden lg:block absolute top-6 left-[calc(50%+2rem)] h-px bg-steel overflow-hidden"
+        className="hidden lg:block absolute top-6 start-[calc(50%+2rem)] h-px bg-steel overflow-hidden"
         style={{ width: "calc(100% - 4rem)" }}
         aria-hidden="true"
       >
@@ -178,6 +143,7 @@ const StepCard = ({ step, title, description, isLast, visible, delay }) => (
 );
 
 export default function HomePage() {
+  const { t } = useTranslation("home");
   const { data } = useAsyncData(loadHomeData, []);
 
   const [whyRef, whyVisible] = useReveal();
@@ -209,20 +175,19 @@ export default function HomePage() {
             }
           >
             <p className="section-eyebrow text-brass-dark font-semibold tracking-wider uppercase">
-              Why Salar Motors
+              {t("why.eyebrow")}
             </p>
             <h2 className="section-title text-section-light">
-              Why Choose Salar Motors
+              {t("why.title")}
             </h2>
             <p className="section-subtitle text-section-light-muted mx-auto">
-              We combine verified inventory, transparent pricing, and dedicated
-              support to make importing your next car effortless.
+              {t("why.subtitle")}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {WHY_CHOOSE.map((item, index) => (
               <IconCard
-                key={item.title}
+                key={item.key}
                 item={item}
                 visible={whyVisible}
                 delay={index * 100}
@@ -243,20 +208,17 @@ export default function HomePage() {
                 : "opacity-0 translate-y-6")
             }
           >
-            <p className="section-eyebrow">Simple Process</p>
-            <h2 className="section-title">How It Works</h2>
-            <p className="section-subtitle mx-auto">
-              Four straightforward steps from browsing to ownership — no
-              complexity, no surprises.
-            </p>
+            <p className="section-eyebrow">{t("how.eyebrow")}</p>
+            <h2 className="section-title">{t("how.title")}</h2>
+            <p className="section-subtitle mx-auto">{t("how.subtitle")}</p>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-4">
             {HOW_IT_WORKS.map((item, index) => (
               <StepCard
-                key={item.title}
+                key={item.key}
                 step={item.step}
-                title={item.title}
-                description={item.description}
+                title={t(`how.steps.${item.key}.title`)}
+                description={t(`how.steps.${item.key}.description`)}
                 isLast={index === HOW_IT_WORKS.length - 1}
                 visible={howVisible}
                 delay={index * 120}
@@ -282,7 +244,7 @@ export default function HomePage() {
                   : "opacity-0 translate-y-6")
               }
             >
-              About Us
+              {t("about.eyebrow")}
             </p>
             <h2
               style={{ transitionDelay: aboutVisible ? "80ms" : "0ms" }}
@@ -293,7 +255,7 @@ export default function HomePage() {
                   : "opacity-0 translate-y-6")
               }
             >
-              Your Trusted Automotive Marketplace
+              {t("about.title")}
             </h2>
 
             <div
@@ -307,20 +269,13 @@ export default function HomePage() {
               }
             >
               <p className="text-card text-base sm:text-lg leading-relaxed">
-                Salar Motors is a premium vehicle marketplace specializing in
-                imported cars. We connect buyers with verified, quality vehicles
-                sourced from Japan, America, Dubai, and beyond.
+                {t("about.p1")}
               </p>
               <p className="text-card-muted text-sm sm:text-base leading-relaxed">
-                Our platform is designed with transparency at its core. Every
-                listing includes detailed specifications, clear pricing, and
-                location information so you can compare options and make
-                confident decisions without leaving the catalog.
+                {t("about.p2")}
               </p>
               <p className="text-card-muted text-sm sm:text-base leading-relaxed">
-                Whether you are looking for a reliable daily driver, a luxury
-                import, or a family SUV, Salar Motors provides the tools and
-                support to help you find exactly what you need.
+                {t("about.p3")}
               </p>
 
               <div className="pt-4 flex flex-wrap gap-4">
@@ -328,7 +283,7 @@ export default function HomePage() {
                   to="/listings"
                   className="h-11 px-6 flex items-center bg-brass text-graphite-950 font-semibold text-sm rounded-xl transition-colors hover:bg-brass-light"
                 >
-                  View All Listings
+                  {t("about.cta")}
                 </Link>
               </div>
             </div>

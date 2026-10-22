@@ -5,6 +5,7 @@ import {
   resolveImageLimits,
   countValidImages,
   getPublishStatus,
+  getPublishMessages,
   remainingSlots,
   countSelectableFiles,
 } from "./imageRules.js";
@@ -23,21 +24,35 @@ test("server-provided limits win; garbage falls back to defaults", () => {
   assert.deepEqual(resolveImageLimits({ min: 9, max: 4 }), { min: 9, max: 20 }); // max < min is nonsense
 });
 
+// Messages are built from translation keys; this stand-in `t` mirrors the
+// English locale so the wording the admin sees is still pinned by a test.
+const en = {
+  "images.counter": "{{count}} / {{max}} images",
+  "images.requirement": "Upload at least {{min}} images to publish this listing.",
+  "images.missing": (p) =>
+    `You have ${p.have} of the ${p.min} required — add ${p.count} more image${p.count === 1 ? "" : "s"}.`,
+};
+const t = (key, params) =>
+  typeof en[key] === "function"
+    ? en[key](params)
+    : en[key].replace(/{{(\w+)}}/g, (_, k) => params[k]);
+
 test("counter label reads like '3 / 20 images'", () => {
-  assert.equal(getPublishStatus(3).counterLabel, "3 / 20 images");
-  assert.equal(getPublishStatus(0).counterLabel, "0 / 20 images");
+  assert.equal(getPublishMessages(t, getPublishStatus(3)).counterLabel, "3 / 20 images");
+  assert.equal(getPublishMessages(t, getPublishStatus(0)).counterLabel, "0 / 20 images");
 });
 
 test("fewer than 5 images cannot publish and the message says exactly what is missing", () => {
   for (const n of [0, 1, 2, 3, 4]) {
     const s = getPublishStatus(n);
     assert.equal(s.canPublish, false, `n=${n}`);
-    assert.equal(s.requirementMessage, "Upload at least 5 images to publish this listing.");
+    const m = getPublishMessages(t, s);
+    assert.equal(m.requirementMessage, "Upload at least 5 images to publish this listing.");
     assert.equal(s.missing, 5 - n);
-    assert.match(s.missingMessage, new RegExp(`You have ${n} of the 5 required`));
+    assert.match(m.missingMessage, new RegExp(`You have ${n} of the 5 required`));
   }
-  assert.match(getPublishStatus(4).missingMessage, /add 1 more image\./); // singular
-  assert.match(getPublishStatus(3).missingMessage, /add 2 more images\./);
+  assert.match(getPublishMessages(t, getPublishStatus(4)).missingMessage, /add 1 more image\./); // singular
+  assert.match(getPublishMessages(t, getPublishStatus(3)).missingMessage, /add 2 more images\./);
 });
 
 test("exactly 5 and exactly 20 images can publish", () => {
@@ -45,7 +60,7 @@ test("exactly 5 and exactly 20 images can publish", () => {
     const s = getPublishStatus(n);
     assert.equal(s.canPublish, true);
     assert.equal(s.missing, 0);
-    assert.equal(s.missingMessage, null);
+    assert.equal(getPublishMessages(t, s).missingMessage, null);
   }
   assert.equal(getPublishStatus(20).remaining, 0);
 });
