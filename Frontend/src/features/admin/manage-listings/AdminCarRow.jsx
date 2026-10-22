@@ -189,7 +189,7 @@ export const AdminCarRow = ({
                 <Icon name="image" className="h-3.5 w-3.5" />
                 {imageCount}
               </span>
-              <span className="rounded-lg bg-white/95 px-2.5 py-1.5 text-xs font-semibold text-graphite-900 shadow-sm transition-colors group-hover:bg-white">
+              <span className="rounded-lg border border-white/20 bg-graphite-950/75 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm backdrop-blur-md">
                 {t("row.manageImages", { count: car.images?.length || 0 })}
               </span>
             </span>
@@ -338,17 +338,18 @@ export const AdminCarRow = ({
                 </p>
               </div>
 
+            </div>
+
+            <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-black/25">
               <button
                 type="button"
                 onClick={() => setGalleryOpen(false)}
                 aria-label="Close gallery"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
+                title="Close gallery"
+                className="absolute end-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-black/65 text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-black/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:end-4 sm:top-4"
               >
                 <Icon name="close" className="h-5 w-5" />
               </button>
-            </div>
-
-            <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-black/25">
               <img
                 key={galleryImages[activeImage].url}
                 src={galleryImages[activeImage].url}
