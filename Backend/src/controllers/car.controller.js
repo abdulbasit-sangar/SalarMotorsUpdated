@@ -10,6 +10,8 @@ import {
   toggleHideCarService,
   toggleSoldCarService,
   updateCarFeaturesService,
+  updateCarService,
+  getAdminCarByIdService,
   addCarImagesService,
   assertCanAddImagesService,
   removeCarImageService,
@@ -202,6 +204,22 @@ export const toggleSoldCar = asyncHandler(async (req, res) => {
   const car = await toggleSoldCarService(req.params.id);
   const msg = car.isSold ? "Car marked as sold" : "Car marked as available";
   return res.status(200).json(new ApiResponse(200, { car }, msg));
+});
+
+// GET /api/cars/admin/:id — Admin/Manager: one listing, hidden or not
+export const getAdminCarById = asyncHandler(async (req, res) => {
+  const car = await getAdminCarByIdService(req.params.id);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { car }, "Car fetched successfully"));
+});
+
+// PATCH /api/cars/:id — Admin/Manager: edit listing details
+export const updateCar = asyncHandler(async (req, res) => {
+  const car = await updateCarService(req.params.id, req.body);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { car }, "Car updated successfully"));
 });
 
 // PATCH /api/cars/features/:id — Vehicle Features System (Admin/Manager)

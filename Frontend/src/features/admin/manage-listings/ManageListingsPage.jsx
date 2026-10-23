@@ -273,7 +273,8 @@ export default function ManageListingsPage() {
             as={Link}
             to="/admin/listings/create"
             variant="primary"
-            size="sm"
+            size="md"
+            className="w-full lg:w-auto"
           >
             {t("listings.create")}
           </Button>

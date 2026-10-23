@@ -3,6 +3,8 @@ import {
   createCar,
   getAllCars,
   getAdminCars,
+  getAdminCarById,
+  updateCar,
   getCarById,
   searchCars,
   filterCars,
@@ -29,6 +31,7 @@ import {
   validateCreateCar,
   validateMinImagesToPublish,
   validateUpdateFeatures,
+  validateUpdateCar,
   validateRemoveImage,
   parseFeaturesField,
 } from "../validators/car.validator.js";
@@ -59,6 +62,15 @@ router.get(
   verifyJWT,
   requireRole("superadmin", "manager"),
   getAdminCars,
+);
+
+// Admin/Manager — one listing (including hidden) for the Edit Vehicle form.
+// Two segments, so it never collides with GET /:id.
+router.get(
+  "/admin/:id",
+  verifyJWT,
+  requireRole("superadmin", "manager"),
+  getAdminCarById,
 );
 
 router.get(
@@ -140,6 +152,16 @@ router.delete(
   requireRole("superadmin", "manager"),
   validateRemoveImage,
   removeCarImage,
+);
+
+// Admin/Manager — edit listing details (PATCH semantics: only the fields sent
+// are changed; images/status flags have their own endpoints)
+router.patch(
+  "/:id",
+  verifyJWT,
+  requireRole("superadmin", "manager"),
+  validateUpdateCar,
+  updateCar,
 );
 
 // Admin/Manager — delete car

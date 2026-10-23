@@ -6,17 +6,19 @@ import { FeaturesSelector } from "../../../shared/components/FeaturesSelector.js
 import { Button } from "../../../shared/components/Button.jsx";
 import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
 
-export const EditFeaturesModal = ({
-  car,
-  onClose,
-  onSave,
-  saving,
-}) => {
+// The page keeps this modal mounted with car={null} while closed, and useState
+// only reads its initial value once — so state must live in an inner form that
+// is mounted per car. Otherwise a listing opens with no features checked (or
+// with the previously edited car's), and saving would overwrite its features.
+export const EditFeaturesModal = (props) => {
+  if (!props.car) return null;
+  return <EditFeaturesForm key={props.car._id} {...props} />;
+};
+
+const EditFeaturesForm = ({ car, onClose, onSave, saving }) => {
   const { t } = useTranslation("admin");
   const { options } = useCarOptions();
-  const [selected, setSelected] = useState(car?.features ?? []);
-
-  if (!car) return null;
+  const [selected, setSelected] = useState(() => car.features ?? []);
 
   return (
     <Modal

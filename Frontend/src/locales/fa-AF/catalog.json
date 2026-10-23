@@ -103,5 +103,11 @@
     "yearRange": "سال: {{min}} – {{max}}",
     "yearFrom": "سال: از {{min}}",
     "yearUpTo": "سال: تا {{max}}"
+  },
+  "infinite": {
+    "loadingMore": "در حال بارگیری موترهای بیشتر…",
+    "loadMoreError": "بارگیری موترهای بیشتر ممکن نشد.",
+    "retry": "تلاش دوباره",
+    "endOfResults": "شما همه موترهای موجود را دیدید."
   }
 }

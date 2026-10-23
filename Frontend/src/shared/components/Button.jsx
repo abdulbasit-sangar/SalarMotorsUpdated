@@ -15,6 +15,8 @@ const VARIANTS = {
 
 const SIZES = {
   sm: "h-9 px-3.5 text-sm",
+  // Admin action groups: 44px touch target on phones, compact 40px from sm up.
+  admin: "h-11 px-4 text-sm whitespace-nowrap sm:h-10",
   md: "h-11 px-5 text-sm",
   lg: "h-12 px-6 text-base",
 };

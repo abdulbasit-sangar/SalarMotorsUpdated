@@ -55,12 +55,15 @@ const buildProvinceFilter = (province) => {
   return new RegExp(isSpecialLocation ? `^${escaped}$` : escaped, "i");
 };
 
+// Every sort ends with a unique `_id` tie-breaker so cars with equal values
+// keep a deterministic order. Without it MongoDB may order ties differently
+// per query, so skip/limit batches could repeat or skip cars while scrolling.
 const SORT_MAP = {
-  newest: { createdAt: -1 },
-  oldest: { createdAt: 1 },
-  price_asc: { price: 1 },
-  price_desc: { price: -1 },
-  mileage_low: { mileage: 1 },
+  newest: { createdAt: -1, _id: -1 },
+  oldest: { createdAt: 1, _id: 1 },
+  price_asc: { price: 1, _id: 1 },
+  price_desc: { price: -1, _id: -1 },
+  mileage_low: { mileage: 1, _id: 1 },
 };
 
 const buildPagination = (page, limit, total) => ({
@@ -488,6 +491,98 @@ export const updateCarFeaturesService = async (id, features = []) => {
     { new: true, select: "title features" },
   ).lean();
 
+  return updated;
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMIN/MANAGER — full listing edit
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Admin fetch of a single listing INCLUDING hidden ones (the public
+// getCarByIdService deliberately excludes hidden listings). Used to prefill
+// the Edit Vehicle form.
+export const getAdminCarByIdService = async (id) => {
+  validateObjectId(id, "car ID");
+  const car = await Car.findById(id).select("-__v").lean();
+  if (!car) throw new ApiError(404, "Car not found");
+  return car;
+};
+
+// Fields an admin may change through PATCH /api/cars/:id. Images, featured,
+// isHidden, isSold, slug and createdBy are intentionally NOT editable here —
+// they have their own dedicated, separately guarded endpoints.
+const EDITABLE_CAR_FIELDS = [
+  "title",
+  "brand",
+  "model",
+  "year",
+  "price",
+  "currency",
+  "province",
+  "city",
+  "mileage",
+  "mileageUnit",
+  "fuelType",
+  "bodyType",
+  "transmission",
+  "condition",
+  "engineCC",
+  "color",
+  "vin",
+  "sellerPhone",
+  "sellerWhatsapp",
+  "sellerLocation",
+  "description",
+  "importedDate",
+];
+
+// An empty string means "clear this optional value".
+const CLEARABLE_CAR_FIELDS = new Set([
+  "city",
+  "fuelType",
+  "bodyType",
+  "transmission",
+  "engineCC",
+  "color",
+  "vin",
+  "sellerPhone",
+  "sellerWhatsapp",
+  "sellerLocation",
+  "description",
+  "importedDate",
+]);
+
+export const updateCarService = async (id, data = {}) => {
+  validateObjectId(id, "car ID");
+
+  const car = await Car.findById(id);
+  if (!car) throw new ApiError(404, "Car not found");
+
+  // Only fields that were actually sent are touched, so omitted fields (and
+  // images/status flags) are never reset. Using document.save() (rather than
+  // an update query) keeps the schema validators, setters and the slug
+  // pre-save hook in play, and Mongoose only writes the modified paths — so
+  // a concurrent image change is not overwritten.
+  for (const key of EDITABLE_CAR_FIELDS) {
+    if (!Object.prototype.hasOwnProperty.call(data, key)) continue;
+    const value = data[key];
+
+    if (value === "" || value === null) {
+      if (CLEARABLE_CAR_FIELDS.has(key)) car.set(key, undefined);
+      else if (key === "mileage") car.set(key, 0); // schema default
+      continue; // required fields are never blanked
+    }
+    car.set(key, value);
+  }
+
+  if (Array.isArray(data.features)) {
+    car.features = [...new Set(data.features)];
+  }
+
+  await car.save();
+
+  const updated = car.toObject();
+  delete updated.__v;
   return updated;
 };
 

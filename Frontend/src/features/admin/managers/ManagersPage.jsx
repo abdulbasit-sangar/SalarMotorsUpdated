@@ -47,10 +47,11 @@ const ManagerRow = ({ manager, pending, onActivate, onDeactivate, onDelete }) =>
       </p>
     </div>
 
-    <div className="flex flex-wrap gap-2 shrink-0">
+    <div className="grid grid-cols-2 gap-2 shrink-0 sm:flex sm:flex-wrap">
       {manager.isActive ? (
         <Button
-          size="sm"
+          size="admin"
+          className="w-full sm:w-auto"
           variant="danger"
           loading={pending === "deactivate"}
           onClick={() => onDeactivate(manager)}
@@ -59,7 +60,8 @@ const ManagerRow = ({ manager, pending, onActivate, onDeactivate, onDelete }) =>
         </Button>
       ) : (
         <Button
-          size="sm"
+          size="admin"
+          className="w-full sm:w-auto"
           variant="primary"
           loading={pending === "activate"}
           onClick={() => onActivate(manager)}
@@ -68,7 +70,8 @@ const ManagerRow = ({ manager, pending, onActivate, onDeactivate, onDelete }) =>
         </Button>
       )}
       <Button
-        size="sm"
+        size="admin"
+        className="w-full sm:w-auto"
         variant="secondary"
         loading={pending === "delete"}
         onClick={() => onDelete(manager)}

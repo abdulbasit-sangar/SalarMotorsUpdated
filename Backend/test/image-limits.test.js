@@ -435,6 +435,10 @@ test("there is no other route that can flip isHidden to visible", () => {
     "patch /features/:id",
     "patch /feature/:id",
     "patch /hide/:id",
+    // Listing-details edit. It cannot flip isHidden: the validator rejects
+    // unknown fields (isHidden/featured/isSold/images) and updateCarService
+    // only writes a whitelist of detail fields — see car-update.test.js.
+    "patch /:id",
     "patch /images/:id",
     "patch /images/:id/reorder",
     "patch /sold/:id",

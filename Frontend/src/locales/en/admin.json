@@ -58,7 +58,8 @@
     "editFeaturesCount": "Edit Features ({{count}})",
     "manageImages": "Manage Images ({{count}})",
     "delete": "Delete",
-    "viewLive": "View live"
+    "viewLive": "View live",
+    "editVehicle": "Edit Vehicle"
   },
   "featuresModal": {
     "title": "Edit Features — {{name}}",
@@ -163,5 +164,19 @@
       "transmission": "Select transmission",
       "condition": "Select condition"
     }
+  },
+  "edit": {
+    "title": "Edit Vehicle",
+    "back": "Back to listings",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "noChanges": "No changes to save.",
+    "success": "“{{title}}” updated successfully.",
+    "loadErrorTitle": "Couldn't load this listing",
+    "loadError": "The listing could not be loaded. It may have been deleted.",
+    "sections": {
+      "imagesStatus": "Images & status"
+    },
+    "imagesStatusHint": "Photos are managed with the image manager so saving details never changes them. Visibility, featured and sold status are changed from the Manage Listings page."
   }
 }

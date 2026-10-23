@@ -30,6 +30,20 @@ export const fetchAdminCars = async (params = {}) => {
   });
 };
 
+// GET /api/cars/admin/:id — one listing incl. hidden, for the Edit Vehicle
+// form. Deliberately not cached: the form must show the current saved values.
+export const fetchAdminCarById = async (id) => {
+  const { data } = await apiClient.get(`/cars/admin/${id}`);
+  return data.data.car;
+};
+
+// PATCH /api/cars/:id — protected. Sends only the changed fields.
+export const updateCar = async (id, changes) => {
+  const { data } = await apiClient.patch(`/cars/${id}`, changes);
+  invalidateCache(); // listing lists, search and filters may all show it
+  return data.data.car;
+};
+
 // GET /api/cars/search?keyword= — short TTL since a person may edit a
 // listing seconds after searching for it; still worth deduping bursts.
 export const searchCars = async (params = {}) => {

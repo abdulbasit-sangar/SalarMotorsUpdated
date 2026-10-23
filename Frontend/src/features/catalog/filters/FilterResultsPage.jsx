@@ -18,7 +18,8 @@ import {
 import { Skeleton } from "../../../shared/components/Skeleton.jsx";
 import { EmptyState } from "../../../shared/components/EmptyState.jsx";
 import { ErrorState } from "../../../shared/components/ErrorState.jsx";
-import { Pagination } from "../../../shared/components/Pagination.jsx";
+import { InfiniteScrollFooter } from "../../../shared/components/InfiniteScrollFooter.jsx";
+import { useInfiniteCars } from "../../../shared/hooks/useInfiniteCars.js";
 import {
   CarSilhouetteIcon,
   SlidersIcon,
@@ -123,8 +124,8 @@ const useReveal = (threshold = 0.15) => {
   return [ref, visible];
 };
 
-const Reveal = ({ children, delay = 0, className = "" }) => {
-  const [ref, visible] = useReveal();
+const Reveal = ({ children, delay = 0, className = "", threshold }) => {
+  const [ref, visible] = useReveal(threshold);
 
   return (
     <div
@@ -181,7 +182,6 @@ export default function FilterResultsPage({
   const [searchParams, setSearchParams] = useSearchParams();
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
 
-  const page = Math.max(1, parseInt(searchParams.get("page")) || 1);
   const sort = searchParams.get("sort") || "newest";
 
   const filters = useMemo(
@@ -211,36 +211,47 @@ export default function FilterResultsPage({
 
   const showSponsored = activeCount === 0;
 
-  const fetcher = useCallback(
-    () =>
-      Promise.all([
-        filterCars({
-          ...filters,
-          ...(fixedProvince && { includeFeatured: true }),
-          page,
-          limit: LIMIT,
-        }),
-
-        showSponsored
-          ? fetchFeaturedCars(SPONSORED_LIMIT)
-          : Promise.resolve({ cars: [] }),
-      ]).then(([listings, featured]) => ({
-        listings,
-        featuredCars: fixedProvince
-          ? featured.cars.filter((car) =>
-              sameLocation(car.province, fixedProvince),
-            )
-          : featured.cars,
-      })),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [searchParams.toString(), page, fixedProvince],
+  // Query identity: any change of filters, sort or category starts a fresh
+  // list. Legacy ?page= links are ignored — the list is one continuous scroll.
+  const queryKey = useMemo(
+    () => JSON.stringify([fixedProvince, filters]),
+    [fixedProvince, filters],
   );
 
-  const { data, loading, error, refetch } = useAsyncData(fetcher, [
-    searchParams.toString(),
-    page,
-    fixedProvince,
-  ]);
+  const fetchBatch = useCallback(
+    (page) =>
+      filterCars({
+        ...filters,
+        ...(fixedProvince && { includeFeatured: true }),
+        page,
+        limit: LIMIT,
+      }),
+    // `queryKey` captures filters + fixedProvince.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [queryKey],
+  );
+
+  const {
+    cars: listedCars,
+    totalCars: listedTotal,
+    hasMore,
+    initialLoading: loading,
+    initialError: error,
+    loadingMore,
+    loadMoreError,
+    sentinelRef,
+    retryInitial: refetch,
+    retryLoadMore,
+  } = useInfiniteCars(fetchBatch, queryKey);
+
+  const fetchSponsored = useCallback(
+    () =>
+      showSponsored
+        ? fetchFeaturedCars(SPONSORED_LIMIT)
+        : Promise.resolve({ cars: [] }),
+    [showSponsored],
+  );
+  const { data: sponsoredData } = useAsyncData(fetchSponsored, [showSponsored]);
 
   const applyFilters = (values) => {
     const params = new URLSearchParams();
@@ -253,11 +264,13 @@ export default function FilterResultsPage({
 
     setSearchParams(params);
     setMobilePanelOpen(false);
+    window.scrollTo({ top: 0 });
   };
 
   const resetFilters = () => {
     setSearchParams(new URLSearchParams());
     setMobilePanelOpen(false);
+    window.scrollTo({ top: 0 });
   };
 
   const removeChip = (keys) => {
@@ -267,6 +280,7 @@ export default function FilterResultsPage({
     params.delete("page");
 
     setSearchParams(params);
+    window.scrollTo({ top: 0 });
   };
 
   const handleSortChange = (value) => {
@@ -280,32 +294,19 @@ export default function FilterResultsPage({
 
     params.delete("page");
     setSearchParams(params);
+    window.scrollTo({ top: 0 });
   };
 
-  const handlePageChange = (nextPage) => {
-    const params = new URLSearchParams(searchParams);
-
-    if (nextPage === 1) {
-      params.delete("page");
-    } else {
-      params.set("page", nextPage);
-    }
-
-    setSearchParams(params);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  const sponsoredCars = useMemo(
-    () => (showSponsored ? data?.featuredCars || [] : []),
-    [showSponsored, data],
-  );
+  const sponsoredCars = useMemo(() => {
+    if (!showSponsored) return [];
+    const cars = sponsoredData?.cars || [];
+    return fixedProvince
+      ? cars.filter((car) => sameLocation(car.province, fixedProvince))
+      : cars;
+  }, [showSponsored, sponsoredData, fixedProvince]);
 
   const gridCars = useMemo(() => {
-    const cars = data?.listings?.cars || [];
+    const cars = listedCars;
 
     if (!fixedProvince || sponsoredCars.length === 0) {
       return cars;
@@ -313,11 +314,11 @@ export default function FilterResultsPage({
 
     const sponsoredIds = new Set(sponsoredCars.map((car) => car._id));
     return cars.filter((car) => !sponsoredIds.has(car._id));
-  }, [data, fixedProvince, sponsoredCars]);
+  }, [listedCars, fixedProvince, sponsoredCars]);
 
   const totalCars = Math.max(
     0,
-    (data?.listings?.pagination?.totalCars || 0) -
+    listedTotal -
       (fixedProvince ? sponsoredCars.length : 0),
   );
 
@@ -442,7 +443,7 @@ export default function FilterResultsPage({
         </Reveal>
       )}
 
-      <Reveal delay={180}>
+      <Reveal delay={180} threshold={0}>
         {error ? (
           <ErrorState onRetry={refetch} />
         ) : loading ? (
@@ -471,12 +472,13 @@ export default function FilterResultsPage({
               </>
             )}
 
-            <div className="mt-10">
-              <Pagination
-                pagination={data.listings.pagination}
-                onPageChange={handlePageChange}
-              />
-            </div>
+            <InfiniteScrollFooter
+              hasMore={hasMore}
+              loadingMore={loadingMore}
+              loadMoreError={loadMoreError}
+              onRetry={retryLoadMore}
+              sentinelRef={sentinelRef}
+            />
           </>
         ) : (
           <EmptyState

@@ -103,5 +103,11 @@
     "yearRange": "Year: {{min}} – {{max}}",
     "yearFrom": "Year: from {{min}}",
     "yearUpTo": "Year: up to {{max}}"
+  },
+  "infinite": {
+    "loadingMore": "Loading more cars…",
+    "loadMoreError": "Couldn't load more cars.",
+    "retry": "Retry",
+    "endOfResults": "You've seen all available cars."
   }
 }

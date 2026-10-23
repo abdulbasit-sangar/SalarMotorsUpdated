@@ -1,5 +1,6 @@
 
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "../../../shared/components/Button.jsx";
 import { CarSilhouetteIcon } from "../../../shared/components/icons.jsx";
 import { useTranslation } from "react-i18next";
@@ -297,6 +298,17 @@ export const AdminCarRow = ({
 
             {/* Responsive admin actions */}
             <div className="mt-4 grid grid-cols-2 items-stretch gap-2 border-t border-card pt-3 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 [&>div]:min-w-0 [&_button]:!flex [&_button]:!h-auto [&_button]:!min-h-11 [&_button]:!w-full [&_button]:!min-w-0 [&_button]:!items-center [&_button]:!justify-center [&_button]:!px-2.5 [&_button]:!py-2 [&_button]:!text-center [&_button]:!text-xs [&_button]:!leading-4 [&_button]:!whitespace-normal [&_button]:!break-words">
+              {/* Edit Vehicle — full-width primary action above the status actions */}
+              <Button
+                as={Link}
+                to={`/admin/listings/${car._id}/edit`}
+                size="sm"
+                variant="primary"
+                className="col-span-full min-h-11 w-full text-xs"
+              >
+                {t("row.editVehicle")}
+              </Button>
+
               {isSuperAdmin && (
                 <div className="min-w-0">
                   <Button

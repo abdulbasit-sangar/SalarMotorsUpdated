@@ -103,5 +103,11 @@
     "yearRange": "کال: {{min}} – {{max}}",
     "yearFrom": "کال: له {{min}} څخه",
     "yearUpTo": "کال: تر {{max}} پورې"
+  },
+  "infinite": {
+    "loadingMore": "نور موټرونه لوډېږي…",
+    "loadMoreError": "نور موټرونه ونه لوډېدل.",
+    "retry": "بیا هڅه وکړئ",
+    "endOfResults": "تاسو ټول شته موټرونه ولیدل."
   }
 }

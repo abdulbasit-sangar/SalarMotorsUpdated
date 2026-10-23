@@ -138,6 +138,12 @@ const createCarSchema = Joi.object({
 });
 
 // ─── Update car schema — all fields optional (PATCH semantics) ────────────────
+// Only the fields present in the request are changed; omitted fields are never
+// touched. Optional, clearable fields additionally accept "" meaning "clear
+// this value" (handled in updateCarService). Required fields (title, brand,
+// model, year, price, province) can be changed but never blanked.
+const clearable = (schema) => schema.allow("");
+
 const updateCarSchema = Joi.object({
   title: fields.title.optional(),
   brand: fields.brand.optional(),
@@ -146,21 +152,22 @@ const updateCarSchema = Joi.object({
   price: fields.price.optional(),
   currency: fields.currency.optional(),
   province: fields.province.optional(),
-  city: fields.city.optional(),
-  mileage: fields.mileage.optional(),
+  city: clearable(fields.city).optional(),
+  mileage: clearable(fields.mileage).optional(),
   mileageUnit: fields.mileageUnit.optional(),
-  fuelType: fields.fuelType.optional(),
-  bodyType: fields.bodyType.optional(),
-  transmission: fields.transmission.optional(),
+  fuelType: clearable(fields.fuelType).optional(),
+  bodyType: clearable(fields.bodyType).optional(),
+  transmission: clearable(fields.transmission).optional(),
   condition: fields.condition.optional(),
-  engineCC: fields.engineCC.optional(),
-  color: fields.color.optional(),
+  engineCC: clearable(fields.engineCC).optional(),
+  color: clearable(fields.color).optional(),
   vin: fields.vin.optional(),
   sellerPhone: fields.sellerPhone.optional(),
   sellerWhatsapp: fields.sellerWhatsapp.optional(),
   sellerLocation: fields.sellerLocation.optional(),
-  description: fields.description.optional(),
-  importedDate: fields.importedDate.optional(),
+  description: clearable(fields.description).optional(),
+  importedDate: clearable(fields.importedDate).optional(),
+  features: fields.features.optional(),
 })
   .min(1)
   .messages({ "object.min": "At least one field must be provided for update" });

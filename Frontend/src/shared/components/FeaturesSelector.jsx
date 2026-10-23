@@ -14,11 +14,13 @@ import { CheckSquareIcon, SquareIcon, ChevronDownIcon } from "./icons.jsx";
 export const FeaturesSelector = ({ featureGroups = [], selected = [], onChange }) => {
   const { t } = useTranslation();
   const label = useOptionLabel();
-  const [openGroups, setOpenGroups] = useState(() => new Set(featureGroups.map((g) => g.group)));
+  // Track collapsed (not open) groups so all are open by default even when
+  // featureGroups arrives after first render.
+  const [closedGroups, setClosedGroups] = useState(() => new Set());
   const selectedSet = new Set(selected);
 
   const toggleGroup = (group) => {
-    setOpenGroups((prev) => {
+    setClosedGroups((prev) => {
       const next = new Set(prev);
       if (next.has(group)) next.delete(group);
       else next.add(group);
@@ -47,7 +49,7 @@ export const FeaturesSelector = ({ featureGroups = [], selected = [], onChange }
 
       <div className="space-y-2">
         {featureGroups.map(({ group, features }) => {
-          const isOpen = openGroups.has(group);
+          const isOpen = !closedGroups.has(group);
           const groupSelectedCount = features.filter((f) => selectedSet.has(f)).length;
 
           return (

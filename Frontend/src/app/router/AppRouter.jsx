@@ -60,6 +60,9 @@ const DashboardPage = lazy(
 const CreateListingPage = lazy(
   () => import("../../features/admin/create-listing/CreateListingPage.jsx"),
 );
+const EditListingPage = lazy(
+  () => import("../../features/admin/edit-listing/EditListingPage.jsx"),
+);
 const ManageListingsPage = lazy(
   () => import("../../features/admin/manage-listings/ManageListingsPage.jsx"),
 );
@@ -165,6 +168,10 @@ export const AppRouter = () => (
         <Route
           path="listings/create"
           element={withSuspense(<CreateListingPage />)}
+        />
+        <Route
+          path="listings/:id/edit"
+          element={withSuspense(<EditListingPage />)}
         />
         <Route path="profile" element={withSuspense(<ProfilePage />)} />
         <Route

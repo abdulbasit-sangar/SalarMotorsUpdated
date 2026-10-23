@@ -130,7 +130,7 @@ export default function ProfilePage() {
         <button
           type="button"
           onClick={() => setShowChangePassword((prev) => !prev)}
-          className="flex items-center justify-between w-full text-start"
+          className="flex min-h-11 items-center justify-between w-full text-start"
         >
           <h2 className="font-display text-xl font-semibold text-bone">
             {t("profile.changePassword")}
@@ -196,7 +196,11 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <Button variant="secondary" className="mt-6" onClick={handleLogout}>
+      <Button
+        variant="secondary"
+        className="mt-6 w-full sm:w-auto"
+        onClick={handleLogout}
+      >
         {t("profile.logout")}
       </Button>
     </div>
