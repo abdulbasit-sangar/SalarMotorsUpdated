@@ -73,12 +73,20 @@ const Icon = ({ name, className = "h-4 w-4" }) => {
   );
 };
 
+const secondaryButtonClass =
+  "!flex !h-full !min-h-12 !w-full !min-w-0 !items-center !justify-center " +
+  "!whitespace-normal !break-words !rounded-lg !border !border-[#E1E4E8] " +
+  "!bg-[#F3F4F6] !px-3 !py-2.5 !text-center !text-xs !font-semibold " +
+  "!leading-4 shadow-sm transition-colors duration-150 " +
+  "hover:!bg-[#E9EBEF] focus-visible:!outline-none " +
+  "focus-visible:!ring-2 focus-visible:!ring-offset-2 " +
+  "disabled:!cursor-not-allowed disabled:!opacity-60";
+
 export const AdminCarRow = ({
   car,
   onToggleFeatured,
   onToggleHide,
   onToggleSold,
-  onEditFeatures,
   onManageImages,
   onDelete,
   pending,
@@ -297,24 +305,26 @@ export const AdminCarRow = ({
             )}
 
             {/* Responsive admin actions */}
-            <div className="mt-4 grid grid-cols-2 items-stretch gap-2 border-t border-card pt-3 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 [&>div]:min-w-0 [&_button]:!flex [&_button]:!h-auto [&_button]:!min-h-11 [&_button]:!w-full [&_button]:!min-w-0 [&_button]:!items-center [&_button]:!justify-center [&_button]:!px-2.5 [&_button]:!py-2 [&_button]:!text-center [&_button]:!text-xs [&_button]:!leading-4 [&_button]:!whitespace-normal [&_button]:!break-words">
-              {/* Edit Vehicle — full-width primary action above the status actions */}
-              <Button
-                as={Link}
-                to={`/admin/listings/${car._id}/edit`}
-                size="sm"
-                variant="primary"
-                className="col-span-full min-h-11 w-full text-xs"
-              >
-                {t("row.editVehicle")}
-              </Button>
+            <div className="mt-4 grid grid-cols-2 items-stretch gap-2 border-t border-card pt-3 sm:grid-cols-3 xl:grid-cols-4 [&>div]:flex [&>div]:min-w-0 [&>div]:items-stretch">
+              {/* Primary action */}
+              <div className="col-span-2 sm:col-span-3 xl:col-span-4">
+                <Button
+                  as={Link}
+                  to={`/admin/listings/${car._id}/edit`}
+                  size="sm"
+                  variant="primary"
+                  className="!flex !min-h-12 !w-full !items-center !justify-center !rounded-lg !px-3 !py-2.5 !text-center !text-xs !font-semibold !leading-4 !whitespace-normal !break-words"
+                >
+                  {t("row.editVehicle")}
+                </Button>
+              </div>
 
               {isSuperAdmin && (
-                <div className="min-w-0">
+                <div>
                   <Button
                     size="sm"
                     variant="soft"
-                    className="!text-[#387448] hover:!text-[#285D37] focus-visible:!ring-2 focus-visible:!ring-[#387448] focus-visible:!ring-offset-2"
+                    className={`${secondaryButtonClass} !text-[#287442] hover:!text-[#1D5D33] focus-visible:!ring-[#287442]`}
                     loading={pending === "feature"}
                     onClick={() => onToggleFeatured(car)}
                   >
@@ -325,11 +335,11 @@ export const AdminCarRow = ({
                 </div>
               )}
 
-              <div className="min-w-0">
+              <div>
                 <Button
                   size="sm"
                   variant="soft"
-                  className="!text-[#28618A] hover:!text-[#1D4968] focus-visible:!ring-2 focus-visible:!ring-[#28618A] focus-visible:!ring-offset-2"
+                  className={`${secondaryButtonClass} !text-[#245F91] hover:!text-[#17466D] focus-visible:!ring-[#245F91]`}
                   loading={pending === "hide"}
                   disabled={blockedFromPublish}
                   aria-describedby={
@@ -346,11 +356,11 @@ export const AdminCarRow = ({
                 </Button>
               </div>
 
-              <div className="min-w-0">
+              <div>
                 <Button
                   size="sm"
                   variant="soft"
-                  className="!text-[#956719] hover:!text-[#765012] focus-visible:!ring-2 focus-visible:!ring-[#956719] focus-visible:!ring-offset-2"
+                  className={`${secondaryButtonClass} !text-[#946313] hover:!text-[#714B0B] focus-visible:!ring-[#946313]`}
                   loading={pending === "sold"}
                   onClick={() => onToggleSold(car)}
                 >
@@ -360,39 +370,11 @@ export const AdminCarRow = ({
                 </Button>
               </div>
 
-              <div className="min-w-0">
+              <div>
                 <Button
                   size="sm"
                   variant="soft"
-                  className="!text-[#60469A] hover:!text-[#493374] focus-visible:!ring-2 focus-visible:!ring-[#60469A] focus-visible:!ring-offset-2"
-                  onClick={() => onEditFeatures(car)}
-                >
-                  {car.features?.length
-                    ? t("row.editFeaturesCount", {
-                        count: car.features.length,
-                      })
-                    : t("row.editFeatures")}
-                </Button>
-              </div>
-
-              <div className="min-w-0">
-                <Button
-                  size="sm"
-                  variant="soft"
-                  className="!text-[#247A78] hover:!text-[#195F5D] focus-visible:!ring-2 focus-visible:!ring-[#247A78] focus-visible:!ring-offset-2"
-                  onClick={() => onManageImages(car)}
-                >
-                  {t("row.manageImages", {
-                    count: car.images?.length || 0,
-                  })}
-                </Button>
-              </div>
-
-              <div className="min-w-0">
-                <Button
-                  size="sm"
-                  variant="soft"
-                  className="!text-[#C33333] hover:!text-[#982727] focus-visible:!ring-2 focus-visible:!ring-[#C33333] focus-visible:!ring-offset-2"
+                  className={`${secondaryButtonClass} !text-[#B4232F] hover:!text-[#8F1721] focus-visible:!ring-[#B4232F]`}
                   loading={pending === "delete"}
                   onClick={() => onDelete(car)}
                 >
