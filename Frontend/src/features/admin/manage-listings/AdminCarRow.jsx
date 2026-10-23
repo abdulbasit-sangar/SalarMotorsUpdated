@@ -189,9 +189,7 @@ export const AdminCarRow = ({
                 <Icon name="image" className="h-3.5 w-3.5" />
                 {imageCount}
               </span>
-              <span className="rounded-lg bg-white/95 px-2.5 py-1.5 text-xs font-semibold text-graphite-900 shadow-sm transition-colors group-hover:bg-white">
-                {t("row.manageImages", { count: car.images?.length || 0 })}
-              </span>
+
             </span>
           </button>
 
@@ -226,17 +224,58 @@ export const AdminCarRow = ({
               </p>
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Badge variant={car.featured ? "brass" : "neutral"}>
-                {car.featured ? t("row.featured") : t("row.notFeatured")}
-              </Badge>
-              <Badge variant={car.isHidden ? "danger" : "neutral"}>
-                {car.isHidden ? t("row.hidden") : t("row.visible")}
-              </Badge>
-              <Badge variant={car.isSold ? "danger" : "neutral"}>
-                {car.isSold ? t("row.sold") : t("row.available")}
-              </Badge>
-            </div>
+<div className="mt-3 flex flex-wrap items-center gap-1.5">
+  {/* Featured status */}
+  <span
+    className={`inline-flex min-h-6 items-center gap-1 rounded-sm border px-2 py-0.5 text-[11px] font-medium ${
+      car.featured
+        ? "border-[#EBD8A8] bg-[#FFF4D9] text-[#805713]"
+        : "border-[#E2E5E9] bg-[#F2F3F5] text-[#626975]"
+    }`}
+  >
+    <span
+      aria-hidden="true"
+      className={`h-1 w-1 rounded-full ${
+        car.featured ? "bg-[#B8863A]" : "bg-[#9298A2]"
+      }`}
+    />
+    {car.featured ? t("row.featured") : t("row.notFeatured")}
+  </span>
+
+  {/* Visibility status */}
+  <span
+    className={`inline-flex min-h-6 items-center gap-1 rounded-sm border px-2 py-0.5 text-[11px] font-medium ${
+      car.isHidden
+        ? "border-[#F0CACA] bg-[#FCECEC] text-[#A52B2B]"
+        : "border-[#CBE6D1] bg-[#EAF6ED] text-[#24683A]"
+    }`}
+  >
+    <span
+      aria-hidden="true"
+      className={`h-1 w-1 rounded-full ${
+        car.isHidden ? "bg-[#C33333]" : "bg-[#2F8F4E]"
+      }`}
+    />
+    {car.isHidden ? t("row.hidden") : t("row.visible")}
+  </span>
+
+  {/* Availability status */}
+  <span
+    className={`inline-flex min-h-6 items-center gap-1 rounded-sm border px-2 py-0.5 text-[11px] font-medium ${
+      car.isSold
+        ? "border-[#F0CACA] bg-[#FCECEC] text-[#A52B2B]"
+        : "border-[#CBE6D1] bg-[#EAF6ED] text-[#24683A]"
+    }`}
+  >
+    <span
+      aria-hidden="true"
+      className={`h-1 w-1 rounded-full ${
+        car.isSold ? "bg-[#C33333]" : "bg-[#2F8F4E]"
+      }`}
+    />
+    {car.isSold ? t("row.sold") : t("row.available")}
+  </span>
+</div>
 
             {blockedFromPublish && (
               <p
@@ -247,70 +286,105 @@ export const AdminCarRow = ({
               </p>
             )}
 
-            <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-card pt-3">
-              {isSuperAdmin && (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  loading={pending === "feature"}
-                  onClick={() => onToggleFeatured(car)}
-                >
-                  {car.featured ? t("row.unfeature") : t("row.feature")}
-                </Button>
-              )}
+            {/* Responsive, uniform admin action buttons */}
 
-              <Button
-                size="sm"
-                variant={car.isHidden ? "primary" : "danger"}
-                loading={pending === "hide"}
-                disabled={blockedFromPublish}
-                aria-describedby={blockedFromPublish ? hintId : undefined}
-                title={
-                  blockedFromPublish
-                    ? publishText.requirementMessage
-                    : undefined
-                }
-                onClick={() => onToggleHide(car)}
-              >
-                {car.isHidden ? t("row.unhide") : t("row.hide")}
-              </Button>
+{/* Responsive, premium SAFAR admin action buttons */}
 
-              <Button
-                size="sm"
-                variant={car.isSold ? "secondary" : "danger"}
-                loading={pending === "sold"}
-                onClick={() => onToggleSold(car)}
-              >
-                {car.isSold ? t("row.markAvailable") : t("row.markSold")}
-              </Button>
+{/* Responsive admin action buttons — SAFAR color palette */}
 
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => onEditFeatures(car)}
-              >
-                {car.features?.length
-                  ? t("row.editFeaturesCount", { count: car.features.length })
-                  : t("row.editFeatures")}
-              </Button>
+{/* Responsive, uniform SAFAR admin action buttons */}
+<div className="mt-4 grid grid-cols-2 items-stretch gap-2 border-t border-card pt-3 sm:grid-cols-3 xl:grid-cols-6 [&>div]:min-w-0 [&_button]:!flex [&_button]:!h-10 [&_button]:!w-full [&_button]:!min-w-0 [&_button]:!items-center [&_button]:!justify-center [&_button]:!px-2 [&_button]:!text-center [&_button]:!text-xs [&_button]:!leading-tight">
 
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => onManageImages(car)}
-              >
-                {t("row.manageImages", { count: car.images?.length || 0 })}
-              </Button>
+  {/* Feature */}
+  {isSuperAdmin && (
+    <div className="min-w-0">
+      <Button
+        size="sm"
+        variant="soft"
+        className="!text-[#387448] hover:!text-[#285D37] focus-visible:!ring-2 focus-visible:!ring-[#387448] focus-visible:!ring-offset-2"
+        loading={pending === "feature"}
+        onClick={() => onToggleFeatured(car)}
+      >
+        {car.featured ? t("row.unfeature") : t("row.feature")}
+      </Button>
+    </div>
+  )}
 
-              <Button
-                size="sm"
-                variant="danger"
-                loading={pending === "delete"}
-                onClick={() => onDelete(car)}
-              >
-                {t("row.delete")}
-              </Button>
-            </div>
+  {/* Hide / Unhide */}
+  <div className="min-w-0">
+    <Button
+      size="sm"
+      variant="soft"
+      className="!text-[#28618A] hover:!text-[#1D4968] focus-visible:!ring-2 focus-visible:!ring-[#28618A] focus-visible:!ring-offset-2"
+      loading={pending === "hide"}
+      disabled={blockedFromPublish}
+      aria-describedby={blockedFromPublish ? hintId : undefined}
+      title={
+        blockedFromPublish
+          ? publishText.requirementMessage
+          : undefined
+      }
+      onClick={() => onToggleHide(car)}
+    >
+      {car.isHidden ? t("row.unhide") : t("row.hide")}
+    </Button>
+  </div>
+
+  {/* Mark Sold / Available */}
+  <div className="min-w-0">
+    <Button
+      size="sm"
+      variant="soft"
+      className="!text-[#956719] hover:!text-[#765012] focus-visible:!ring-2 focus-visible:!ring-[#956719] focus-visible:!ring-offset-2"
+      loading={pending === "sold"}
+      onClick={() => onToggleSold(car)}
+    >
+      {car.isSold ? t("row.markAvailable") : t("row.markSold")}
+    </Button>
+  </div>
+
+  {/* Edit Features */}
+  <div className="min-w-0">
+    <Button
+      size="sm"
+      variant="soft"
+      className="!text-[#60469A] hover:!text-[#493374] focus-visible:!ring-2 focus-visible:!ring-[#60469A] focus-visible:!ring-offset-2"
+      onClick={() => onEditFeatures(car)}
+    >
+      {car.features?.length
+        ? t("row.editFeaturesCount", { count: car.features.length })
+        : t("row.editFeatures")}
+    </Button>
+  </div>
+
+  {/* Manage Images */}
+  <div className="min-w-0">
+    <Button
+      size="sm"
+      variant="soft"
+      className="!text-[#247A78] hover:!text-[#195F5D] focus-visible:!ring-2 focus-visible:!ring-[#247A78] focus-visible:!ring-offset-2"
+      onClick={() => onManageImages(car)}
+    >
+      {t("row.manageImages", { count: car.images?.length || 0 })}
+    </Button>
+  </div>
+
+  {/* Delete */}
+  <div className="min-w-0">
+    <Button
+      size="sm"
+      variant="soft"
+      className="!text-[#C33333] hover:!text-[#982727] focus-visible:!ring-2 focus-visible:!ring-[#C33333] focus-visible:!ring-offset-2"
+      loading={pending === "delete"}
+      onClick={() => onDelete(car)}
+    >
+      {t("row.delete")}
+    </Button>
+  </div>
+</div>
+
+
+
           </div>
         </div>
       </article>

@@ -10,6 +10,7 @@ const VARIANTS = {
   ghost: "bg-transparent text-ash hover:text-bone hover:bg-graphite-800",
   glass: "glass-panel text-bone hover:bg-white/80",
   danger: "bg-danger text-white hover:brightness-110",
+  soft: "border border-[#DCE8D5] !bg-[#F3F7EF] hover:!bg-[#E8EFE3] disabled:!bg-[#F3F7EF]",
 };
 
 const SIZES = {
@@ -30,7 +31,7 @@ export const Button = forwardRef(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <Component
@@ -43,7 +44,7 @@ export const Button = forwardRef(
           "rounded-xl",
           VARIANTS[variant],
           SIZES[size],
-          className
+          className,
         )}
         {...props}
       >
@@ -51,7 +52,7 @@ export const Button = forwardRef(
         {children}
       </Component>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";
