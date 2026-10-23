@@ -51,10 +51,12 @@ export const HeroSearchBar = ({ className }) => {
       label: t("search.model"),
       icon: ModelIcon,
       disabled: !values.brand || optionsLoading,
-      options: (options?.modelsByBrand?.[values.brand] ?? []).map((model) => ({
-        value: model,
-        label: model,
-      })),
+      options: (options?.modelsByBrand?.[values.brand] ?? []).map(
+        (model) => ({
+          value: model,
+          label: model,
+        }),
+      ),
     },
     {
       key: "minYear",
@@ -113,11 +115,11 @@ export const HeroSearchBar = ({ className }) => {
           "relative rounded-2xl sm:rounded-3xl",
           "border border-white/25",
           "bg-white/[0.12] backdrop-blur-xl",
-          "p-4 sm:p-5 lg:p-6",
+          "p-3 sm:p-5 lg:p-6",
           "shadow-[0_12px_40px_rgba(0,0,0,0.16)]",
         )}
       >
-        <h2 className="mb-5 text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-3xl">
+        <h2 className="mb-4 text-xl font-bold tracking-tight text-white sm:mb-5 sm:text-2xl lg:text-3xl">
           Find Your Dream Car
         </h2>
 
@@ -125,10 +127,9 @@ export const HeroSearchBar = ({ className }) => {
           onSubmit={handleSubmit}
           role="search"
           className={clsx(
-            "grid grid-cols-1 gap-2",
-            "sm:grid-cols-2",
-            "lg:grid-cols-[repeat(4,minmax(0,1fr))_auto]",
-            "lg:items-center lg:gap-3",
+            "grid grid-cols-2 gap-2",
+            "sm:gap-3",
+            "lg:grid-cols-4",
           )}
         >
           {FILTER_FIELDS.map((field, index) => (
@@ -163,7 +164,7 @@ export const HeroSearchBar = ({ className }) => {
             </div>
           ))}
 
-          <div className="sm:col-span-2 lg:col-span-1">
+          <div className="col-span-2 lg:col-span-4">
             <button
               type="submit"
               className={clsx(
@@ -178,11 +179,13 @@ export const HeroSearchBar = ({ className }) => {
                 "focus-visible:outline-none focus-visible:ring-2",
                 "focus-visible:ring-[#E5C18B] focus-visible:ring-offset-2",
                 "focus-visible:ring-offset-transparent",
-                "lg:min-w-[120px]",
               )}
             >
-              <SearchIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
-              <span>{t("search.submit")}</span>
+              <SearchIcon
+                className="h-4 w-4 shrink-0"
+                aria-hidden="true"
+              />
+              <span>Search Car</span>
               <ArrowRightIcon
                 className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
                 aria-hidden="true"
