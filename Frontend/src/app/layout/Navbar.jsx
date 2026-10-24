@@ -508,16 +508,7 @@ export const Navbar = () => {
             />
           </div>
 
-          <div className="mt-5 border-t border-card pt-4">
-            <p className="mb-2 px-4 text-xs font-semibold text-ash">
-              {t("nav.language")}
-            </p>
 
-            <LanguageSwitcher
-              variant="list"
-              onChanged={() => setOpen(false)}
-            />
-          </div>
         </div>
       </nav>
 
