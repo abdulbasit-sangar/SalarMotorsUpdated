@@ -104,7 +104,7 @@ export const HeroSearchBar = ({ className }) => {
     <section
       aria-label="Find your vehicle"
       className={clsx(
-        "relative w-full max-w-7xl",
+        "relative -top-8 w-full max-w-7xl",
         "transition-opacity duration-500 ease-out",
         mounted ? "opacity-100" : "opacity-0",
         className,

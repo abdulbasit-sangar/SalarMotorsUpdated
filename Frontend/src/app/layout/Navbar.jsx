@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import clsx from "clsx";
@@ -117,24 +118,27 @@ const FavoritesBadge = ({ count, className }) => {
 
 const FavoritesIconLink = ({ count }) => {
   const { t } = useTranslation("layout");
+
   return (
-  <NavLink
-    to={FAVORITES_PATH}
-    aria-label={count ? t("nav.favoritesCount", { count }) : t("nav.favorites")}
-    title={t("nav.favorites")}
-    className={({ isActive }) =>
-      clsx(
-        "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-graphite-100 lg:h-9 lg:w-9",
-        isActive ? "text-brass-dark" : "text-bone",
-      )
-    }
-  >
-    <HeartIcon
-      className="h-5 w-5 lg:h-[18px] lg:w-[18px]"
-      aria-hidden="true"
-    />
-    <FavoritesBadge count={count} className="absolute -end-0.5 -top-0.5" />
-  </NavLink>
+    <NavLink
+      to={FAVORITES_PATH}
+      aria-label={
+        count ? t("nav.favoritesCount", { count }) : t("nav.favorites")
+      }
+      title={t("nav.favorites")}
+      className={({ isActive }) =>
+        clsx(
+          "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-graphite-100 sm:h-10 sm:w-10 lg:h-9 lg:w-9",
+          isActive ? "text-brass-dark" : "text-bone",
+        )
+      }
+    >
+      <HeartIcon
+        className="h-5 w-5 lg:h-[18px] lg:w-[18px]"
+        aria-hidden="true"
+      />
+      <FavoritesBadge count={count} className="absolute -end-0.5 -top-0.5" />
+    </NavLink>
   );
 };
 
@@ -158,6 +162,7 @@ const OnTheWayDropdown = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
@@ -196,8 +201,8 @@ const OnTheWayDropdown = () => {
         className={clsx(
           "absolute left-1/2 top-full z-50 mt-2 w-64 -translate-x-1/2 rounded-2xl glass-panel-strong p-2 shadow-2xl transition-all duration-200 origin-top before:absolute before:inset-x-0 before:-top-2 before:h-2 before:content-['']",
           open
-            ? "pointer-events-auto opacity-100 scale-100 translate-y-0"
-            : "pointer-events-none opacity-0 scale-95 -translate-y-1",
+            ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
+            : "pointer-events-none -translate-y-1 scale-95 opacity-0",
         )}
         role="menu"
       >
@@ -238,12 +243,13 @@ const MobileOnTheWaySection = ({ onNavigate }) => {
         type="button"
         className={clsx(mobileNavLinkClass({ isActive }), "w-full")}
         aria-expanded={expanded}
-        onClick={() => setExpanded((v) => !v)}
+        onClick={() => setExpanded((value) => !value)}
       >
         <span className="flex items-center gap-2.5">
           <ShipIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
           {t("nav.onTheWay")}
         </span>
+
         <ChevronDownIcon
           className={clsx(
             "ms-auto h-4 w-4 shrink-0 text-ash transition-transform duration-200",
@@ -255,7 +261,7 @@ const MobileOnTheWaySection = ({ onNavigate }) => {
       <div
         className={clsx(
           "overflow-hidden transition-all duration-200",
-          expanded ? "max-h-40 mt-1" : "max-h-0",
+          expanded ? "mt-1 max-h-40" : "max-h-0",
         )}
       >
         <div className="flex flex-col gap-1 ps-4">
@@ -314,7 +320,9 @@ export const Navbar = () => {
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
+
     const trimmed = keyword.trim();
+
     if (!trimmed) return;
 
     navigate(`/search?keyword=${encodeURIComponent(trimmed)}`);
@@ -324,26 +332,26 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="fixed top-0 start-0 z-50 w-full">
-      {/* Desktop Floating Pill Navbar Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 lg:pt-3">
-        <div className="glass-nav lg:rounded-full lg:shadow-lg lg:border lg:border-white/10">
-          <div className="h-[76px] lg:h-[64px] px-4 sm:px-6 lg:px-5 flex items-center justify-between gap-4 lg:gap-3">
+    <header className="fixed inset-x-0 top-0 z-50">
+      {/* Compact Floating Navbar */}
+      <div className="mx-auto max-w-7xl px-3 pt-2 sm:px-5 sm:pt-2.5 lg:px-8 lg:pt-2">
+        <div className="glass-nav rounded-2xl lg:rounded-full lg:border lg:border-white/10 lg:shadow-lg">
+          <div className="flex h-[62px] items-center justify-between gap-2 px-3 sm:h-[66px] sm:gap-3 sm:px-4 lg:h-[60px] lg:gap-3 lg:px-5">
             {/* Logo */}
             <NavLink
               to="/"
-              className="flex items-center shrink-0"
+              className="flex shrink-0 items-center"
               onClick={() => setOpen(false)}
             >
               <img
                 src={logo}
                 alt={t("nav.logoAlt")}
-                className="h-9 md:h-10 lg:h-9 w-auto object-contain"
+                className="h-8 w-auto object-contain sm:h-9 lg:h-9"
               />
             </NavLink>
 
-            {/* Desktop Navigation Links (Centered) */}
-            <nav className="hidden lg:flex items-center justify-center gap-5 xl:gap-6">
+            {/* Desktop Navigation */}
+            <nav className="hidden items-center justify-center gap-5 lg:flex xl:gap-6">
               {NAV_LINKS.map((link) =>
                 link.to === "/" ? (
                   <NavLink
@@ -368,34 +376,31 @@ export const Navbar = () => {
                   />
                 ),
               )}
+
               <OnTheWayDropdown />
             </nav>
 
-            {/* Right Action Group: Search and Favorites Icons */}
-            <div className="flex items-center gap-1">
-              {/* Language selector (English / پښتو / دری) */}
+            {/* Search, Language, Favorites, and Mobile Menu */}
+            <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
               <LanguageSwitcher />
 
-              {/* Search Trigger Button */}
               <button
                 type="button"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100 lg:h-9 lg:w-9"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100 sm:h-10 sm:w-10 lg:h-9 lg:w-9"
                 aria-label={t("nav.searchVehicles")}
                 onClick={() => setSearchOpen(true)}
               >
-                <SearchIcon className="h-5 w-5 lg:h-[18px] lg:w-[18px]" />
+                <SearchIcon className="h-[18px] w-[18px] lg:h-[18px] lg:w-[18px]" />
               </button>
 
-              {/* Favorites Icon */}
               <FavoritesIconLink count={favoritesCount} />
 
-              {/* Mobile Hamburger Menu Toggle */}
               <button
                 type="button"
-                className="lg:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100 sm:h-10 sm:w-10 lg:hidden"
                 aria-label={open ? t("nav.closeMenu") : t("nav.openMenu")}
                 aria-expanded={open}
-                onClick={() => setOpen((v) => !v)}
+                onClick={() => setOpen((value) => !value)}
               >
                 {open ? (
                   <CloseIcon className="h-5 w-5" />
@@ -411,30 +416,34 @@ export const Navbar = () => {
       {/* Mobile Drawer Overlay */}
       <div
         className={clsx(
-          "fixed inset-0 z-40 bg-graphite/45 backdrop-blur-[2px] transition-opacity duration-300 lg:hidden",
+          "fixed inset-0 z-40 bg-graphite/45 transition-opacity duration-200 lg:hidden",
           open
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0",
         )}
         onClick={() => setOpen(false)}
+        aria-hidden="true"
       />
 
-      {/* Mobile Slide-out Nav */}
+      {/* Mobile Slide-out Navigation */}
       <nav
         className={clsx(
-          "fixed end-0 top-0 z-50 flex h-[100dvh] w-[84%] max-w-[360px] flex-col glass-panel-strong transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden",
+          "fixed inset-y-0 end-0 z-50 flex h-dvh w-[min(82%,320px)] flex-col overflow-hidden glass-panel-strong transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden",
           open
             ? "translate-x-0 shadow-2xl"
             : "ltr:translate-x-full rtl:-translate-x-full",
         )}
         aria-label={t("nav.mobileNavigation")}
+        aria-hidden={!open}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-card px-4 py-4">
+        {/* Drawer Header */}
+        <div className="flex shrink-0 items-center justify-between border-b border-card px-3 py-3 sm:px-4">
           <NavLink
             to="/"
-            className="flex items-center shrink-0"
+            className="flex shrink-0 items-center"
             onClick={() => setOpen(false)}
+            tabIndex={open ? 0 : -1}
           >
             <img
               src={logo}
@@ -442,18 +451,21 @@ export const Navbar = () => {
               className="h-8 w-auto object-contain"
             />
           </NavLink>
+
           <button
             type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100"
             aria-label={t("nav.closeMenu")}
             onClick={() => setOpen(false)}
+            tabIndex={open ? 0 : -1}
           >
             <CloseIcon className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-4">
-          <div className="mt-2 flex flex-col gap-2">
+        {/* Scrollable Drawer Content */}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4 sm:py-4">
+          <div className="mt-1 flex flex-col gap-2">
             {NAV_LINKS.map((link) =>
               link.to === "/" ? (
                 <NavLink
@@ -462,6 +474,7 @@ export const Navbar = () => {
                   end={link.end}
                   className={mobileNavLinkClass}
                   onClick={() => setOpen(false)}
+                  tabIndex={open ? 0 : -1}
                 >
                   <span className="flex items-center gap-2.5">
                     <link.icon
@@ -470,6 +483,7 @@ export const Navbar = () => {
                     />
                     {t(link.labelKey)}
                   </span>
+
                   <span
                     className="ms-auto inline-block text-ash rtl:-scale-x-100"
                     aria-hidden="true"
@@ -489,14 +503,20 @@ export const Navbar = () => {
               ),
             )}
 
-            <MobileOnTheWaySection onNavigate={() => setOpen(false)} />
+            <MobileOnTheWaySection
+              onNavigate={() => setOpen(false)}
+            />
           </div>
 
-          <div className="mt-6 border-t border-card pt-4">
+          <div className="mt-5 border-t border-card pt-4">
             <p className="mb-2 px-4 text-xs font-semibold text-ash">
               {t("nav.language")}
             </p>
-            <LanguageSwitcher variant="list" onChanged={() => setOpen(false)} />
+
+            <LanguageSwitcher
+              variant="list"
+              onChanged={() => setOpen(false)}
+            />
           </div>
         </div>
       </nav>
@@ -504,16 +524,17 @@ export const Navbar = () => {
       {/* Search Modal Overlay */}
       <div
         className={clsx(
-          "fixed inset-0 z-[60] flex items-center justify-center bg-graphite/55 px-4 backdrop-blur-sm transition-all duration-300",
+          "fixed inset-0 z-[60] flex items-center justify-center bg-graphite/55 px-3 backdrop-blur-sm transition-opacity duration-200 sm:px-4",
           searchOpen
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0",
         )}
         onClick={() => setSearchOpen(false)}
+        aria-hidden={!searchOpen}
       >
         <div
           className={clsx(
-            "w-full max-w-md rounded-3xl glass-panel-strong p-4 shadow-2xl transition-all duration-300",
+            "w-full max-w-md rounded-3xl glass-panel-strong p-3 shadow-2xl transition-transform duration-200 sm:p-4",
             searchOpen
               ? "translate-y-0 scale-100"
               : "translate-y-4 scale-[0.98]",
@@ -524,6 +545,7 @@ export const Navbar = () => {
             <span className="text-xs font-semibold uppercase tracking-[0.3em] text-ash">
               {t("nav.search")}
             </span>
+
             <button
               type="button"
               className="flex h-9 w-9 items-center justify-center rounded-full text-bone transition-colors hover:bg-graphite-100"
