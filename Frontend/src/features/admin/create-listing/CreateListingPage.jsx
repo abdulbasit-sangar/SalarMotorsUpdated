@@ -17,6 +17,8 @@ import {
 import { ListingFormSections } from "../listing-form/ListingFormSections.jsx";
 
 import { useToast } from "../../../store/ui/ToastContext.jsx";
+import { useAuth } from "../../../store/auth/AuthContext.jsx";
+import { areaPath } from "../../../shared/utils/areaPath.js";
 
 import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
 
@@ -62,6 +64,7 @@ export default function CreateListingPage() {
   const { t } = useTranslation("admin");
   const navigate = useNavigate();
   const toast = useToast();
+  const { admin } = useAuth();
   const {
     options,
     loading: optionsLoading,
@@ -114,7 +117,7 @@ export default function CreateListingPage() {
 
       toast.success(t("create.success", { title: car.title }));
 
-      navigate("/admin/listings");
+      navigate(areaPath(admin?.role, "/listings"));
     } catch (err) {
       if (!err?.response) {
         try {
@@ -122,7 +125,7 @@ export default function CreateListingPage() {
             creationRequestId.current,
           );
           toast.success(t("create.success", { title: statusCar.title }));
-          navigate("/admin/listings");
+          navigate(areaPath(admin?.role, "/listings"));
           return;
         } catch {
           // The original network error remains the actionable result.
@@ -227,7 +230,7 @@ export default function CreateListingPage() {
           <Button
             type="button"
             variant="ghost"
-            onClick={() => navigate("/admin/listings")}
+            onClick={() => navigate(areaPath(admin?.role, "/listings"))}
           >
             {t("create.cancel")}
           </Button>

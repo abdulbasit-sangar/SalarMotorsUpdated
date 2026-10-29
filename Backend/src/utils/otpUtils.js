@@ -1,13 +1,10 @@
-// New utility: cryptographically secure OTP + reset-token generation/hashing.
-// Used only by the password-reset flow.
 import crypto from "crypto";
 
 const OTP_LENGTH = 6;
-const OTP_MAX = 10 ** OTP_LENGTH; // 1,000,000
+const OTP_MAX = 10 ** OTP_LENGTH;
 
 /**
- * Generates a cryptographically secure 6-digit numeric OTP as a string,
- * zero-padded (e.g. "042913"). Uses crypto.randomInt — never Math.random.
+ * Cryptographically secure 6-digit OTP, zero-padded.
  */
 export const generateOtp = () => {
   const value = crypto.randomInt(0, OTP_MAX);
@@ -15,30 +12,34 @@ export const generateOtp = () => {
 };
 
 /**
- * Hashes an OTP (or any short secret) with SHA-256 for storage.
- * OTPs are short-lived and rate-limited, so a fast hash is appropriate here
- * (unlike passwords, which use bcrypt) — this mirrors common practice for
- * OTP/token storage.
+ * SECURITY FIX: Hash short secrets with HMAC-SHA256 when OTP_HASH_SECRET
+ * is configured (required in production by server.js), instead of
+ * unsalted SHA-256. A 6-digit OTP hashed with unsalted SHA-256 is
+ * trivially brute-forceable if the database leaks.
+ * Fallback to plain SHA-256 only in development, so existing dev flows
+ * do not break if the secret is not yet set. Do not use the fallback
+ * in production.
  */
 export const hashSecret = (value) => {
-  return crypto.createHash("sha256").update(value).digest("hex");
+  const secret = process.env.OTP_HASH_SECRET;
+  if (secret) {
+    return crypto.createHmac("sha256", secret).update(String(value)).digest("hex");
+  }
+  return crypto.createHash("sha256").update(String(value)).digest("hex");
 };
 
-/**
- * Generates a cryptographically secure random token (for the short-lived
- * password-reset authorization) as a hex string.
- */
 export const generateResetToken = () => {
   return crypto.randomBytes(32).toString("hex");
 };
 
 /**
- * Constant-time comparison of two hex-encoded hash strings to avoid
- * timing attacks when checking OTPs/tokens.
+ * Constant-time comparison, safe for multibyte input.
+ * Both values are hashed first, so buffers are always equal length
+ * and timingSafeEqual cannot throw on length mismatch.
  */
 export const safeCompareHashes = (a, b) => {
-  const bufA = Buffer.from(a || "", "hex");
-  const bufB = Buffer.from(b || "", "hex");
-  if (bufA.length !== bufB.length) return false;
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  const bufA = crypto.createHash("sha256").update(a).digest();
+  const bufB = crypto.createHash("sha256").update(b).digest();
   return crypto.timingSafeEqual(bufA, bufB);
 };

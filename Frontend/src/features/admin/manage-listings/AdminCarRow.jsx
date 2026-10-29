@@ -5,6 +5,7 @@ import { Button } from "../../../shared/components/Button.jsx";
 import { CarSilhouetteIcon } from "../../../shared/components/icons.jsx";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../store/auth/AuthContext.jsx";
+import { areaPath } from "../../../shared/utils/areaPath.js";
 import {
   IMAGE_LIMITS,
   countValidImages,
@@ -155,7 +156,9 @@ export const AdminCarRow = ({
 
   const openGallery = () => {
     if (!galleryImages.length) {
-      onManageImages(car);
+      // Managers cannot manage pictures — for them an empty gallery
+      // simply does nothing instead of opening the image manager.
+      if (isSuperAdmin) onManageImages(car);
       return;
     }
 
@@ -310,7 +313,7 @@ export const AdminCarRow = ({
               <div className="col-span-2 sm:col-span-3 xl:col-span-4">
                 <Button
                   as={Link}
-                  to={`/admin/listings/${car._id}/edit`}
+                  to={areaPath(admin?.role, `/listings/${car._id}/edit`)}
                   size="sm"
                   variant="primary"
                   className="!flex !min-h-12 !w-full !items-center !justify-center !rounded-lg !px-3 !py-2.5 !text-center !text-xs !font-semibold !leading-4 !whitespace-normal !break-words"
@@ -335,7 +338,8 @@ export const AdminCarRow = ({
                 </div>
               )}
 
-              <div>
+              {isSuperAdmin && (
+                <div>
                 <Button
                   size="sm"
                   variant="soft"
@@ -354,7 +358,8 @@ export const AdminCarRow = ({
                 >
                   {car.isHidden ? t("row.unhide") : t("row.hide")}
                 </Button>
-              </div>
+                </div>
+              )}
 
               <div>
                 <Button
@@ -370,7 +375,8 @@ export const AdminCarRow = ({
                 </Button>
               </div>
 
-              <div>
+              {isSuperAdmin && (
+                <div>
                 <Button
                   size="sm"
                   variant="soft"
@@ -380,7 +386,8 @@ export const AdminCarRow = ({
                 >
                   {t("row.delete")}
                 </Button>
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

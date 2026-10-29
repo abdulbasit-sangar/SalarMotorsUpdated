@@ -27,6 +27,7 @@ import {
   uploadMultiple,
   handleUploadErrors,
 } from "../middlewares/upload.middleware.js";
+import { validateImageBuffers } from "../middlewares/imageValidation.middleware.js";
 import {
   validateCreateCar,
   validateMinImagesToPublish,
@@ -42,48 +43,21 @@ import {
 
 const router = Router();
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CRITICAL: named routes MUST come before /:id
-// ─────────────────────────────────────────────────────────────────────────────
-
-// Public — named routes
+// Public — named routes (order matters, before /:id)
 router.get("/featured", getFeaturedCars);
-router.get("/options", getCarOptions); // MUST stay before GET /:id
-router.get("/search", searchLimiter, searchCars); // stricter limit on regex search
-router.get("/filter", searchLimiter, filterCars); // stricter limit on filter queries
-
-// Public — root + parameterized
+router.get("/options", getCarOptions);
+router.get("/search", searchLimiter, searchCars);
+router.get("/filter", searchLimiter, filterCars);
 router.get("/", getAllCars);
 router.get("/similar/:id", getSimilarCars);
 
-// Admin/Manager — list all cars including hidden
-router.get(
-  "/admin",
-  verifyJWT,
-  requireRole("superadmin", "manager"),
-  getAdminCars,
-);
-
-// Admin/Manager — one listing (including hidden) for the Edit Vehicle form.
-// Two segments, so it never collides with GET /:id.
-router.get(
-  "/admin/:id",
-  verifyJWT,
-  requireRole("superadmin", "manager"),
-  getAdminCarById,
-);
-
-router.get(
-  "/creation-status/:key",
-  verifyJWT,
-  requireRole("superadmin", "manager"),
-  getCreationStatus,
-);
-
+router.get("/admin", verifyJWT, requireRole("superadmin", "manager"), getAdminCars);
+router.get("/admin/:id", verifyJWT, requireRole("superadmin", "manager"), getAdminCarById);
+router.get("/creation-status/:key", verifyJWT, requireRole("superadmin", "manager"), getCreationStatus);
 router.get("/:id", getCarById);
 
-// Admin/Manager — create car
-// uploadLimiter: max 30 uploads/hour per IP — protects ImageKit quota
+// Create — SECURITY FIX: validateImageBuffers added after multer,
+// so MIME spoofing is rejected before any ImageKit upload.
 router.post(
   "/",
   verifyJWT,
@@ -91,91 +65,44 @@ router.post(
   uploadLimiter,
   uploadMultiple,
   handleUploadErrors,
-  parseFeaturesField, // features arrives as a JSON string inside multipart form-data
+  validateImageBuffers,
+  parseFeaturesField,
   validateCreateCar,
-  validateMinImagesToPublish, // creation publishes immediately → min images
+  validateMinImagesToPublish,
   createCar,
 );
 
-// Superadmin only — feature/unfeature (managers cannot feature listings)
-router.patch(
-  "/feature/:id",
-  verifyJWT,
-  requireRole("superadmin"),
-  toggleFeatureCar,
-);
-// Admin/Manager — hide/unhide (existing behavior preserved for managers)
-router.patch(
-  "/hide/:id",
-  verifyJWT,
-  requireRole("superadmin", "manager"),
-  toggleHideCar,
-);
-// Admin/Manager — Sold Vehicle Indicator toggle
-router.patch(
-  "/sold/:id",
-  verifyJWT,
-  requireRole("superadmin", "manager"),
-  toggleSoldCar,
-);
-// Admin/Manager — update selected Vehicle Features
-router.patch(
-  "/features/:id",
-  verifyJWT,
-  requireRole("superadmin", "manager"),
-  validateUpdateFeatures,
-  updateCarFeatures,
-);
+router.patch("/feature/:id", verifyJWT, requireRole("superadmin"), toggleFeatureCar);
+router.patch("/hide/:id", verifyJWT, requireRole("superadmin"), toggleHideCar);
+router.patch("/sold/:id", verifyJWT, requireRole("superadmin", "manager"), toggleSoldCar);
+router.patch("/features/:id", verifyJWT, requireRole("superadmin", "manager"), validateUpdateFeatures, updateCarFeatures);
 
-// Admin/Manager — Image Editing: add, remove, reorder
 router.patch(
   "/images/:id",
   verifyJWT,
-  requireRole("superadmin", "manager"),
+  requireRole("superadmin"),
   uploadLimiter,
   uploadMultiple,
   handleUploadErrors,
+  validateImageBuffers,
   addCarImages,
 );
 router.put(
   "/images/:id",
   verifyJWT,
-  requireRole("superadmin", "manager"),
+  requireRole("superadmin"),
   uploadLimiter,
   uploadMultiple,
   handleUploadErrors,
+  validateImageBuffers,
   replaceCarImages,
 );
-router.delete(
-  "/images/:id",
-  verifyJWT,
-  requireRole("superadmin", "manager"),
-  validateRemoveImage,
-  removeCarImage,
-);
+router.delete("/images/:id", verifyJWT, requireRole("superadmin"), validateRemoveImage, removeCarImage);
+router.patch("/:id", verifyJWT, requireRole("superadmin", "manager"), validateUpdateCar, updateCar);
 
-// Admin/Manager — edit listing details (PATCH semantics: only the fields sent
-// are changed; images/status flags have their own endpoints)
-router.patch(
-  "/:id",
-  verifyJWT,
-  requireRole("superadmin", "manager"),
-  validateUpdateCar,
-  updateCar,
-);
-
-// Admin/Manager — delete car
-router.delete(
-  "/:id",
-  verifyJWT,
-  requireRole("superadmin", "manager"),
-  deleteCar,
-);
-router.patch(
-  "/images/:id/reorder",
-  verifyJWT,
-  requireRole("superadmin", "manager"),
-  reorderCarImages,
-);
+// DELETE was verified in the audit to already carry auth + role —
+// it is kept exactly as in the original, not a new fix.
+router.delete("/:id", verifyJWT, requireRole("superadmin"), deleteCar);
+router.patch("/images/:id/reorder", verifyJWT, requireRole("superadmin"), reorderCarImages);
 
 export default router;

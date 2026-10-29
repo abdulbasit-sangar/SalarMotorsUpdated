@@ -6,6 +6,8 @@ import { Button } from "../../../shared/components/Button.jsx";
 import { ErrorState } from "../../../shared/components/ErrorState.jsx";
 import { Skeleton } from "../../../shared/components/Skeleton.jsx";
 import { useToast } from "../../../store/ui/ToastContext.jsx";
+import { useAuth } from "../../../store/auth/AuthContext.jsx";
+import { areaPath } from "../../../shared/utils/areaPath.js";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
 import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
 import {
@@ -50,6 +52,8 @@ function EditListingForm({ car: loadedCar }) {
   const { t } = useTranslation("admin");
   const navigate = useNavigate();
   const toast = useToast();
+  const { admin } = useAuth();
+  const isSuperAdmin = admin?.role === "superadmin";
   const {
     options,
     loading: optionsLoading,
@@ -90,7 +94,7 @@ function EditListingForm({ car: loadedCar }) {
     try {
       const updated = await updateCar(car._id, changes);
       toast.success(t("edit.success", { title: updated.title }));
-      navigate("/admin/listings");
+      navigate(areaPath(admin?.role, "/listings"));
     } catch (err) {
       // Stay on the form with every value the admin entered still in place.
       const parsed = parseApiError(err);
@@ -148,8 +152,9 @@ function EditListingForm({ car: loadedCar }) {
           optionsLoading={optionsLoading}
         />
 
-        {/* Images + status are managed with their existing, separately
-            guarded tools so saving details can never alter them. */}
+        {/* Images are superadmin-only: managers may update written info
+            but never pictures (enforced by requireRole on the image routes). */}
+        {isSuperAdmin && (
         <section className="glass-panel rounded-premium-lg p-5 sm:p-6 space-y-4">
           <h2 className="font-display text-lg font-semibold text-bone">
             {t("edit.sections.imagesStatus")}
@@ -174,6 +179,7 @@ function EditListingForm({ car: loadedCar }) {
             {t("row.manageImages", { count: countValidImages(car.images) })}
           </Button>
         </section>
+        )}
 
         <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
           <Button
@@ -181,7 +187,7 @@ function EditListingForm({ car: loadedCar }) {
             variant="ghost"
             className="w-full sm:w-auto"
             disabled={saving}
-            onClick={() => navigate("/admin/listings")}
+            onClick={() => navigate(areaPath(admin?.role, "/listings"))}
           >
             {t("edit.cancel")}
           </Button>
@@ -211,6 +217,7 @@ function EditListingForm({ car: loadedCar }) {
 export default function EditListingPage() {
   const { t } = useTranslation("admin");
   const { id } = useParams();
+  const { admin } = useAuth(); 
 
   const fetcher = useCallback(() => fetchAdminCarById(id), [id]);
   const { data: car, loading, error, refetch } = useAsyncData(fetcher, [id]);
@@ -218,7 +225,7 @@ export default function EditListingPage() {
   return (
     <div className="container-page py-8 sm:py-10 max-w-3xl">
       <Link
-        to="/admin/listings"
+        to={areaPath(admin?.role, "/listings")}
         className="mb-4 inline-flex min-h-10 items-center text-sm font-medium text-ash hover:text-brass-dark"
       >
         ← {t("edit.back")}

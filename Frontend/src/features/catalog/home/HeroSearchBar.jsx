@@ -97,6 +97,13 @@ export const HeroSearchBar = ({ className }) => {
       }
     });
 
+    // The home search bar's year picker means "exactly this year", not
+    // "from this year onward". Pinning both ends of the range makes the
+    // backend return only cars of the selected year.
+    if (values.minYear) {
+      params.set("maxYear", values.minYear);
+    }
+
     navigate(`/listings?${params.toString()}`);
   };
 

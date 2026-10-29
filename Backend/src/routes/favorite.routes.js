@@ -5,13 +5,15 @@ import {
   removeFavorite,
 } from "../controllers/favorite.controller.js";
 import { requireDeviceId } from "../middlewares/deviceId.middleware.js";
+import { favoritesLimiter } from "../middlewares/rateLimiter.middleware.js";
 
 const router = Router();
 
-// All favorites routes require the anonymous X-Device-Id header — see
-// deviceId.middleware.js and favorite.model.js for the full rationale
-// (no public user accounts exist in this project).
-router.use(requireDeviceId);
+// SECURITY FIX: Favorites now have their own limiter, and device IDs
+// must be UUIDv4 (see deviceId.middleware.js). Favorites remain
+// anonymous by design — they are not authenticated and must not be
+// treated as private account data.
+router.use(requireDeviceId, favoritesLimiter);
 
 router.get("/", getFavorites);
 router.post("/:carId", addFavorite);

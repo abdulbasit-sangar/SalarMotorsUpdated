@@ -1,4 +1,7 @@
 import { asyncHandler, ApiResponse } from "../utils/apiHelpers.js";
+import { cookieOptions } from "../utils/tokenUtils.js";
+import { loginAdminService } from "../services/auth.service.js";
+
 import {
   registerManagerService,
   verifyManagerEmailService,
@@ -8,6 +11,7 @@ import {
   setManagerActiveStatusService,
   deleteManagerService,
 } from "../services/manager.service.js";
+
 
 // ─── POST /api/managers/register ───────────────────────────────────────────
 // Public. Creates a manager account (role is always "manager" — hard-coded
@@ -22,6 +26,29 @@ export const registerManager = asyncHandler(async (req, res) => {
     .status(201)
     .json(new ApiResponse(201, { email: result.email }, result.message));
 });
+// ADD to Backend/src/controllers/manager.controller.js.
+// Imports to add at the top of that file:
+//   import { cookieOptions } from "../utils/tokenUtils.js";
+//   import { loginAdminService } from "../services/auth.service.js";
+// Note: loginAdminService is shared — the expectedRole argument is what
+// makes this endpoint manager-only. No new service is needed.
+
+// ─── POST /api/managers/login — manager only ────────────────────────────
+export const loginManager = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const { admin, accessToken, refreshToken } = await loginAdminService({
+    email,
+    password,
+    expectedRole: "manager",
+  });
+
+  return res
+    .status(200)
+    .cookie("refreshToken", refreshToken, cookieOptions)
+    .json(new ApiResponse(200, { admin, accessToken }, "Login successful"));
+});
+
 
 // ─── POST /api/managers/verify-email ───────────────────────────────────────
 // Public. Confirms ownership of the registered email via OTP.

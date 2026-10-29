@@ -41,6 +41,24 @@ export const validateObjectId = (id, label = "ID") => {
   }
 };
 
+// ─── Manager ownership ──────────────────────────────────────────────────────
+// Managers may only see and touch their OWN listings. Superadmins may act on
+// any listing. Listings created before `createdBy` existed (or without one)
+// are superadmin-only, so a brand-new manager account starts with an empty
+// list until the manager creates their first listing.
+//
+// This replaces the old opt-in `requireCarAccess` helper: ownership is now
+// always enforced, not behind a CAR_MANAGER_OWNERSHIP flag.
+export const assertManagerOwnsCar = async (admin, id) => {
+  if (!admin || admin.role !== "manager") return; // superadmin: no restriction
+  validateObjectId(id, "car ID");
+  const car = await Car.findById(id).select("createdBy").lean();
+  if (!car) throw new ApiError(404, "Car not found");
+  if (!car.createdBy || String(car.createdBy) !== String(admin._id)) {
+    throw new ApiError(403, "You can only manage your own listings");
+  }
+};
+
 // A `province` filter value that exactly matches one of the special
 // category locations ("Dubai", "From America to Herat", "From Dubai to
 // Herat") is matched exactly — otherwise "Dubai" would also match "From
@@ -172,12 +190,18 @@ export const createCarService = async (
 // Sponsored endpoint. The ADMIN path (includeHidden=true) intentionally
 // does NOT exclude featured — admins/managers must see and manage every
 // listing regardless of category.
-export const getAllCarsService = async (query = {}, includeHidden = false) => {
+export const getAllCarsService = async (query = {}, includeHidden = false, admin = null) => {
   const { page, limit, skip } = parsePagination(query);
   const sortOption = SORT_MAP[query.sort] || SORT_MAP.newest;
   const filter = includeHidden
     ? {}
     : { isHidden: false, featured: { $ne: true } };
+
+  // Managers see ONLY their own listings — a new manager account starts
+  // empty until the manager creates their first listing.
+  if (admin?.role === "manager") {
+    filter.createdBy = admin._id;
+  }
 
   const [cars, totalCars] = await Promise.all([
     Car.find(filter)
@@ -364,22 +388,17 @@ export const getSimilarCarsService = async (id) => {
   validateObjectId(id, "car ID");
 
   const source = await Car.findOne({ _id: id, isHidden: false })
-    .select("brand model price")
+    .select("model")
     .lean();
 
   if (!source) throw new ApiError(404, "Car not found");
 
-  const priceMargin = source.price * 0.3;
-
+  // Similar = same model only. No brand, price band, or other attributes.
   const filter = {
     isHidden: false,
     featured: { $ne: true }, // don't recommend a sponsored car as a "similar" one — keeps categories separate
     _id: { $ne: source._id },
-    brand: source.brand,
-    price: {
-      $gte: source.price - priceMargin,
-      $lte: source.price + priceMargin,
-    },
+    model: source.model,
   };
 
   const cars = await Car.find(filter)
@@ -389,8 +408,9 @@ export const getSimilarCarsService = async (id) => {
     .limit(6)
     .lean();
 
-  return { cars, source: { brand: source.brand, price: source.price } };
+  return { cars, source: { model: source.model } };
 };
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 19 — Feature & hide car (admin toggles)
@@ -459,8 +479,9 @@ export const toggleHideCarService = async (id) => {
 // SOLD VEHICLE INDICATOR — Admin/Manager toggle
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const toggleSoldCarService = async (id) => {
+export const toggleSoldCarService = async (id, admin = null) => {
   validateObjectId(id, "car ID");
+  await assertManagerOwnsCar(admin, id);
 
   const car = await Car.findById(id).select("isSold");
   if (!car) throw new ApiError(404, "Car not found");
@@ -479,8 +500,9 @@ export const toggleSoldCarService = async (id) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // Values already validated against VEHICLE_FEATURES by validateUpdateFeatures
 // (car.validator.js) before this ever runs — this service just persists them.
-export const updateCarFeaturesService = async (id, features = []) => {
+export const updateCarFeaturesService = async (id, features = [], admin = null) => {
   validateObjectId(id, "car ID");
+  await assertManagerOwnsCar(admin, id);
 
   const car = await Car.findById(id).select("_id");
   if (!car) throw new ApiError(404, "Car not found");
@@ -501,8 +523,9 @@ export const updateCarFeaturesService = async (id, features = []) => {
 // Admin fetch of a single listing INCLUDING hidden ones (the public
 // getCarByIdService deliberately excludes hidden listings). Used to prefill
 // the Edit Vehicle form.
-export const getAdminCarByIdService = async (id) => {
+export const getAdminCarByIdService = async (id, admin = null) => {
   validateObjectId(id, "car ID");
+  await assertManagerOwnsCar(admin, id);
   const car = await Car.findById(id).select("-__v").lean();
   if (!car) throw new ApiError(404, "Car not found");
   return car;
@@ -552,8 +575,9 @@ const CLEARABLE_CAR_FIELDS = new Set([
   "importedDate",
 ]);
 
-export const updateCarService = async (id, data = {}) => {
+export const updateCarService = async (id, data = {}, admin = null) => {
   validateObjectId(id, "car ID");
+  await assertManagerOwnsCar(admin, id);
 
   const car = await Car.findById(id);
   if (!car) throw new ApiError(404, "Car not found");
@@ -593,8 +617,9 @@ export const updateCarService = async (id, data = {}) => {
 // Cheap pre-flight used by the controller BEFORE uploading to ImageKit, so an
 // over-limit request fails fast without spending upload quota. It is only an
 // early exit — addCarImagesService below re-enforces the cap atomically.
-export const assertCanAddImagesService = async (id, incomingCount) => {
+export const assertCanAddImagesService = async (id, incomingCount, admin = null) => {
   validateObjectId(id, "car ID");
+  await assertManagerOwnsCar(admin, id);
   const car = await Car.findById(id).select("images").lean();
   if (!car) throw new ApiError(404, "Car not found");
   const current = car.images?.length || 0;
@@ -607,8 +632,9 @@ export const assertCanAddImagesService = async (id, incomingCount) => {
 // the images already attached (existing + new <= MAX_CAR_IMAGES), and is
 // enforced inside the update filter itself so concurrent or repeated
 // requests cannot push the total past the limit.
-export const addCarImagesService = async (id, newImages = []) => {
+export const addCarImagesService = async (id, newImages = [], admin = null) => {
   validateObjectId(id, "car ID");
+  await assertManagerOwnsCar(admin, id);
 
   const car = await Car.findById(id).select("images");
   if (!car) throw new ApiError(404, "Car not found");
@@ -728,8 +754,9 @@ export const replaceCarImagesService = async (id, newImages = []) => {
 // display order). Every existing public_id must be present exactly once —
 // this only reorders, it never adds/drops images (use the add/remove
 // endpoints for that), which keeps the operation unambiguous.
-export const reorderCarImagesService = async (id, orderedPublicIds = []) => {
+export const reorderCarImagesService = async (id, orderedPublicIds = [], admin = null) => {
   validateObjectId(id, "car ID");
+  await assertManagerOwnsCar(admin, id);
 
   const car = await Car.findById(id).select("images");
   if (!car) throw new ApiError(404, "Car not found");

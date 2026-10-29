@@ -1,6 +1,3 @@
-// Added POST /register route for one-time admin registration.
-// Added routes for Admin Password Management: change-password (protected)
-// and forgot-password / resend-otp / verify-reset-otp / reset-password (public).
 import { Router } from "express";
 import { requireSetupToken } from "../middlewares/setup.middleware.js";
 import {
@@ -29,6 +26,9 @@ import {
   otpRequestLimiter,
   otpResendLimiter,
   otpVerifyLimiter,
+  refreshLimiter,
+  resetPasswordLimiter,
+  adminRegisterLimiter,
 } from "../middlewares/rateLimiter.middleware.js";
 
 const router = Router();
@@ -37,37 +37,19 @@ router.get("/csrf", (req, res) => {
   res.status(204).end();
 });
 
-// ─── Public routes ─────────────────────────────────────────────────────────────
-// authLimiter: max 10 login attempts / 15min per IP — brute-force protection
-// Public: one-time registration (service enforces existing-admin check)
-router.post("/register", requireSetupToken, validateRegister, registerAdmin);
+// SECURITY FIX: Admin registration now has its own limiter, and
+// refresh / reset-password previously had none.
+router.post("/register", adminRegisterLimiter, requireSetupToken, validateRegister, registerAdmin);
 router.post("/login", authLimiter, validateLogin, loginAdmin);
-router.post("/refresh", refreshAccessToken);
+router.post("/refresh", refreshLimiter, refreshAccessToken);
 
-// ─── Forgot password (public) ───────────────────────────────────────────────────
-router.post(
-  "/forgot-password",
-  otpRequestLimiter,
-  validateForgotPassword,
-  forgotPassword,
-);
+router.post("/forgot-password", otpRequestLimiter, validateForgotPassword, forgotPassword);
 router.post("/resend-otp", otpResendLimiter, validateForgotPassword, resendOtp);
-router.post(
-  "/verify-reset-otp",
-  otpVerifyLimiter,
-  validateVerifyOtp,
-  verifyResetOtp,
-);
-router.post("/reset-password", validateResetPassword, resetPassword);
+router.post("/verify-reset-otp", otpVerifyLimiter, validateVerifyOtp, verifyResetOtp);
+router.post("/reset-password", resetPasswordLimiter, validateResetPassword, resetPassword);
 
-// ─── Protected routes ──────────────────────────────────────────────────────────
 router.post("/logout", verifyJWT, logoutAdmin);
 router.get("/me", verifyJWT, getMe);
-router.patch(
-  "/change-password",
-  verifyJWT,
-  validateChangePassword,
-  changePassword,
-);
+router.patch("/change-password", verifyJWT, validateChangePassword, changePassword);
 
 export default router;

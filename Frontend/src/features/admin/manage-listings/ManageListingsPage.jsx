@@ -29,6 +29,8 @@ import { EmptyState } from "../../../shared/components/EmptyState.jsx";
 import { Skeleton } from "../../../shared/components/Skeleton.jsx";
 import { CarSilhouetteIcon } from "../../../shared/components/icons.jsx";
 import { useToast } from "../../../store/ui/ToastContext.jsx";
+import { useAuth } from "../../../store/auth/AuthContext.jsx";
+import { areaPath } from "../../../shared/utils/areaPath.js";
 import { parseApiError } from "../../../services/api/client.js";
 
 const LIMIT = 10;
@@ -36,6 +38,7 @@ const LIMIT = 10;
 export default function ManageListingsPage() {
   const { t } = useTranslation("admin");
   const toast = useToast();
+  const { admin } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const page = Math.max(1, parseInt(searchParams.get("page"), 10) || 1);
@@ -271,7 +274,7 @@ export default function ManageListingsPage() {
 
           <Button
             as={Link}
-            to="/admin/listings/create"
+            to={areaPath(admin?.role, "/listings/create")}
             variant="primary"
             size="md"
             className="w-full lg:w-auto"
@@ -355,7 +358,7 @@ export default function ManageListingsPage() {
             description={t("listings.emptyDescription")}
             actionLabel={t("listings.emptyAction")}
             onAction={() => {
-              window.location.href = "/admin/listings/create";
+              window.location.href = areaPath(admin?.role, "/listings/create");
             }}
           />
         </div>

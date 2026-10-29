@@ -7,9 +7,22 @@ export const registerAdmin = async ({ username, email, password }) => {
   return data.data.admin;
 };
 
-// POST /api/admin/login
-export const loginAdmin = async ({ email, password }) => {
+// POST /api/admin/login — SUPERADMIN only.
+// The backend enforces expectedRole="superadmin" and issues no tokens
+// for a manager account, even with a correct password.
+export const loginSuperadmin = async ({ email, password }) => {
   const { data } = await apiClient.post("/admin/login", { email, password });
+  setAccessToken(data.data.accessToken);
+  return data.data.admin;
+};
+
+// Backward-compatible alias. Existing code calling loginAdmin now gets
+// the superadmin-only login. Prefer loginSuperadmin / loginManager.
+export const loginAdmin = loginSuperadmin;
+
+// POST /api/managers/login — MANAGER only.
+export const loginManager = async ({ email, password }) => {
+  const { data } = await apiClient.post("/managers/login", { email, password });
   setAccessToken(data.data.accessToken);
   return data.data.admin;
 };
@@ -36,8 +49,9 @@ export const fetchMe = async () => {
   return data.data.admin;
 };
 
-// POST /api/managers/register — public. Creates a manager account which
-// stays inactive-for-login until the email is verified below.
+// POST /api/managers/register — public. Creates an INACTIVE manager.
+// Email verification alone does not activate it; a superadmin must
+// activate it before login works (see ManagerPendingPage).
 export const registerManager = async ({ username, email, password, confirmPassword }) => {
   const { data } = await apiClient.post("/managers/register", {
     username,
@@ -45,7 +59,7 @@ export const registerManager = async ({ username, email, password, confirmPasswo
     password,
     confirmPassword,
   });
-  return data.data; // { email }
+  return data.data;
 };
 
 // POST /api/managers/verify-email — public.
@@ -54,13 +68,13 @@ export const verifyManagerEmail = async ({ email, otp }) => {
   return data.data;
 };
 
-// POST /api/managers/resend-verification-otp — public. Cooldown enforced on the backend.
+// POST /api/managers/resend-verification-otp — public.
 export const resendManagerVerificationOtp = async ({ email }) => {
   const { data } = await apiClient.post("/managers/resend-verification-otp", { email });
   return data.data;
 };
 
-// GET /api/managers — superadmin only (backend enforces via requireRole).
+// GET /api/managers — superadmin only
 export const fetchManagers = async () => {
   const { data } = await apiClient.get("/managers");
   return data.data.managers;
@@ -100,14 +114,13 @@ export const forgotPassword = async ({ email }) => {
   return data.data;
 };
 
-// POST /api/admin/resend-otp — public. Rate-limited/cooldown on the backend.
+// POST /api/admin/resend-otp — public.
 export const resendOtp = async ({ email }) => {
   const { data } = await apiClient.post("/admin/resend-otp", { email });
   return data.data;
 };
 
-// POST /api/admin/verify-reset-otp — public. Returns a short-lived resetToken
-// that only authorizes the reset-password step (not a normal admin session).
+// POST /api/admin/verify-reset-otp — public. Returns a short-lived resetToken.
 export const verifyResetOtp = async ({ email, otp }) => {
   const { data } = await apiClient.post("/admin/verify-reset-otp", { email, otp });
   return data.data.resetToken;

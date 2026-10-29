@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
-  loginAdmin as apiLogin,
+  loginSuperadmin as apiLoginSuperadmin,
+  loginManager as apiLoginManager,
   logoutAdmin as apiLogout,
   registerAdmin as apiRegister,
   refreshSession,
@@ -9,8 +10,12 @@ import {
 
 const AuthContext = createContext(null);
 
-// Auth bootstrap goes through three states while the app decides whether
-// there's a valid session: "checking" -> "authenticated" | "guest".
+export const dashboardPathForRole = (role) =>
+  role === "manager" ? "/manager/dashboard" : "/admin/dashboard";
+
+export const loginPathForRole = (role) =>
+  role === "manager" ? "/manager/login" : "/admin/login";
+
 export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [status, setStatus] = useState("checking");
@@ -29,8 +34,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     bootstrap();
-
-    // Fired by the API client when a refresh attempt fails mid-session.
     const handleForcedLogout = () => {
       setAdmin(null);
       setStatus("guest");
@@ -39,12 +42,28 @@ export const AuthProvider = ({ children }) => {
     return () => window.removeEventListener("auth:logout", handleForcedLogout);
   }, [bootstrap]);
 
-  const login = useCallback(async (credentials) => {
+  // Role-specific login. The backend enforces the role and issues no
+  // tokens on a role mismatch, so a manager cannot use the admin login
+  // (or vice versa) even with a correct password.
+  const loginAs = useCallback(async (role, credentials) => {
+    const apiLogin = role === "manager" ? apiLoginManager : apiLoginSuperadmin;
     const me = await apiLogin(credentials);
     setAdmin(me);
     setStatus("authenticated");
     return me;
   }, []);
+
+  const loginSuperadmin = useCallback(
+    (credentials) => loginAs("superadmin", credentials),
+    [loginAs],
+  );
+  const loginManager = useCallback(
+    (credentials) => loginAs("manager", credentials),
+    [loginAs],
+  );
+
+  // Legacy login() kept for existing callers: it is now superadmin-only.
+  const login = loginSuperadmin;
 
   const register = useCallback(async (payload) => {
     const me = await apiRegister(payload);
@@ -62,14 +81,18 @@ export const AuthProvider = ({ children }) => {
   const value = useMemo(
     () => ({
       admin,
-      status, // "checking" | "authenticated" | "guest"
+      status,
       isAuthenticated: status === "authenticated",
       isChecking: status === "checking",
       login,
+      loginAs,
+      loginSuperadmin,
+      loginManager,
       register,
       logout,
+      dashboardPath: dashboardPathForRole(admin?.role),
     }),
-    [admin, status, login, register, logout]
+    [admin, status, login, loginAs, loginSuperadmin, loginManager, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

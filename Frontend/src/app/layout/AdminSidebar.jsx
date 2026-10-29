@@ -1,8 +1,8 @@
-
 import { NavLink } from "react-router-dom";
 import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../store/auth/AuthContext.jsx";
+import { areaPrefixForRole } from "../../shared/utils/areaPath.js";
 import {
   DashboardIcon,
   CarSilhouetteIcon,
@@ -11,27 +11,32 @@ import {
   UsersIcon,
 } from "../../shared/components/icons.jsx";
 
+// Paths are stored WITHOUT the area prefix. The prefix is picked from the
+// logged-in role: "/admin" for the main admin, "/manager" for managers.
+// The old hardcoded "/admin/..." links are what broke the manager sidebar:
+// every click sent a manager into the superadmin-only /admin area, whose
+// guard bounced them back to /manager/dashboard, so "nothing changed".
 const LINKS = [
   {
-    to: "/admin/dashboard",
+    path: "/dashboard",
     labelKey: "admin.dashboard",
     end: true,
     icon: DashboardIcon,
   },
   {
-    to: "/admin/listings",
+    path: "/listings",
     labelKey: "admin.manageListings",
     end: true,
     icon: CarSilhouetteIcon,
   },
   {
-    to: "/admin/listings/create",
+    path: "/listings/create",
     labelKey: "admin.createListing",
     end: true,
     icon: PlusIcon,
   },
   {
-    to: "/admin/profile",
+    path: "/profile",
     labelKey: "admin.profile",
     end: true,
     icon: UserIcon,
@@ -42,7 +47,7 @@ const LINKS = [
 // Actual authorization is enforced by the backend and protected routes.
 const SUPERADMIN_LINKS = [
   {
-    to: "/admin/managers",
+    path: "/managers",
     labelKey: "admin.managers",
     end: true,
     icon: UsersIcon,
@@ -74,10 +79,15 @@ export const AdminSidebar = ({ onNavigate }) => {
   const { t } = useTranslation("layout");
   const { admin } = useAuth();
 
-  const links =
+  const prefix = areaPrefixForRole(admin?.role);
+  const baseLinks =
     admin?.role === "superadmin"
       ? [...LINKS, ...SUPERADMIN_LINKS]
       : LINKS;
+  const links = baseLinks.map((link) => ({
+    ...link,
+    to: `${prefix}${link.path}`,
+  }));
 
   return (
     <nav

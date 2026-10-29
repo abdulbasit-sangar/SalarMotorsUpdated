@@ -16,41 +16,34 @@ import { ApiError } from "./utils/apiHelpers.js";
 
 const app = express();
 
-// ─────────────────────────────────────────────────────────────────────────────
-// STEP 21 — SECURITY LAYERS
-// Order matters: security middleware runs before everything else.
-// ─────────────────────────────────────────────────────────────────────────────
+// SECURITY FIX: Trust proxy must be explicit, never assumed.
+// Set TRUST_PROXY=1 on Render/Railway (one proxy hop) and TRUST_PROXY=0
+// when running directly. Default is 0 (fail closed) so a client cannot
+// spoof X-Forwarded-For to bypass IP rate limits.
+const trustProxy = process.env.TRUST_PROXY
+  ? Number(process.env.TRUST_PROXY)
+  : 0;
+if (Number.isFinite(trustProxy) && trustProxy >= 0) {
+  app.set("trust proxy", trustProxy);
+}
 
-// 1. Helmet — sets 11 HTTP security headers in one call:
-//    Content-Security-Policy, X-Frame-Options, X-Content-Type-Options,
-//    Strict-Transport-Security, Referrer-Policy, and more.
+// 1. Helmet — security headers.
 app.use(helmet());
 
-// 2. Global rate limiter — 100 req / 15min per IP across all routes.
-//    Specific stricter limiters (authLimiter, uploadLimiter) are applied
-//    directly on individual routes in the route files.
+// 2. Global rate limiter — 100 req / 15min per IP in production.
 app.use(globalLimiter);
 
-// 3. MongoDB sanitizer — strips $ and . from req.body, req.params, req.query.
-//    Prevents NoSQL injection attacks like: { "email": { "$gt": "" } }
-app.use(
-  mongoSanitize({
-    replaceWith: "_", // replace forbidden chars with _ instead of removing
-    onSanitize: ({ req, key }) => {
-      if (process.env.NODE_ENV === "development") {
-        console.warn(
-          `⚠️  Sanitized field: ${key} in ${req.method} ${req.path}`,
-        );
-      }
-    },
-  }),
-);
-
-// 4. CORS — only allow requests from the configured frontend origin.
-//    credentials:true is required for cookies (refresh token) to work cross-origin.
+// 3. CORS — single configured origin only. In production there is no
+// localhost fallback: server.js already requires FRONTEND_URL, and this
+// guard protects standalone use of app.js (tests, another entry point).
+const frontendUrl = process.env.FRONTEND_URL;
+const corsOrigin =
+  frontendUrl || process.env.NODE_ENV === "production"
+    ? frontendUrl
+    : "http://localhost:3000";
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: corsOrigin || false,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
@@ -64,21 +57,32 @@ app.use(
   }),
 );
 
-// ─── Body parsers ──────────────────────────────────────────────────────────────
-// Limit body size — prevents request body attacks.
-// Multipart/form-data (file uploads) is handled by multer, not these parsers.
+// Body parsers — BEFORE mongoSanitize (security fix).
+// Previously mongoSanitize ran before express.json(), so JSON bodies
+// were never sanitized. Query and params were covered, JSON was not.
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
+
+// 4. MongoDB sanitizer — now runs after parsing, so req.body is covered.
+app.use(
+  mongoSanitize({
+    replaceWith: "_",
+    onSanitize: ({ req, key }) => {
+      if (process.env.NODE_ENV === "development") {
+        console.warn(
+          `Sanitized field: ${key} in ${req.method} ${req.path}`,
+        );
+      }
+    },
+  }),
+);
+
 app.use(csrfProtection);
 
-// ─── Health check ──────────────────────────────────────────────────────────────
+// Health checks — no environment or database detail is disclosed.
 app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Server running successfully",
-    environment: process.env.NODE_ENV || "development",
-  });
+  res.json({ success: true, message: "Server running successfully" });
 });
 
 app.get("/health/live", (req, res) => {
@@ -90,24 +94,21 @@ app.get("/health/ready", (req, res) => {
   res.status(ready ? 200 : 503).json({
     success: ready,
     status: ready ? "ready" : "not_ready",
-    database: ready ? "connected" : "disconnected",
   });
 });
 
-// ─── API routes ────────────────────────────────────────────────────────────────
+// API routes
 app.use("/api/admin", authRoutes);
 app.use("/api/cars", carRoutes);
 app.use("/api/managers", managerRoutes);
 app.use("/api/favorites", favoriteRoutes);
 
-// ─── 404 handler ──────────────────────────────────────────────────────────────
-// Catches any request that didn't match a defined route.
+// 404 handler
 app.use((req, res, next) => {
-  next(new ApiError(404, `Route not found: ${req.method} ${req.originalUrl}`));
+  next(new ApiError(404, "Route not found"));
 });
 
-// ─── Global error middleware — MUST be last ────────────────────────────────────
-// Receives errors forwarded by next(err) from any middleware or controller.
+// Global error middleware — MUST be last
 app.use(errorHandler);
 
 export default app;

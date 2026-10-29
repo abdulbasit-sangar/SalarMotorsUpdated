@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useOptionLabel } from "../../../i18n/optionLabels.js";
 import { formatDateTime } from "../../../shared/utils/format.js";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../store/auth/AuthContext.jsx";
+import { useAuth, loginPathForRole } from "../../../store/auth/AuthContext.jsx";
 import { useToast } from "../../../store/ui/ToastContext.jsx";
 import { Badge } from "../../../shared/components/Badge.jsx";
 import { Button } from "../../../shared/components/Button.jsx";
@@ -39,7 +39,7 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     await logout();
     toast.success(t("profile.loggedOut"));
-    navigate("/admin/login");
+    navigate(loginPathForRole(admin?.role));
   };
 
   // ── Change password ───────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ export default function ProfilePage() {
       // Backend invalidates the existing session on password change —
       // clear local auth state and send the admin back to Sign In.
       await logout();
-      navigate("/admin/login", { replace: true });
+      navigate(loginPathForRole(admin?.role), { replace: true });
     } catch (err) {
       const parsed = parseApiError(err);
       setFormError(parsed.errors.length ? parsed.errors : [parsed.message]);

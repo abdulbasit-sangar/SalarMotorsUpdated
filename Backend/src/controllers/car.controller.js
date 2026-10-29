@@ -140,7 +140,7 @@ export const getAllCars = asyncHandler(async (req, res) => {
 });
 
 export const getAdminCars = asyncHandler(async (req, res) => {
-  const result = await getAllCarsService(req.query, true);
+  const result = await getAllCarsService(req.query, true, req.admin);
   return res
     .status(200)
     .json(new ApiResponse(200, result, "Admin cars fetched successfully"));
@@ -201,14 +201,14 @@ export const toggleHideCar = asyncHandler(async (req, res) => {
 
 // PATCH /api/cars/sold/:id — Sold Vehicle Indicator (Admin/Manager)
 export const toggleSoldCar = asyncHandler(async (req, res) => {
-  const car = await toggleSoldCarService(req.params.id);
+  const car = await toggleSoldCarService(req.params.id, req.admin);
   const msg = car.isSold ? "Car marked as sold" : "Car marked as available";
   return res.status(200).json(new ApiResponse(200, { car }, msg));
 });
 
 // GET /api/cars/admin/:id — Admin/Manager: one listing, hidden or not
 export const getAdminCarById = asyncHandler(async (req, res) => {
-  const car = await getAdminCarByIdService(req.params.id);
+  const car = await getAdminCarByIdService(req.params.id, req.admin);
   return res
     .status(200)
     .json(new ApiResponse(200, { car }, "Car fetched successfully"));
@@ -216,7 +216,7 @@ export const getAdminCarById = asyncHandler(async (req, res) => {
 
 // PATCH /api/cars/:id — Admin/Manager: edit listing details
 export const updateCar = asyncHandler(async (req, res) => {
-  const car = await updateCarService(req.params.id, req.body);
+  const car = await updateCarService(req.params.id, req.body, req.admin);
   return res
     .status(200)
     .json(new ApiResponse(200, { car }, "Car updated successfully"));
@@ -224,7 +224,7 @@ export const updateCar = asyncHandler(async (req, res) => {
 
 // PATCH /api/cars/features/:id — Vehicle Features System (Admin/Manager)
 export const updateCarFeatures = asyncHandler(async (req, res) => {
-  const car = await updateCarFeaturesService(req.params.id, req.body.features);
+  const car = await updateCarFeaturesService(req.params.id, req.body.features, req.admin);
   return res
     .status(200)
     .json(

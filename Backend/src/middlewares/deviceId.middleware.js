@@ -1,13 +1,13 @@
 import { ApiError } from "../utils/apiHelpers.js";
 
-// ─── requireDeviceId ────────────────────────────────────────────────────────
-// Favorites are scoped per-device (no public user accounts — see
-// favorite.model.js for the full rationale). The frontend sends a
-// self-generated UUID in the `X-Device-Id` header on every request (see
-// shared/utils/deviceId.js + services/api/client.js); this middleware just
-// validates it's present and reasonably well-formed before any favorites
-// controller touches the database, and attaches it as req.deviceId.
-const DEVICE_ID_RE = /^[a-zA-Z0-9-]{8,100}$/;
+// SECURITY FIX: Favorites are bearer-token by device ID, so the ID must
+// be unguessable. Previously any 8-100 character alphanumeric string
+// was accepted, which made short or predictable IDs trivial to guess.
+// Now only a UUIDv4 is accepted. The frontend already generates a UUID
+// (see Frontend shared/utils/deviceId.js); older non-UUID device IDs
+// will need to be regenerated once — their favorites are not migrated.
+const DEVICE_ID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const requireDeviceId = (req, res, next) => {
   const deviceId = req.headers["x-device-id"];

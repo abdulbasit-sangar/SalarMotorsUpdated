@@ -1,11 +1,12 @@
 // ─── ApiError ────────────────────────────────────────────────────────────────
 export class ApiError extends Error {
-  constructor(statusCode, message = "Something went wrong", errors = []) {
+  constructor(statusCode, message = "Something went wrong", errors = [], code = null) {
     super(message);
     this.statusCode = statusCode;
     this.message = message;
     this.success = false;
     this.errors = errors;
+    if (code) this.code = code;
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -20,7 +21,7 @@ export class ApiResponse {
   }
 }
 
-// ─── asyncHandler ─────────────────────────────────────────────────────────────
+// ─── asyncHandler ────────────────────────────────────────────────────────────
 // Wraps every async controller — eliminates try/catch boilerplate.
 // Any thrown ApiError or unhandled rejection is forwarded to Express error middleware.
 export const asyncHandler = (fn) => (req, res, next) => {

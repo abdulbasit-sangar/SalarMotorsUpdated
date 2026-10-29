@@ -1,10 +1,3 @@
-// Added registerAdminService: creates the first admin (one-time).
-// Other auth services (login, logout, refresh) remain unchanged.
-//
-// Also added: change-password + forgot-password/OTP/reset-password services
-// for the new Admin Password Management feature. These reuse the existing
-// Admin model, bcrypt hashing (via the model's pre-save hook), and ApiError
-// conventions — no new auth framework introduced.
 import Admin from "../models/admin.model.js";
 import PasswordResetOtp from "../models/passwordResetOtp.model.js";
 import { ApiError } from "../utils/apiHelpers.js";
@@ -17,80 +10,119 @@ import {
 } from "../utils/otpUtils.js";
 import { sendPasswordResetOtpEmail } from "./email.service.js";
 
-const OTP_TTL_MS = 60 * 1000; // 1 minute
+const OTP_TTL_MS = 60 * 1000;
 const MAX_OTP_ATTEMPTS = 5;
-const RESET_TOKEN_TTL_MS = 10 * 60 * 1000; // 10 minutes to complete the reset step
+const MAX_RESET_ATTEMPTS = 5;
+const RESET_TOKEN_TTL_MS = 10 * 60 * 1000;
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOGIN_LOCKOUT_MS = 15 * 60 * 1000;
 
-/**
- * Authenticates an admin by email and password.
- * Returns the admin document and a fresh token pair.
- * Throws ApiError on any failure — never leaks which field was wrong.
- */
-export const loginAdminService = async ({ email, password }) => {
-  // 1. Find admin by email — explicitly select password + refreshToken
-  //    (both have `select: false` in the schema)
+// Refresh tokens are stored only as hashes. hashSecret is HMAC-SHA256
+// in production (see otpUtils.js); a 256-bit token hashed this way is
+// safe at rest, unlike a low-entropy OTP.
+const hashRefreshToken = (token) => hashSecret(token);
+
+const tokenPayloadFor = (admin) => ({
+  _id: admin._id,
+  email: admin.email,
+  role: admin.role,
+  tokenVersion: admin.tokenVersion ?? 0,
+});
+
+// SECURITY FIX: Login no longer returns distinct 403s for deactivated
+// or unverified accounts before the password is checked. All failures
+// now return the same generic 401, so an unauthenticated caller cannot
+// enumerate account existence or status. Status is only enforced after
+// a correct password, and still with a generic message.
+export const loginAdminService = async ({ email, password, expectedRole }) => {
   const admin = await Admin.findOne({ email }).select(
     "+password +refreshToken",
   );
-
   if (!admin) {
     throw new ApiError(401, "Invalid email or password");
   }
 
-  if (!admin.isActive) {
-    throw new ApiError(403, "This admin account has been deactivated");
-  }
-
-  // Manager/Sub-Admin RBAC: a manager account isn't usable until its email
-  // has been verified via OTP (see registerManagerService). Existing
-  // accounts and the superadmin default to emailVerified: true, so this
-  // never affects the pre-existing login flow.
-  if (!admin.emailVerified) {
-    throw new ApiError(403, "Please verify your email before logging in");
-  }
-
-  // 2. Compare submitted password against stored bcrypt hash
-  const isPasswordValid = await admin.isPasswordCorrect(password);
-  if (!isPasswordValid) {
+  if (admin.lockoutUntil && admin.lockoutUntil.getTime() > Date.now()) {
     throw new ApiError(401, "Invalid email or password");
   }
 
-  // 3. Generate token pair — payload is minimal (no sensitive data in JWT)
-  const tokenPayload = {
-    _id: admin._id,
-    email: admin.email,
-    role: admin.role,
-  };
-  const { accessToken, refreshToken } = generateTokenPair(tokenPayload);
+  const isPasswordValid = await admin.isPasswordCorrect(password);
+  if (!isPasswordValid) {
+    // Per-account lockout, atomic increment.
+    const attempts = (admin.failedLoginAttempts ?? 0) + 1;
+    const update = { $inc: { failedLoginAttempts: 1 } };
+    if (attempts >= MAX_LOGIN_ATTEMPTS) {
+      update.$set = {
+        lockoutUntil: new Date(Date.now() + LOGIN_LOCKOUT_MS),
+        failedLoginAttempts: 0,
+      };
+      // $inc + $set on the same field conflict; lockout reset wins.
+      delete update.$inc;
+      update.$set.failedLoginAttempts = 0;
+    }
+    await Admin.updateOne({ _id: admin._id }, update);
+    throw new ApiError(401, "Invalid email or password");
+  }
 
-  // 4. Persist the new refresh token (overwrites old — single active session per admin)
-  admin.refreshToken = refreshToken;
+  // Role check AFTER password — tokens are NOT issued if this fails.
+  if (expectedRole && admin.role !== expectedRole) {
+    const otherLogin =
+      expectedRole === "superadmin" ? "/manager/login" : "/admin/login";
+    throw new ApiError(
+      403,
+      `This login is for ${expectedRole === "superadmin" ? "the main admin" : "managers"} only. Please use ${otherLogin}.`,
+      [],
+      "ROLE_MISMATCH",
+    );
+  }
+
+  if (!admin.emailVerified) {
+    throw new ApiError(
+      403,
+      "Please verify your email before logging in.",
+      [],
+      "EMAIL_NOT_VERIFIED",
+    );
+  }
+
+  if (!admin.isActive) {
+    // Never activated + never logged in = pending approval.
+    // Previously activated + now inactive = deactivated by a superadmin.
+    const code = admin.lastLogin ? "ACCOUNT_DEACTIVATED" : "ACCOUNT_PENDING";
+    const message =
+      code === "ACCOUNT_PENDING"
+        ? "Your account is pending approval. Once an admin activates it, you will be able to log in."
+        : "Your account has been deactivated. Please contact the main admin.";
+    throw new ApiError(403, message, [], code);
+  }
+
+  const { accessToken, refreshToken } = generateTokenPair(tokenPayloadFor(admin));
+
+  admin.refreshToken = hashRefreshToken(refreshToken);
   admin.lastLogin = new Date();
+  admin.failedLoginAttempts = 0;
+  admin.lockoutUntil = null;
   await admin.save({ validateBeforeSave: false });
 
-  return {
-    admin: admin.toPublicJSON(),
-    accessToken,
-    refreshToken,
-  };
+  return { admin: admin.toPublicJSON(), accessToken, refreshToken };
 };
 
-/**
- * Logs out an admin by clearing their refresh token from DB.
- * The cookie is cleared by the controller.
- */
+
+// Logout now also increments tokenVersion, revoking access tokens.
 export const logoutAdminService = async (adminId) => {
   await Admin.findByIdAndUpdate(
     adminId,
-    { $unset: { refreshToken: 1 } },
+    { $unset: { refreshToken: 1 }, $inc: { tokenVersion: 1 } },
     { new: true },
   );
 };
 
-/**
- * Issues a new access token using a valid refresh token.
- * Called by the /refresh endpoint.
- */
+// SECURITY FIXES: Refresh now (1) pins HS256, (2) compares the hash,
+// (3) re-checks isActive and emailVerified, (4) checks tokenVersion,
+// and (5) detects reuse: if a presented token is validly signed but
+// does not match the stored hash, the whole refresh family is revoked
+// (stored hash cleared + tokenVersion incremented) instead of just
+// returning 401 and leaving the new token usable.
 export const refreshAccessTokenService = async (incomingRefreshToken) => {
   if (!incomingRefreshToken) {
     throw new ApiError(401, "Refresh token is missing");
@@ -99,34 +131,44 @@ export const refreshAccessTokenService = async (incomingRefreshToken) => {
   let decoded;
   try {
     const jwt = await import("jsonwebtoken");
-    decoded = jwt.default.verify(
-      incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET,
-    );
+    decoded = jwt.default.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET, {
+      algorithms: ["HS256"],
+    });
   } catch (err) {
     throw new ApiError(401, "Invalid or expired refresh token");
   }
 
   const admin = await Admin.findById(decoded._id).select("+refreshToken");
-  if (!admin || admin.refreshToken !== incomingRefreshToken) {
+  if (!admin) {
+    throw new ApiError(401, "Refresh token has been revoked");
+  }
+  if (!admin.isActive || !admin.emailVerified) {
+    throw new ApiError(401, "Refresh token has been revoked");
+  }
+  if (
+    decoded.tokenVersion !== undefined &&
+    decoded.tokenVersion !== (admin.tokenVersion ?? 0)
+  ) {
+    throw new ApiError(401, "Refresh token has been revoked");
+  }
+  if (!admin.refreshToken || admin.refreshToken !== hashRefreshToken(incomingRefreshToken)) {
+    // Possible reuse / theft: revoke the whole family.
+    await Admin.findByIdAndUpdate(admin._id, {
+      $unset: { refreshToken: 1 },
+      $inc: { tokenVersion: 1 },
+    });
     throw new ApiError(401, "Refresh token has been revoked");
   }
 
-  const tokenPayload = { _id: admin._id, email: admin.email, role: admin.role };
   const { accessToken, refreshToken: newRefreshToken } =
-    generateTokenPair(tokenPayload);
+    generateTokenPair(tokenPayloadFor(admin));
 
-  // Rotate the refresh token
-  admin.refreshToken = newRefreshToken;
+  admin.refreshToken = hashRefreshToken(newRefreshToken);
   await admin.save({ validateBeforeSave: false });
 
   return { accessToken, refreshToken: newRefreshToken };
 };
 
-/**
- * Registers the initial admin account. This is strictly one-time —
- * if any admin exists, registration is rejected.
- */
 export const registerAdminService = async ({ username, email, password }) => {
   const existing = await Admin.countDocuments();
   if (existing > 0) {
@@ -134,29 +176,15 @@ export const registerAdminService = async ({ username, email, password }) => {
   }
 
   const admin = await Admin.create({ username, email, password });
+  const { accessToken, refreshToken } = generateTokenPair(tokenPayloadFor(admin));
 
-  const tokenPayload = { _id: admin._id, email: admin.email, role: admin.role };
-  const { accessToken, refreshToken } = generateTokenPair(tokenPayload);
-
-  // Persist refresh token and lastLogin
-  admin.refreshToken = refreshToken;
+  admin.refreshToken = hashRefreshToken(refreshToken);
   admin.lastLogin = new Date();
   await admin.save({ validateBeforeSave: false });
 
   return { admin: admin.toPublicJSON(), accessToken, refreshToken };
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FLOW 1 — Normal change password (admin knows current password)
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Changes the password for an already-authenticated admin.
- * Requires the correct current password. Invalidates the existing
- * refresh token on success so other/older sessions are forced to log in
- * again with the new password (reuses the existing single-refreshToken
- * session model — no new session architecture introduced).
- */
 export const changePasswordService = async ({
   adminId,
   currentPassword,
@@ -177,39 +205,25 @@ export const changePasswordService = async ({
     throw new ApiError(400, "New password must be different from the current password");
   }
 
-  admin.password = newPassword; // pre-save hook hashes it
-  admin.refreshToken = undefined; // invalidate existing session(s)
+  admin.password = newPassword;
+  admin.refreshToken = undefined;
+  admin.tokenVersion = (admin.tokenVersion ?? 0) + 1;
   await admin.save();
 
   return { success: true };
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FLOW 2 — Forgot password via email OTP
-// ─────────────────────────────────────────────────────────────────────────────
-
 const genericForgotPasswordResponse = {
   message: "If an account exists for this email, a verification code has been sent.",
 };
 
-/**
- * Starts the forgot-password flow: generates a fresh OTP, invalidates any
- * previous OTP for this admin, emails the new OTP, and returns a generic
- * response regardless of whether the email matched an account
- * (account-enumeration protection).
- */
 export const forgotPasswordService = async ({ email }) => {
   const admin = await Admin.findOne({ email });
-
   if (admin) {
     const otp = generateOtp();
     const otpHash = hashSecret(otp);
     const expiresAt = new Date(Date.now() + OTP_TTL_MS);
-
-    // A new OTP request invalidates any previous, still-pending OTP for
-    // this admin — enforced by simply removing prior unused records.
     await PasswordResetOtp.deleteMany({ adminId: admin._id, used: false });
-
     await PasswordResetOtp.create({
       adminId: admin._id,
       otpHash,
@@ -217,42 +231,24 @@ export const forgotPasswordService = async ({ email }) => {
       attempts: 0,
       used: false,
     });
-
-    // Best-effort send — if email fails we still return the generic
-    // response so we don't leak account existence via error behavior.
     try {
       await sendPasswordResetOtpEmail({ to: admin.email, otp });
     } catch (err) {
       console.error(`Failed to send password reset OTP email: ${err.message}`);
     }
   }
-
   return genericForgotPasswordResponse;
 };
 
-/**
- * Resends a fresh OTP for an existing forgot-password request.
- * Uses the same generic response and invalidation behavior as the
- * initial request. Cooldown/rate-limiting is enforced at the route level.
- */
 export const resendOtpService = async ({ email }) => {
   return forgotPasswordService({ email });
 };
 
-/**
- * Verifies a submitted OTP. On success, invalidates the OTP and issues a
- * short-lived, single-purpose reset-authorization token that ONLY permits
- * the reset-password step below — it is not a normal admin JWT and grants
- * no dashboard/API access.
- */
 export const verifyResetOtpService = async ({ email, otp }) => {
   const invalidOtpError = () => new ApiError(400, "Invalid or expired verification code");
 
   const admin = await Admin.findOne({ email });
-  if (!admin) {
-    // Same generic failure as a wrong OTP — never reveal account existence.
-    throw invalidOtpError();
-  }
+  if (!admin) throw invalidOtpError();
 
   const record = await PasswordResetOtp.findOne({
     adminId: admin._id,
@@ -261,14 +257,8 @@ export const verifyResetOtpService = async ({ email, otp }) => {
     .sort({ createdAt: -1 })
     .select("+otpHash");
 
-  if (!record) {
-    throw invalidOtpError();
-  }
-
-  if (record.expiresAt.getTime() < Date.now()) {
-    throw invalidOtpError();
-  }
-
+  if (!record) throw invalidOtpError();
+  if (record.expiresAt.getTime() < Date.now()) throw invalidOtpError();
   if (record.attempts >= MAX_OTP_ATTEMPTS) {
     throw new ApiError(400, "Too many attempts. Please request a new code.");
   }
@@ -277,37 +267,33 @@ export const verifyResetOtpService = async ({ email, otp }) => {
   const isMatch = safeCompareHashes(submittedHash, record.otpHash);
 
   if (!isMatch) {
-    record.attempts += 1;
-    await record.save();
+    // SECURITY FIX: Atomic increment, not read-modify-write, so
+    // concurrent guesses cannot all pass the attempts check.
+    await PasswordResetOtp.updateOne(
+      { _id: record._id, attempts: { $lt: MAX_OTP_ATTEMPTS } },
+      { $inc: { attempts: 1 } },
+    );
     throw invalidOtpError();
   }
 
-  // OTP is correct — invalidate it immediately (single-use) and issue the
-  // narrow-scope reset authorization token.
   const resetToken = generateResetToken();
   record.used = true;
   record.resetTokenHash = hashSecret(resetToken);
   record.resetTokenExpiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MS);
   record.resetTokenUsed = false;
+  record.resetAttempts = 0;
   await record.save();
 
   return { resetToken };
 };
 
-/**
- * Completes the forgot-password flow: verifies the reset-authorization
- * token issued by verifyResetOtpService, then sets the new password.
- * Invalidates the reset token immediately after use (single-use) and
- * clears any existing admin session, same as the normal change-password flow.
- */
 export const resetPasswordService = async ({ email, resetToken, newPassword }) => {
   const invalidTokenError = () =>
     new ApiError(400, "Invalid or expired password reset request");
 
   const admin = await Admin.findOne({ email });
-  if (!admin) {
-    throw invalidTokenError();
-  }
+  if (!admin) throw invalidTokenError();
+  if (!admin.isActive) throw invalidTokenError();
 
   const record = await PasswordResetOtp.findOne({
     adminId: admin._id,
@@ -317,26 +303,40 @@ export const resetPasswordService = async ({ email, resetToken, newPassword }) =
     .sort({ createdAt: -1 })
     .select("+resetTokenHash");
 
-  if (!record || !record.resetTokenHash) {
+  if (!record || !record.resetTokenHash) throw invalidTokenError();
+  if (
+    !record.resetTokenExpiresAt ||
+    record.resetTokenExpiresAt.getTime() < Date.now()
+  ) {
     throw invalidTokenError();
   }
-
-  if (!record.resetTokenExpiresAt || record.resetTokenExpiresAt.getTime() < Date.now()) {
+  if ((record.resetAttempts ?? 0) >= MAX_RESET_ATTEMPTS) {
     throw invalidTokenError();
   }
 
   const submittedHash = hashSecret(resetToken);
   const isMatch = safeCompareHashes(submittedHash, record.resetTokenHash);
   if (!isMatch) {
+    await PasswordResetOtp.updateOne(
+      { _id: record._id },
+      { $inc: { resetAttempts: 1 } },
+    );
     throw invalidTokenError();
   }
 
   const fullAdmin = await Admin.findById(admin._id).select("+password");
-  fullAdmin.password = newPassword; // pre-save hook hashes it
-  fullAdmin.refreshToken = undefined; // invalidate existing session(s)
+  // SECURITY FIX: Reset now also rejects reusing the current password,
+  // matching change-password behaviour.
+  const isSameAsOld = await fullAdmin.isPasswordCorrect(newPassword);
+  if (isSameAsOld) {
+    throw new ApiError(400, "New password must be different from the current password");
+  }
+
+  fullAdmin.password = newPassword;
+  fullAdmin.refreshToken = undefined;
+  fullAdmin.tokenVersion = (fullAdmin.tokenVersion ?? 0) + 1;
   await fullAdmin.save();
 
-  // Invalidate the reset token immediately — single use.
   record.resetTokenUsed = true;
   await record.save();
 

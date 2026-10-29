@@ -2,7 +2,10 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../store/auth/AuthContext.jsx";
 import { Spinner } from "../../shared/components/Spinner.jsx";
 
-export const ProtectedRoute = ({ children }) => {
+// Backward-compatible wrapper. New code should use RoleRoute with an
+// explicit allowedRoles list and loginPath. Default loginPath is kept
+// as /admin/login so existing callers do not break.
+export const ProtectedRoute = ({ children, loginPath = "/admin/login" }) => {
   const { isAuthenticated, isChecking } = useAuth();
   const location = useLocation();
 
@@ -15,7 +18,7 @@ export const ProtectedRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    return <Navigate to={loginPath} state={{ from: location }} replace />;
   }
 
   return children;

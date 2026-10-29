@@ -263,8 +263,6 @@ export const deleteCar = async (id) => {
 // backend's car.service.js by value, not to a car.constants.js list), so
 // they stay defined here rather than in GET /api/cars/options.
 export const SORT_OPTIONS = [
-  { value: "newest", label: "Newest first" },
-  { value: "oldest", label: "Oldest first" },
   { value: "price_asc", label: "Price: low to high" },
   { value: "price_desc", label: "Price: high to low" },
   { value: "mileage_low", label: "Mileage: low to high" },

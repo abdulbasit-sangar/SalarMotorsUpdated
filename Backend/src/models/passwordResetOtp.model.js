@@ -1,6 +1,3 @@
-// New model: PasswordResetOTP — supports the admin forgot-password flow.
-// Kept separate from the Admin model so auth-critical, short-lived data
-// never touches the existing admin schema.
 import mongoose from "mongoose";
 
 const passwordResetOtpSchema = new mongoose.Schema(
@@ -11,63 +8,25 @@ const passwordResetOtpSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-
-    // Hash of the 6-digit OTP — the plaintext OTP is never stored.
-    otpHash: {
-      type: String,
-      required: true,
-      select: false,
-    },
-
-    // OTP expires ~1 minute after creation. Backend re-checks this on every
-    // verify attempt — the frontend countdown is cosmetic only.
-    expiresAt: {
-      type: Date,
-      required: true,
-    },
-
-    attempts: {
-      type: Number,
-      default: 0,
-    },
-
-    // Set once the OTP has been correctly verified. A used OTP can never
-    // be verified again, even if it hasn't technically expired yet.
-    used: {
-      type: Boolean,
-      default: false,
-    },
-
-    // Issued only after successful OTP verification. This is a short-lived,
-    // single-purpose token that authorizes ONLY the reset-password step —
-    // it is unrelated to the normal admin JWT access/refresh tokens and
-    // grants no dashboard/API access.
-    resetTokenHash: {
-      type: String,
-      select: false,
-    },
-
-    resetTokenExpiresAt: {
-      type: Date,
-    },
-
-    resetTokenUsed: {
-      type: Boolean,
-      default: false,
-    },
+    otpHash: { type: String, required: true, select: false },
+    expiresAt: { type: Date, required: true },
+    attempts: { type: Number, default: 0 },
+    used: { type: Boolean, default: false },
+    resetTokenHash: { type: String, select: false },
+    resetTokenExpiresAt: { type: Date },
+    resetTokenUsed: { type: Boolean, default: false },
+    // SECURITY FIX: Attempt limit for the reset-token step itself.
+    // Previously resetPassword had no counter at all.
+    resetAttempts: { type: Number, default: 0 },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true },
 );
 
-// TTL index — MongoDB automatically deletes documents 1 hour after
-// createdAt, so expired/used OTP records don't accumulate indefinitely.
-passwordResetOtpSchema.index({ createdAt: 1 }, { expireAfterSeconds: 3600 });
+// SECURITY FIX: Records are deleted 10 minutes after creation, not
+// 1 hour. OTP validity is 1 minute and reset-token validity is
+// 10 minutes, so there is no reason to retain hashes for an hour.
+passwordResetOtpSchema.index({ createdAt: 1 }, { expireAfterSeconds: 600 });
 
-const PasswordResetOtp = mongoose.model(
-  "PasswordResetOtp",
-  passwordResetOtpSchema
-);
+const PasswordResetOtp = mongoose.model("PasswordResetOtp", passwordResetOtpSchema);
 
 export default PasswordResetOtp;

@@ -2,11 +2,7 @@
 import { useMemo } from "react";
 import { useAuth } from "../../../store/auth/AuthContext.jsx";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
-import {
-  fetchAdminCars,
-  filterCars,
-  fetchFeaturedCars,
-} from "../../../services/cars/carsApi.js";
+import { fetchAdminCars } from "../../../services/cars/carsApi.js";
 import { StatCard } from "../../../shared/components/StatCard.jsx";
 import { ErrorState } from "../../../shared/components/ErrorState.jsx";
 import {
@@ -27,7 +23,6 @@ import {
 } from "lucide-react";
 
 const PAGE_SIZE = 50;
-const FEATURED_CAP = 20;
 
 const fetchAllAdminCars = async () => {
   const firstPage = await fetchAdminCars({
@@ -57,31 +52,14 @@ const fetchAllAdminCars = async () => {
 };
 
 const loadDashboardData = async () => {
-  const [
-    allCars,
-    dubaiRes,
-    onTheWayAmericaRes,
-    onTheWayDubaiRes,
-    featuredRes,
-  ] = await Promise.all([
-    fetchAllAdminCars(),
-    filterCars({
-      province: LOCATION_DUBAI,
-      page: 1,
-      limit: 1,
-    }),
-    filterCars({
-      province: LOCATION_ON_THE_WAY.AMERICA_TO_HERAT,
-      page: 1,
-      limit: 1,
-    }),
-    filterCars({
-      province: LOCATION_ON_THE_WAY.DUBAI_TO_HERAT,
-      page: 1,
-      limit: 1,
-    }),
-    fetchFeaturedCars(FEATURED_CAP),
-  ]);
+  // allCars comes from GET /api/cars/admin, which the backend scopes to the
+  // logged-in manager's own listings (superadmins get everything). Every
+  // number below is computed from that list, so a brand-new manager account
+  // correctly shows 0 everywhere until they create their first listing.
+  // (The old code read Dubai / On-The-Way / Featured from the PUBLIC
+  // endpoints, which always return global numbers — that's why a new
+  // manager saw "Dubai cars 4".)
+  const allCars = await fetchAllAdminCars();
 
   const hidden = allCars.filter((car) => car.isHidden === true).length;
   const sold = allCars.filter((car) => car.isSold === true).length;
@@ -89,16 +67,31 @@ const loadDashboardData = async () => {
     (car) => car.isHidden !== true && car.isSold !== true,
   ).length;
 
+  // Distribution keeps the same visibility semantics the public filter used
+  // (visible, non-featured), applied to the owner-scoped list.
+  const visibleCars = allCars.filter(
+    (car) => car.isHidden !== true && car.featured !== true,
+  );
+  const dubaiCars = visibleCars.filter(
+    (car) => car.province === LOCATION_DUBAI,
+  ).length;
+  const onTheWay = visibleCars.filter(
+    (car) =>
+      car.province === LOCATION_ON_THE_WAY.AMERICA_TO_HERAT ||
+      car.province === LOCATION_ON_THE_WAY.DUBAI_TO_HERAT,
+  ).length;
+  const featuredCount = allCars.filter(
+    (car) => car.featured === true,
+  ).length;
+
   return {
     total: allCars.length,
     active,
     sold,
     hidden,
-    dubaiCars: dubaiRes.pagination.totalCars,
-    onTheWay:
-      onTheWayAmericaRes.pagination.totalCars +
-      onTheWayDubaiRes.pagination.totalCars,
-    featuredCount: featuredRes.cars.length,
+    dubaiCars,
+    onTheWay,
+    featuredCount,
   };
 };
 
@@ -226,7 +219,7 @@ export default function DashboardPage() {
         label: "Featured listings",
         value: formatNumber(data.featuredCount),
         icon: Star,
-        tooltip: `Number of featured listings returned by the API, capped at ${FEATURED_CAP}.`,
+        tooltip: "Number of listings currently marked as featured.",
       },
     ];
   }, [data]);
@@ -335,7 +328,7 @@ export default function DashboardPage() {
                 value={data?.featuredCount ?? 0}
                 iconClass="text-[#D9AD68]"
                 iconBackground="bg-[#D9AD68]/10"
-                tooltip={`Featured listings returned by the API, up to ${FEATURED_CAP}.`}
+                tooltip="Listings currently marked as featured."
               />
             </div>
           </section>

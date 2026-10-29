@@ -18,21 +18,26 @@ import {
 } from "../services/auth.service.js";
 
 // ─── POST /api/admin/login ────────────────────────────────────────────────────
+// In Backend/src/controllers/auth.controller.js, REPLACE loginAdmin
+// with this version. POST /api/admin/login is now superadmin-only.
+// The old behaviour (any role can log in here) is intentionally removed.
+
+// ─── POST /api/admin/login — superadmin (main admin) only ───────────────
 export const loginAdmin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const { admin, accessToken, refreshToken } = await loginAdminService({
     email,
     password,
+    expectedRole: "superadmin",
   });
 
   return res
     .status(200)
-    .cookie("refreshToken", refreshToken, cookieOptions) // HttpOnly, Secure, SameSite
-    .json(
-      new ApiResponse(200, { admin, accessToken }, "Login successful")
-    );
+    .cookie("refreshToken", refreshToken, cookieOptions)
+    .json(new ApiResponse(200, { admin, accessToken }, "Login successful"));
 });
+
 
 // ─── POST /api/admin/logout ───────────────────────────────────────────────────
 // Protected — requires valid access token (verifyJWT middleware applied in router)

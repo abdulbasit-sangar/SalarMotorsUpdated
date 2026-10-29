@@ -115,7 +115,16 @@ export default function CarDetailsPage() {
 
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
           <div>
-            <ImageGallery images={car.images} title={carTitle(car)} />
+            <div className="relative">
+              <ImageGallery images={car.images} title={carTitle(car)} />
+              {/* Mobile: the favorite heart sits at the top of the image
+                  gallery instead of below it (desktop keeps the heart in
+                  the badges row). */}
+              <FavoriteButton
+                carId={car._id}
+                className="absolute top-3 end-3 z-10 shadow-lg lg:hidden"
+              />
+            </div>
 
             {/* Specification section — spec requirement #15: placed
                 directly below the image gallery, not mixed into the
@@ -146,7 +155,7 @@ export default function CarDetailsPage() {
                   </Badge>
                 )}
               </div>
-              <FavoriteButton carId={car._id} />
+              <FavoriteButton carId={car._id} className="hidden lg:flex" />
             </div>
 
             <h1 className="font-display text-3xl sm:text-4xl font-semibold text-bone leading-tight">

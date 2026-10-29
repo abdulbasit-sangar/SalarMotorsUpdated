@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOptionLabel } from "../../../i18n/optionLabels.js";
 import { Input } from "../../../shared/components/Input.jsx";
@@ -32,6 +32,13 @@ export const FilterPanel = ({ initialValues, onApply, onReset }) => {
     ...emptyFilters(),
     ...initialValues,
   });
+
+  // The listings page drives its filters from the URL, so a reset (or chip
+  // removal) done outside this panel must clear these fields too — the
+  // panel's own reset button is not the only place that can reset.
+  useEffect(() => {
+    setValues({ ...emptyFilters(), ...initialValues });
+  }, [initialValues]);
 
   const {
     options,
