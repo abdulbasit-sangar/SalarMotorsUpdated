@@ -184,6 +184,37 @@ test("every static t('…') key used by the source exists in English", () => {
   assert.deepEqual(missing, []);
 });
 
+test("admin dashboard and gallery UI use complete translations in every language", () => {
+  const dashboardFile = path.join(srcDir, "features", "admin", "dashboard", "DashboardPage.jsx");
+  const galleryFile = path.join(srcDir, "features", "admin", "manage-listings", "AdminCarRow.jsx");
+  const dashboardSource = fs.readFileSync(dashboardFile, "utf8");
+  const gallerySource = fs.readFileSync(galleryFile, "utf8");
+
+  assert.match(dashboardSource, /useTranslation\(["']admin["']\)/);
+  assert.match(dashboardSource, /t\(\`dashboard\.insights\.\$\{item\.key\}\`\)/);
+  assert.doesNotMatch(dashboardSource, />\s*(?:Dashboard|Welcome back|Catalog status|Updating\.\.\.|Needs attention|Overview ready|Inventory overview|Vehicle distribution|Listing status|Status distribution|Inventory insights|Admin overview)\s*</);
+
+  for (const label of ["viewPhotos", "closeGallery", "previousImage", "nextImage", "viewImage"]) {
+    assert.match(gallerySource, new RegExp(`t\\(["']row\\.${label}["']`), `gallery label ${label} must use i18n`);
+  }
+
+  const insightKeys = [
+    "activeInventory",
+    "activeInventoryTooltip",
+    "soldInventory",
+    "soldInventoryTooltip",
+    "featuredListings",
+    "featuredListingsTooltip",
+  ];
+  for (const lng of CODES) {
+    const dashboard = read(lng, "admin").dashboard;
+    for (const key of insightKeys) {
+      assert.equal(typeof dashboard.insights?.[key], "string", `${lng}: missing dashboard.insights.${key}`);
+      assert.ok(dashboard.insights[key].trim(), `${lng}: empty dashboard.insights.${key}`);
+    }
+  }
+});
+
 test("every backend option value has a label key in every language", async () => {
   const backend = path.join(srcDir, "..", "..", "Backend", "src", "constants", "car.constants.js");
   if (!fs.existsSync(backend)) return; // frontend-only checkout
