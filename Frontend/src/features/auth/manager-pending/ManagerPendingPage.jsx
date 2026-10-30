@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { AuthShell, AuthHeading, AuthCardPanel } from "../shared/AuthCard.jsx";
 import { Button } from "../../../shared/components/Button.jsx";
 
@@ -14,6 +15,7 @@ import { Button } from "../../../shared/components/Button.jsx";
 // Email comes from location.state, or from sessionStorage as a fallback
 // (e.g. after a refresh). If neither exists, the message stays generic.
 export default function ManagerPendingPage() {
+  const { t } = useTranslation("auth");
   const location = useLocation();
   const email =
     location.state?.email ||
@@ -23,53 +25,46 @@ export default function ManagerPendingPage() {
   return (
     <AuthShell>
       <AuthHeading
-        eyebrow="Manager account"
-        title="Your account is pending approval"
+        eyebrow={t("pending.eyebrow")}
+        title={t("pending.title")}
         subtitle={
           email
-            ? `Thanks for verifying ${email}. Your request has been received and is waiting for the main admin to activate it.`
-            : "Your request has been received and is waiting for the main admin to activate it."
+            ? t("pending.subtitleWithEmail", { email })
+            : t("pending.subtitleGeneric")
         }
       />
 
       <AuthCardPanel>
         <div className="space-y-4 text-sm leading-relaxed text-ash">
           <p>
-            <span className="font-semibold text-bone">What happens next?</span>
+            <span className="font-semibold text-bone">{t("pending.whatNext")}</span>
             <br />
-            Once the main admin clicks <span className="font-semibold text-bone">Activate</span> on
-            your account, you will be able to log in and see your manager
-            dashboard. Until then, you cannot log in or access any manager pages.
+            {t("pending.body1a")}{" "}
+            <span className="font-semibold text-bone">{t("pending.activateWord")}</span>{" "}
+            {t("pending.body1b")}
           </p>
-          <p>
-            If you try to log in before activation, you will be sent back to
-            this page. You do not need to register again, and you do not need
-            to verify your email again.
-          </p>
-          <p>
-            If your account stays pending for a long time, please contact the
-            main admin directly.
-          </p>
+          <p>{t("pending.body2")}</p>
+          <p>{t("pending.body3")}</p>
         </div>
 
         <div className="mt-6 space-y-3">
           <Link to="/manager/login">
             <Button variant="primary" className="w-full">
-              Try manager login
+              {t("pending.tryLogin")}
             </Button>
           </Link>
           <Link to="/">
             <Button variant="secondary" className="w-full">
-              Back to home
+              {t("pending.backHome")}
             </Button>
           </Link>
         </div>
       </AuthCardPanel>
 
       <p className="text-center text-ash text-xs mt-6 leading-relaxed">
-        Already activated?{" "}
+        {t("pending.alreadyActivated")}{" "}
         <Link to="/manager/login" className="text-brass-dark font-medium hover:underline">
-          Go to manager login
+          {t("pending.goToLogin")}
         </Link>
       </p>
     </AuthShell>

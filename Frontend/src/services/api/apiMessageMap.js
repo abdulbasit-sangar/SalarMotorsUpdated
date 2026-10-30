@@ -52,6 +52,17 @@ export const EXACT = {
   // Raised client-side by services/cars/carsApi.js (waitForCreationStatus)
   "Listing creation is taking longer than expected. Check Manage Listings before trying again.":
     "creationSlow",
+  // Messages introduced by the security/session/manager-scope fixes.
+  "Route not found": "routeNotFound",
+  "Admin email has not been verified": "emailNotVerified",
+  "Access token has been revoked": "sessionExpired",
+  "An account with this information already exists": "accountExists",
+  "Total upload size exceeds 100 MB": "uploadTotalTooLarge",
+  "Admin setup token is misconfigured": "setupMisconfigured",
+  "Please verify your email before logging in.": "verifyEmailFirst",
+  "Refresh token is not valid for this session": "refreshSessionMismatch",
+  "You can only manage your own listings": "ownListingsOnly",
+  "Registration could not be completed with these details": "registrationFailed",
 };
 
 // [regex, key, params-from-match]
@@ -76,6 +87,11 @@ export const PATTERNS = [
   [/^Invalid [^:]+: /, "invalidId", () => ({})],
   [/^Invalid value for field: /, "invalidValue", () => ({})],
   [/^(.+) '(.+)' already exists$/, "duplicateField", (m) => ({ field: m[1], value: m[2] })],
+  // Bare form from error.middleware.js duplicate-key handler (`${field} already exists`).
+  [/^(.+) already exists$/, "duplicateFieldBare", (m) => ({ field: m[1] })],
+  // From auth.service.js separate-login guard (`This login is for ${area} only. Please use ${other}.`).
+  // Shown as one fully-translated generic sentence; the page already links the other login.
+  [/^This login is for .+ only\. Please use .+\.$/, "wrongLoginArea", () => ({})],
   [/^Route not found: /, "routeNotFound", () => ({})],
   [/^Too many requests/i, "rateLimited", () => ({})],
   [/^Manager account created, but the verification email could not be sent/, "managerEmailFailed", () => ({})],

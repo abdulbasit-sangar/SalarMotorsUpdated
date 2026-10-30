@@ -46,39 +46,38 @@ export const HeroSection = () => {
       {/* Hero Content */}
       <div className="container-page relative z-10 flex min-h-screen flex-col justify-between px-4 pb-6 pt-28 sm:px-6 sm:pb-8 sm:pt-32 lg:px-8 lg:pb-10 lg:pt-36">
         {/* Headline */}
-        <div
-          style={{ transitionDelay: mounted ? "120ms" : "0ms" }}
-          className={[
-            "mx-auto w-full max-w-4xl text-center",
-            "rounded-2xl px-4 py-5 sm:px-6 sm:py-6",
-            "[background:radial-gradient(ellipse_at_center,rgba(0,0,0,0.38)_0%,rgba(0,0,0,0.20)_48%,rgba(0,0,0,0.06)_68%,transparent_78%)]",
-            "transition-[opacity,transform] duration-700 ease-out",
-            mounted ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0",
-          ].join(" ")}
-        >
-          <p className="mb-3 text-[9px] font-semibold uppercase tracking-[0.24em] text-[#D9AD68] sm:mb-4 sm:text-[10px] sm:tracking-[0.3em]">
-            SAFAR ONLINE VEHICLES MARKETPLACE
-          </p>
 
-          <h1 className="font-serif text-2xl font-medium uppercase leading-[1.15] tracking-[0.01em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)] sm:text-3xl md:text-4xl lg:text-5xl">
-            Your Journey to the
-            <span className="mt-1 block text-[#E5C18B]">
-              Perfect Car Starts Here.
-            </span>
-          </h1>
+<div
+  style={{ transitionDelay: mounted ? "120ms" : "0ms" }}
+  className={[
+    "mx-auto w-full max-w-4xl text-center",
+    "rounded-2xl px-4 py-5 sm:px-6 sm:py-6",
+    "[background:radial-gradient(ellipse_at_center,rgba(0,0,0,0.38)_0%,rgba(0,0,0,0.20)_48%,rgba(0,0,0,0.06)_68%,transparent_78%)]",
+    "transition-[opacity,transform] duration-700 ease-out",
+    mounted ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0",
+  ].join(" ")}
+>
+  
 
-          <p className="mx-auto mt-3 max-w-xl text-[11px] font-normal leading-5 text-white/90 drop-shadow-[0_1px_5px_rgba(0,0,0,0.75)] sm:mt-4 sm:text-xs md:text-sm">
-            Explore exceptional vehicles and find the right car for your next
-            journey.
-          </p>
+  <h1 className="font-serif text-2xl font-medium uppercase leading-[1.15] tracking-[0.01em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)] sm:text-3xl md:text-4xl lg:text-5xl">
+    The World of Imported Cars
+    <span className="mt-1 block text-[#E5C18B]">
+      All in One Place
+    </span>
+  </h1>
 
-          {/* Decorative accent */}
-          <div className="mx-auto mt-5 flex items-center justify-center gap-2.5 sm:mt-6">
-            <span className="h-px w-7 bg-gradient-to-r from-transparent to-[#D9AD68]/80 sm:w-10" />
-            <span className="h-1 w-1 rotate-45 bg-[#D9AD68]" />
-            <span className="h-px w-7 bg-gradient-to-l from-transparent to-[#D9AD68]/80 sm:w-10" />
-          </div>
-        </div>
+  <p className="mx-auto mt-3 max-w-xl text-[11px] font-normal leading-5 text-white/90 drop-shadow-[0_1px_5px_rgba(0,0,0,0.75)] sm:mt-4 sm:text-xs md:text-sm">
+    Explore newly imported vehicles and discover cars on their way to Afghanistan, All in one place
+  </p>
+
+  {/* Decorative accent */}
+  <div className="mx-auto mt-5 flex items-center justify-center gap-2.5 sm:mt-6">
+    <span className="h-px w-7 bg-gradient-to-r from-transparent to-[#D9AD68]/80 sm:w-10" />
+    <span className="h-1 w-1 rotate-45 bg-[#D9AD68]" />
+    <span className="h-px w-7 bg-gradient-to-l from-transparent to-[#D9AD68]/80 sm:w-10" />
+  </div>
+</div>
+
 
         {/* Search */}
         <div

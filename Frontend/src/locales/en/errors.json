@@ -1,5 +1,14 @@
 {
   "server": {
+    "emailNotVerified": "The admin email has not been verified.",
+    "accountExists": "An account with this information already exists.",
+    "uploadTotalTooLarge": "The total upload size exceeds 100 MB.",
+    "setupMisconfigured": "The admin setup token is misconfigured.",
+    "refreshSessionMismatch": "This refresh token is not valid for this session. Please log in again.",
+    "ownListingsOnly": "You can only manage your own listings.",
+    "registrationFailed": "Registration could not be completed with these details. Please try again.",
+    "duplicateFieldBare": "{{field}} already exists.",
+    "wrongLoginArea": "This login is for a different account type. Please use the correct login page.",
     "generic": "Something went wrong. Please try again.",
     "network": "Can't reach the server. Check your connection and try again.",
     "unexpected": "Unexpected error.",

@@ -1,6 +1,10 @@
 {
   "hero": {
-    "tagline": "Find & Buy."
+    "tagline": "Find & Buy.",
+    "eyebrow": "SAFAR ONLINE VEHICLES MARKETPLACE",
+    "titleA": "Your Journey to the",
+    "titleB": "Perfect Car Starts Here.",
+    "subtitle": "Explore exceptional vehicles and find the right car for your next journey."
   },
   "search": {
     "brand": "Brand",
@@ -12,7 +16,9 @@
     "anyProvince": "Any province",
     "anyModel": "Any model",
     "selectBrandFirst": "Select brand first",
-    "submit": "Search Cars"
+    "submit": "Search Cars",
+    "title": "Find Your Dream Car",
+    "sectionLabel": "Find your vehicle"
   },
   "why": {
     "eyebrow": "Why Salar Motors",

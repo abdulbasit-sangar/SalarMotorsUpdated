@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
@@ -109,7 +108,7 @@ export const HeroSearchBar = ({ className }) => {
 
   return (
     <section
-      aria-label="Find your vehicle"
+      aria-label={t("search.sectionLabel")}
       className={clsx(
         "relative -top-8 w-full max-w-7xl",
         "transition-opacity duration-500 ease-out",
@@ -127,7 +126,7 @@ export const HeroSearchBar = ({ className }) => {
         )}
       >
         <h2 className="mb-4 text-xl font-bold tracking-tight text-white sm:mb-5 sm:text-2xl lg:text-3xl">
-          Find Your Dream Car
+          {t("search.title")}
         </h2>
 
         <form
@@ -192,7 +191,7 @@ export const HeroSearchBar = ({ className }) => {
                 className="h-4 w-4 shrink-0"
                 aria-hidden="true"
               />
-              <span>Search Car</span>
+              <span>{t("search.submit")}</span>
               <ArrowRightIcon
                 className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
                 aria-hidden="true"

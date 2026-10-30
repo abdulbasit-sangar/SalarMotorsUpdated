@@ -1,10 +1,9 @@
-
-import { useMemo } from "react";
 import { useAuth } from "../../../store/auth/AuthContext.jsx";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
 import { fetchAdminCars } from "../../../services/cars/carsApi.js";
 import { StatCard } from "../../../shared/components/StatCard.jsx";
 import { ErrorState } from "../../../shared/components/ErrorState.jsx";
+import { useTranslation } from "react-i18next";
 import {
   LOCATION_DUBAI,
   LOCATION_ON_THE_WAY,
@@ -146,13 +145,13 @@ function OverviewCard({
   );
 }
 
-function StatusRow({ label, count, total, color, icon: Icon }) {
+function StatusRow({ label, count, total, color, icon: Icon, title }) {
   const percentage =
     total > 0 ? Math.min(100, (count / total) * 100) : 0;
 
   return (
     <div
-      title={`${label}: ${formatNumber(count)} listings (${Math.round(percentage)}%)`}
+      title={title}
       className="group rounded-lg px-2 py-2 transition-colors hover:bg-white/[0.035]"
     >
       <div className="mb-2 flex items-center justify-between gap-3">
@@ -187,42 +186,51 @@ function StatusRow({ label, count, total, color, icon: Icon }) {
 
 export default function DashboardPage() {
   const { admin } = useAuth();
+  const { t } = useTranslation("admin");
 
   const { data, loading, error, refetch } = useAsyncData(
     loadDashboardData,
     [],
   );
 
-  const insights = useMemo(() => {
-    if (!data) return [];
+  // Built during render (not memoized) so labels follow a language switch.
+  const insights = !data
+    ? []
+    : [
+        {
+          label: t("dashboard.activeInventory"),
+          value:
+            data.total > 0
+              ? `${Math.round((data.active / data.total) * 100)}%`
+              : "0%",
+          icon: TrendingUp,
+          tooltip: t("dashboard.activeInventoryHint"),
+        },
+        {
+          label: t("dashboard.soldInventory"),
+          value:
+            data.total > 0
+              ? `${Math.round((data.sold / data.total) * 100)}%`
+              : "0%",
+          icon: CircleDollarSign,
+          tooltip: t("dashboard.soldInventoryHint"),
+        },
+        {
+          label: t("dashboard.featuredListings"),
+          value: formatNumber(data.featuredCount),
+          icon: Star,
+          tooltip: t("dashboard.featuredListingsHint"),
+        },
+      ];
 
-    return [
-      {
-        label: "Active inventory",
-        value:
-          data.total > 0
-            ? `${Math.round((data.active / data.total) * 100)}%`
-            : "0%",
-        icon: TrendingUp,
-        tooltip: "Percentage of all listings that are currently active.",
-      },
-      {
-        label: "Sold inventory",
-        value:
-          data.total > 0
-            ? `${Math.round((data.sold / data.total) * 100)}%`
-            : "0%",
-        icon: CircleDollarSign,
-        tooltip: "Percentage of all listings marked as sold.",
-      },
-      {
-        label: "Featured listings",
-        value: formatNumber(data.featuredCount),
-        icon: Star,
-        tooltip: "Number of listings currently marked as featured.",
-      },
-    ];
-  }, [data]);
+  const statusTitle = (label, count, total) => {
+    const percentage = total > 0 ? Math.min(100, (count / total) * 100) : 0;
+    return t("dashboard.statusRowTitle", {
+      label,
+      count: formatNumber(count),
+      percent: Math.round(percentage),
+    });
+  };
 
   return (
     <div className="container-page min-h-full py-7 sm:py-10">
@@ -236,29 +244,31 @@ export default function DashboardPage() {
           </div>
 
           <h1 className="break-words font-display text-3xl font-semibold tracking-tight text-bone sm:text-4xl lg:text-[42px]">
-            Dashboard
+            {t("dashboard.title")}
           </h1>
 
           <p className="mt-2 text-sm text-ash sm:text-base">
-            Welcome back{admin?.username ? `, ${admin.username}` : ""}.
+            {admin?.username
+              ? t("dashboard.welcomeName", { name: admin.username })
+              : t("dashboard.welcome")}
           </p>
         </div>
 
         <div
-          title="Current dashboard data loading status"
+          title={t("dashboard.catalogStatusHint")}
           className="flex w-fit items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3 transition-colors hover:border-brass/30 hover:bg-white/[0.045]"
         >
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brass/10 text-brass">
             <Warehouse size={19} strokeWidth={1.8} />
           </div>
           <div>
-            <p className="text-xs text-ash">Catalog status</p>
+            <p className="text-xs text-ash">{t("dashboard.catalogStatus")}</p>
             <p className="mt-0.5 text-sm font-medium text-bone">
               {loading
-                ? "Updating..."
+                ? t("dashboard.statusUpdating")
                 : error
-                  ? "Needs attention"
-                  : "Overview ready"}
+                  ? t("dashboard.statusAttention")
+                  : t("dashboard.statusReady")}
             </p>
           </div>
         </div>
@@ -270,29 +280,29 @@ export default function DashboardPage() {
         <>
           <section className="mb-10">
             <SectionHeading
-              eyebrow="01 / Key metrics"
-              title="Inventory overview"
+              eyebrow={`01 / ${t("dashboard.sectionMetrics")}`}
+              title={t("dashboard.inventoryOverview")}
             />
 
             <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <StatCard
-                label="Total Listings"
+                label={t("dashboard.totalListings")}
                 value={data?.total ?? 0}
                 loading={loading}
               />
               <StatCard
-                label="Active Cars"
+                label={t("dashboard.activeCars")}
                 value={data?.active ?? 0}
                 loading={loading}
                 accent="signal"
               />
               <StatCard
-                label="Sold Cars"
+                label={t("dashboard.soldCars")}
                 value={data?.sold ?? 0}
                 loading={loading}
               />
               <StatCard
-                label="Hidden Cars"
+                label={t("dashboard.hiddenCars")}
                 value={data?.hidden ?? 0}
                 loading={loading}
               />
@@ -301,42 +311,42 @@ export default function DashboardPage() {
 
           <section className="mb-10">
             <SectionHeading
-              eyebrow="02 / Categories"
-              title="Vehicle distribution"
+              eyebrow={`02 / ${t("dashboard.sectionCategories")}`}
+              title={t("dashboard.vehicleDistribution")}
             />
 
             <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-3">
               <OverviewCard
                 icon={MapPin}
-                label="Dubai Cars"
+                label={t("dashboard.dubaiCars")}
                 value={data?.dubaiCars ?? 0}
-                tooltip="Total vehicles in the Dubai category."
+                tooltip={t("dashboard.dubaiHint")}
               />
 
               <OverviewCard
                 icon={Route}
-                label="On The Way"
+                label={t("dashboard.onTheWay")}
                 value={data?.onTheWay ?? 0}
                 iconClass="text-[#2F8F7A]"
                 iconBackground="bg-[#2F8F7A]/10"
-                tooltip="Combined vehicles on the America-to-Herat and Dubai-to-Herat routes."
+                tooltip={t("dashboard.onTheWayHint")}
               />
 
               <OverviewCard
                 icon={Star}
-                label="Featured Now"
+                label={t("dashboard.featuredNow")}
                 value={data?.featuredCount ?? 0}
                 iconClass="text-[#D9AD68]"
                 iconBackground="bg-[#D9AD68]/10"
-                tooltip="Listings currently marked as featured."
+                tooltip={t("dashboard.featuredHint")}
               />
             </div>
           </section>
 
           <section className="mb-10">
             <SectionHeading
-              eyebrow="03 / Performance"
-              title="Listing status"
+              eyebrow={`03 / ${t("dashboard.sectionPerformance")}`}
+              title={t("dashboard.listingStatus")}
             />
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
@@ -344,10 +354,10 @@ export default function DashboardPage() {
                 <div className="mb-6 flex items-center justify-between gap-3">
                   <div>
                     <h3 className="font-semibold text-bone">
-                      Status distribution
+                      {t("dashboard.statusDistribution")}
                     </h3>
                     <p className="mt-1 text-xs text-ash">
-                      All listings
+                      {t("dashboard.allListings")}
                     </p>
                   </div>
 
@@ -358,30 +368,45 @@ export default function DashboardPage() {
 
                 <div className="space-y-3">
                   <StatusRow
-                    label="Active"
+                    label={t("dashboard.statusActive")}
                     count={data?.active ?? 0}
                     total={data?.total ?? 0}
                     color="text-[#2F8F7A]"
                     icon={CheckCircle2}
+                    title={statusTitle(
+                      t("dashboard.statusActive"),
+                      data?.active ?? 0,
+                      data?.total ?? 0,
+                    )}
                   />
                   <StatusRow
-                    label="Sold"
+                    label={t("dashboard.statusSold")}
                     count={data?.sold ?? 0}
                     total={data?.total ?? 0}
                     color="text-brass"
                     icon={CircleDollarSign}
+                    title={statusTitle(
+                      t("dashboard.statusSold"),
+                      data?.sold ?? 0,
+                      data?.total ?? 0,
+                    )}
                   />
                   <StatusRow
-                    label="Hidden"
+                    label={t("dashboard.statusHidden")}
                     count={data?.hidden ?? 0}
                     total={data?.total ?? 0}
                     color="text-[#C1493D]"
                     icon={EyeOff}
+                    title={statusTitle(
+                      t("dashboard.statusHidden"),
+                      data?.hidden ?? 0,
+                      data?.total ?? 0,
+                    )}
                   />
                 </div>
 
                 <div className="mt-5 flex items-center justify-between border-t border-white/[0.07] pt-4">
-                  <span className="text-sm text-ash">Total inventory</span>
+                  <span className="text-sm text-ash">{t("dashboard.totalInventory")}</span>
                   <span className="text-lg font-semibold tabular-nums text-bone">
                     {formatNumber(data?.total ?? 0)}
                   </span>
@@ -394,7 +419,7 @@ export default function DashboardPage() {
                     <TrendingUp size={20} strokeWidth={1.8} />
                   </div>
                   <h3 className="font-semibold text-bone">
-                    Inventory insights
+                    {t("dashboard.inventoryInsights")}
                   </h3>
                 </div>
 
@@ -435,7 +460,7 @@ export default function DashboardPage() {
             </span>
             <span className="flex items-center gap-2 text-xs text-ash/70">
               <Package size={14} />
-              Admin overview
+              {t("dashboard.adminOverview")}
             </span>
           </footer>
         </>
