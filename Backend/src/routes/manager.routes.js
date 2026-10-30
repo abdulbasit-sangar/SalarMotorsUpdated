@@ -13,6 +13,13 @@ import {
   deactivateManager,
   deleteManager,
   loginManager,
+  refreshManagerToken,
+  logoutManager,
+  getManagerMe,
+  forgotManagerPassword,
+  resendManagerResetOtp,
+  verifyManagerResetOtp,
+  resetManagerPassword,
 } from "../controllers/manager.controller.js";
 import { verifyJWT, requireRole } from "../middlewares/auth.middleware.js";
 import {
@@ -20,11 +27,19 @@ import {
   validateVerifyManagerEmail,
   validateResendManagerVerification,
 } from "../validators/manager.validator.js";
-import { validateLogin } from "../validators/auth.validator.js";
+import {
+  validateLogin,
+  validateForgotPassword,
+  validateVerifyOtp,
+  validateResetPassword,
+} from "../validators/auth.validator.js";
 import {
   managerRegisterLimiter,
+  otpRequestLimiter,
   otpResendLimiter,
   otpVerifyLimiter,
+  resetPasswordLimiter,
+  refreshLimiter,
   authLimiter,
 } from "../middlewares/rateLimiter.middleware.js";
 
@@ -41,6 +56,18 @@ router.post(
   validateResendManagerVerification,
   resendManagerVerificationOtp,
 );
+
+// Manager password reset — public, same OTP flow and rate limits as admin.
+router.post("/forgot-password", otpRequestLimiter, validateForgotPassword, forgotManagerPassword);
+router.post("/resend-otp", otpResendLimiter, validateForgotPassword, resendManagerResetOtp);
+router.post("/verify-reset-otp", otpVerifyLimiter, validateVerifyOtp, verifyManagerResetOtp);
+router.post("/reset-password", resetPasswordLimiter, validateResetPassword, resetManagerPassword);
+
+// SESSION ISOLATION: manager session endpoints. Strictly manager-only;
+// they touch only the manager refresh cookie and the manager's session.
+router.post("/refresh", refreshLimiter, refreshManagerToken);
+router.post("/logout", verifyJWT, requireRole("manager"), logoutManager);
+router.get("/me", verifyJWT, requireRole("manager"), getManagerMe);
 
 router.get("/", verifyJWT, requireRole("superadmin"), getAllManagers);
 router.get("/:id", verifyJWT, requireRole("superadmin"), getManagerById);

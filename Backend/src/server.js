@@ -60,6 +60,28 @@ const validateEnvironment = () => {
     if (!process.env.OTP_HASH_SECRET || process.env.OTP_HASH_SECRET.length < 32) {
       throw new Error("OTP_HASH_SECRET must be at least 32 characters in production");
     }
+    // SMTP is required in production — without it, password-reset and
+    // manager-verification codes "send" but never arrive. In development
+    // the transporter stays lazy so local work doesn't need mail credentials.
+    const missingSmtp = ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS"].filter(
+      (name) => !process.env[name],
+    );
+    if (missingSmtp.length > 0) {
+      throw new Error(
+        `Missing required SMTP environment variables in production: ${missingSmtp.join(", ")}`,
+      );
+    }
+    // Warn (don't crash) if TRUST_PROXY isn't set in production: behind a
+    // proxy like Render/Railway, every visitor appears as one IP and shares
+    // a single rate-limit bucket, so everyone gets 429s.
+    const trustProxyHops = Number(process.env.TRUST_PROXY || 0);
+    if (!Number.isFinite(trustProxyHops) || trustProxyHops < 1) {
+      console.warn(
+        "WARNING: TRUST_PROXY is not >= 1 in production. " +
+          "Set TRUST_PROXY=1 on your hosting provider (Render/Railway) " +
+          "or all visitors will share one rate-limit bucket.",
+      );
+    }
   }
 
   if (process.env.ADMIN_SETUP_TOKEN === "change-me") {
@@ -72,6 +94,7 @@ const validateEnvironment = () => {
     throw new Error("ADMIN_SETUP_TOKEN must be at least 32 characters");
   }
 };
+
 
 // Manager/Sub-Admin RBAC — legacy "admin" role migration, unchanged.
 const migrateLegacyAdminRole = async () => {

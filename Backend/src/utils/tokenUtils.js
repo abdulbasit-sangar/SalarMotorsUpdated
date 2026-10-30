@@ -60,3 +60,19 @@ export const cookieOptions = {
   // if clearCookie is called without the same path.
   path: "/",
 };
+
+/**
+ * SESSION ISOLATION: each role gets its own refresh-token cookie name.
+ * Previously both roles shared the single "refreshToken" cookie, so
+ * logging in as a manager overwrote the superadmin's cookie (and vice
+ * versa) — the two sessions could never coexist in one browser.
+ */
+export const REFRESH_COOKIE_NAMES = {
+  superadmin: "adminRefreshToken",
+  manager: "managerRefreshToken",
+};
+
+export const refreshCookieNameForRole = (role) =>
+  role === "manager"
+    ? REFRESH_COOKIE_NAMES.manager
+    : REFRESH_COOKIE_NAMES.superadmin;

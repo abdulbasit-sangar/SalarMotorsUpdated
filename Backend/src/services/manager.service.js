@@ -43,10 +43,11 @@ const issueVerificationOtp = async (adminId, email, { swallowSendErrors }) => {
 // via PATCH /api/managers/:id/activate (already superadmin-only).
 // Existing managers are unaffected: their isActive is already true.
 export const registerManagerService = async ({ username, email, password }) => {
-  const existing = await Admin.findOne({ email });
-  if (existing) {
-    throw new ApiError(409, "An account with this email already exists");
-  }
+const existing = await Admin.findOne({ email });
+if (existing) {
+  throw new ApiError(409, "Registration could not be completed with these details");
+}
+
 
   const manager = await Admin.create({
     username,

@@ -119,11 +119,15 @@ export const logoutAdminService = async (adminId) => {
 
 // SECURITY FIXES: Refresh now (1) pins HS256, (2) compares the hash,
 // (3) re-checks isActive and emailVerified, (4) checks tokenVersion,
-// and (5) detects reuse: if a presented token is validly signed but
+// (5) detects reuse: if a presented token is validly signed but
 // does not match the stored hash, the whole refresh family is revoked
 // (stored hash cleared + tokenVersion incremented) instead of just
-// returning 401 and leaving the new token usable.
-export const refreshAccessTokenService = async (incomingRefreshToken) => {
+// returning 401 and leaving the new token usable, and (6) enforces
+// session isolation: the token's role must match the endpoint's
+// expected role, so a manager refresh token can never mint a superadmin
+// session (or vice versa). The role check runs BEFORE reuse detection,
+// so a cross-role token never revokes a legitimate session.
+export const refreshAccessTokenService = async (incomingRefreshToken, expectedRole) => {
   if (!incomingRefreshToken) {
     throw new ApiError(401, "Refresh token is missing");
   }
@@ -141,6 +145,18 @@ export const refreshAccessTokenService = async (incomingRefreshToken) => {
   const admin = await Admin.findById(decoded._id).select("+refreshToken");
   if (!admin) {
     throw new ApiError(401, "Refresh token has been revoked");
+  }
+  // SESSION ISOLATION: the token's role and the account's role must both
+  // match the endpoint's expected role. Checked before reuse detection so
+  // a cross-role token can never trigger family revocation of the other
+  // session.
+  if (decoded.role !== expectedRole || admin.role !== expectedRole) {
+    throw new ApiError(
+      401,
+      "Refresh token is not valid for this session",
+      [],
+      "ROLE_MISMATCH",
+    );
   }
   if (!admin.isActive || !admin.emailVerified) {
     throw new ApiError(401, "Refresh token has been revoked");

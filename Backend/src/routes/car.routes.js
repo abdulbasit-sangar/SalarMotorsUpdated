@@ -80,7 +80,7 @@ router.patch("/features/:id", verifyJWT, requireRole("superadmin", "manager"), v
 router.patch(
   "/images/:id",
   verifyJWT,
-  requireRole("superadmin"),
+  requireRole("superadmin", "manager"),
   uploadLimiter,
   uploadMultiple,
   handleUploadErrors,
@@ -103,6 +103,7 @@ router.patch("/:id", verifyJWT, requireRole("superadmin", "manager"), validateUp
 // DELETE was verified in the audit to already carry auth + role —
 // it is kept exactly as in the original, not a new fix.
 router.delete("/:id", verifyJWT, requireRole("superadmin"), deleteCar);
-router.patch("/images/:id/reorder", verifyJWT, requireRole("superadmin"), reorderCarImages);
+router.patch("/images/:id/reorder", verifyJWT, requireRole("superadmin", "manager"), reorderCarImages);
+
 
 export default router;

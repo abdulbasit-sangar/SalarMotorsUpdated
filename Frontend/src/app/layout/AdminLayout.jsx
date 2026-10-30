@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { useAuth } from "../../store/auth/AuthContext.jsx";
+import { useAuth, loginPathForRole } from "../../store/auth/AuthContext.jsx";
 import { useToast } from "../../store/ui/ToastContext.jsx";
 import { AdminSidebar } from "./AdminSidebar.jsx";
 import { SkipToContent } from "../../shared/components/SkipToContent.jsx";
@@ -21,9 +21,13 @@ export const AdminLayout = () => {
   useEscapeKey(() => setDrawerOpen(false), drawerOpen);
 
   const handleLogout = async () => {
+    // Capture the role BEFORE logout() clears the session: each role
+    // returns to its own login page, so a manager is never sent to
+    // /admin/login (where their credentials would be rejected).
+    const role = admin?.role;
     await logout();
     toast.success(t("admin.loggedOut"));
-    navigate("/admin/login");
+    navigate(loginPathForRole(role), { replace: true });
   };
 
   const closeDrawer = () => setDrawerOpen(false);

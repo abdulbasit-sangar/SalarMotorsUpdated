@@ -4,7 +4,7 @@
 // Also added: change-password + forgot-password/OTP/reset-password
 // controllers for the new Admin Password Management feature.
 import { asyncHandler, ApiResponse } from "../utils/apiHelpers.js";
-import { cookieOptions } from "../utils/tokenUtils.js";
+import { cookieOptions, refreshCookieNameForRole } from "../utils/tokenUtils.js";
 import {
   loginAdminService,
   logoutAdminService,
@@ -34,7 +34,7 @@ export const loginAdmin = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .cookie("refreshToken", refreshToken, cookieOptions)
+    .cookie(refreshCookieNameForRole("superadmin"), refreshToken, cookieOptions)
     .json(new ApiResponse(200, { admin, accessToken }, "Login successful"));
 });
 
@@ -46,21 +46,22 @@ export const logoutAdmin = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .clearCookie("refreshToken", cookieOptions)
+    .clearCookie(refreshCookieNameForRole("superadmin"), cookieOptions)
     .json(new ApiResponse(200, {}, "Logged out successfully"));
 });
 
 // ─── POST /api/admin/refresh ──────────────────────────────────────────────────
 // Issues a new access token using the HttpOnly refresh token cookie.
 export const refreshAccessToken = asyncHandler(async (req, res) => {
-  const incomingRefreshToken = req.cookies?.refreshToken;
+  const cookieName = refreshCookieNameForRole("superadmin");
+  const incomingRefreshToken = req.cookies?.[cookieName];
 
   const { accessToken, refreshToken: newRefreshToken } =
-    await refreshAccessTokenService(incomingRefreshToken);
+    await refreshAccessTokenService(incomingRefreshToken, "superadmin");
 
   return res
     .status(200)
-    .cookie("refreshToken", newRefreshToken, cookieOptions)
+    .cookie(cookieName, newRefreshToken, cookieOptions)
     .json(
       new ApiResponse(200, { accessToken }, "Access token refreshed")
     );
@@ -88,7 +89,7 @@ export const registerAdmin = asyncHandler(async (req, res) => {
 
   return res
     .status(201)
-    .cookie("refreshToken", refreshToken, cookieOptions)
+    .cookie(refreshCookieNameForRole("superadmin"), refreshToken, cookieOptions)
     .json(new ApiResponse(201, { admin, accessToken }, "Admin registered successfully"));
 });
 
@@ -105,7 +106,7 @@ export const changePassword = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .clearCookie("refreshToken", cookieOptions) // existing session invalidated
+    .clearCookie(refreshCookieNameForRole(req.admin.role), cookieOptions) // existing session invalidated
     .json(
       new ApiResponse(
         200,

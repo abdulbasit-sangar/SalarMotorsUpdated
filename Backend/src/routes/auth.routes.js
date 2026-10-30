@@ -12,7 +12,7 @@ import {
   verifyResetOtp,
   resetPassword,
 } from "../controllers/auth.controller.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { verifyJWT, requireRole } from "../middlewares/auth.middleware.js";
 import {
   validateLogin,
   validateRegister,
@@ -48,8 +48,10 @@ router.post("/resend-otp", otpResendLimiter, validateForgotPassword, resendOtp);
 router.post("/verify-reset-otp", otpVerifyLimiter, validateVerifyOtp, verifyResetOtp);
 router.post("/reset-password", resetPasswordLimiter, validateResetPassword, resetPassword);
 
-router.post("/logout", verifyJWT, logoutAdmin);
-router.get("/me", verifyJWT, getMe);
+// SESSION ISOLATION: logout/me are strictly superadmin-only. Managers use
+// POST /api/managers/logout and GET /api/managers/me instead.
+router.post("/logout", verifyJWT, requireRole("superadmin"), logoutAdmin);
+router.get("/me", verifyJWT, requireRole("superadmin"), getMe);
 router.patch("/change-password", verifyJWT, validateChangePassword, changePassword);
 
 export default router;

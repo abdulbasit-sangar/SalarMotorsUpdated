@@ -154,7 +154,9 @@ export const AppRouter = () => (
         <Route
           path="/manager/login"
           element={
-            <GuestOnlyRoute>{withSuspense(<ManagerLoginPage />)}</GuestOnlyRoute>
+            <GuestOnlyRoute>
+              {withSuspense(<ManagerLoginPage />)}
+            </GuestOnlyRoute>
           }
         />
         <Route
@@ -168,7 +170,17 @@ export const AppRouter = () => (
         <Route
           path="/manager/pending"
           element={
-            <GuestOnlyRoute>{withSuspense(<ManagerPendingPage />)}</GuestOnlyRoute>
+            <GuestOnlyRoute>
+              {withSuspense(<ManagerPendingPage />)}
+            </GuestOnlyRoute>
+          }
+        />
+        <Route
+          path="/manager/forgot-password"
+          element={
+            <GuestOnlyRoute>
+              {withSuspense(<ForgotPasswordPage isManager />)}
+            </GuestOnlyRoute>
           }
         />
         {/* Old manager-register URL — redirect, do not break bookmarks */}
@@ -189,8 +201,14 @@ export const AppRouter = () => (
       >
         <Route path="dashboard" element={withSuspense(<DashboardPage />)} />
         <Route path="listings" element={withSuspense(<ManageListingsPage />)} />
-        <Route path="listings/create" element={withSuspense(<CreateListingPage />)} />
-        <Route path="listings/:id/edit" element={withSuspense(<EditListingPage />)} />
+        <Route
+          path="listings/create"
+          element={withSuspense(<CreateListingPage />)}
+        />
+        <Route
+          path="listings/:id/edit"
+          element={withSuspense(<EditListingPage />)}
+        />
         <Route path="profile" element={withSuspense(<ProfilePage />)} />
         <Route
           path="managers"
@@ -213,8 +231,14 @@ export const AppRouter = () => (
       >
         <Route path="dashboard" element={withSuspense(<DashboardPage />)} />
         <Route path="listings" element={withSuspense(<ManageListingsPage />)} />
-        <Route path="listings/create" element={withSuspense(<CreateListingPage />)} />
-        <Route path="listings/:id/edit" element={withSuspense(<EditListingPage />)} />
+        <Route
+          path="listings/create"
+          element={withSuspense(<CreateListingPage />)}
+        />
+        <Route
+          path="listings/:id/edit"
+          element={withSuspense(<EditListingPage />)}
+        />
         <Route path="profile" element={withSuspense(<ProfilePage />)} />
       </Route>
 

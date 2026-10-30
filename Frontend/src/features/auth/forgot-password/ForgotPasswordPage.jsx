@@ -24,12 +24,16 @@ import {
   resendOtp as apiResendOtp,
   verifyResetOtp as apiVerifyResetOtp,
   resetPassword as apiResetPassword,
+  forgotManagerPassword,
+  resendManagerResetOtp,
+  verifyManagerResetOtp,
+  resetManagerPassword,
 } from "../../../services/auth/authApi.js";
 
 const OTP_SECONDS = 60;
 const RESEND_COOLDOWN_SECONDS = 60;
 
-export default function ForgotPasswordPage() {
+export default function ForgotPasswordPage({ isManager = false }) {
   const { t } = useTranslation("auth");
   const toast = useToast();
   const navigate = useNavigate();
@@ -47,6 +51,22 @@ export default function ForgotPasswordPage() {
   const [secondsLeft, setSecondsLeft] = useState(OTP_SECONDS);
   const [resendCooldown, setResendCooldown] = useState(0);
   const timerRef = useRef(null);
+
+  // Manager vs admin: same UI and flow, different API namespace.
+  const api = isManager
+    ? {
+        forgotPassword: forgotManagerPassword,
+        resendOtp: resendManagerResetOtp,
+        verifyResetOtp: verifyManagerResetOtp,
+        resetPassword: resetManagerPassword,
+      }
+    : {
+        forgotPassword: apiForgotPassword,
+        resendOtp: apiResendOtp,
+        verifyResetOtp: apiVerifyResetOtp,
+        resetPassword: apiResetPassword,
+      };
+  const loginPath = isManager ? "/manager/login" : "/admin/login";
 
   // Countdown for OTP expiry display — purely cosmetic, backend is the
   // real source of truth for expiration.
@@ -87,7 +107,7 @@ export default function ForgotPasswordPage() {
 
     setSubmitting(true);
     try {
-      await apiForgotPassword({ email: email.trim().toLowerCase() });
+      await api.forgotPassword({ email: email.trim().toLowerCase() });
       toast.success(t("forgot.codeSent"));
       setStep("otp");
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
@@ -109,7 +129,7 @@ export default function ForgotPasswordPage() {
 
     setSubmitting(true);
     try {
-      const token = await apiVerifyResetOtp({ email: email.trim().toLowerCase(), otp: otp.trim() });
+      const token = await api.verifyResetOtp({ email: email.trim().toLowerCase(), otp: otp.trim() });
       setResetToken(token);
       setStep("reset");
     } catch (err) {
@@ -125,7 +145,7 @@ export default function ForgotPasswordPage() {
     setFormError(null);
     setSubmitting(true);
     try {
-      await apiResendOtp({ email: email.trim().toLowerCase() });
+      await api.resendOtp({ email: email.trim().toLowerCase() });
       toast.success(t("forgot.resent"));
       setOtp("");
       setSecondsLeft(OTP_SECONDS);
@@ -155,7 +175,7 @@ export default function ForgotPasswordPage() {
 
     setSubmitting(true);
     try {
-      await apiResetPassword({
+      await api.resetPassword({
         email: email.trim().toLowerCase(),
         resetToken,
         newPassword: resetForm.newPassword,
@@ -202,7 +222,7 @@ export default function ForgotPasswordPage() {
           </AuthCardPanel>
           <AuthFootnote>
             {t("forgot.remembered")}{" "}
-            <Link to="/admin/login" className="text-brass-dark font-medium hover:underline">
+            <Link to={loginPath} className="text-brass-dark font-medium hover:underline">
               {t("forgot.backToSignIn")}
             </Link>
           </AuthFootnote>
@@ -335,7 +355,7 @@ export default function ForgotPasswordPage() {
           <Button
             variant="primary"
             className="w-full"
-            onClick={() => navigate("/admin/login", { replace: true })}
+            onClick={() => navigate(loginPath, { replace: true })}
           >
             {t("forgot.goToSignIn")}
           </Button>

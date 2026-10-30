@@ -139,7 +139,7 @@ export default function LoginPage({
           </div>
 
           <div className="flex justify-end">
-            <Link to="/admin/forgot-password" className="text-xs text-brass-dark hover:underline">
+            <Link to={isManager ? "/manager/forgot-password" : "/admin/forgot-password"} className="text-xs text-brass-dark hover:underline">
               {t("login.forgot")}
             </Link>
           </div>

@@ -1,6 +1,10 @@
 import { asyncHandler, ApiResponse } from "../utils/apiHelpers.js";
-import { cookieOptions } from "../utils/tokenUtils.js";
-import { loginAdminService } from "../services/auth.service.js";
+import { cookieOptions, refreshCookieNameForRole } from "../utils/tokenUtils.js";
+import {
+  loginAdminService,
+  logoutAdminService,
+  refreshAccessTokenService,
+} from "../services/auth.service.js";
 
 import {
   registerManagerService,
@@ -11,6 +15,12 @@ import {
   setManagerActiveStatusService,
   deleteManagerService,
 } from "../services/manager.service.js";
+import {
+  forgotPasswordService,
+  resendOtpService,
+  verifyResetOtpService,
+  resetPasswordService,
+} from "../services/auth.service.js";
 
 
 // ─── POST /api/managers/register ───────────────────────────────────────────
@@ -26,12 +36,6 @@ export const registerManager = asyncHandler(async (req, res) => {
     .status(201)
     .json(new ApiResponse(201, { email: result.email }, result.message));
 });
-// ADD to Backend/src/controllers/manager.controller.js.
-// Imports to add at the top of that file:
-//   import { cookieOptions } from "../utils/tokenUtils.js";
-//   import { loginAdminService } from "../services/auth.service.js";
-// Note: loginAdminService is shared — the expectedRole argument is what
-// makes this endpoint manager-only. No new service is needed.
 
 // ─── POST /api/managers/login — manager only ────────────────────────────
 export const loginManager = asyncHandler(async (req, res) => {
@@ -45,7 +49,7 @@ export const loginManager = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .cookie("refreshToken", refreshToken, cookieOptions)
+    .cookie(refreshCookieNameForRole("manager"), refreshToken, cookieOptions)
     .json(new ApiResponse(200, { admin, accessToken }, "Login successful"));
 });
 
@@ -113,4 +117,97 @@ export const deleteManager = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, null, "Manager deleted successfully"));
+});
+
+// ─── POST /api/managers/forgot-password ────────────────────────────────────
+// Public. Manager password reset — same OTP flow as the admin endpoint:
+// generic response (no account enumeration), code by email. Delegates to
+// the shared auth service (managers live in the same Admin collection,
+// so no new service logic is needed).
+export const forgotManagerPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const result = await forgotPasswordService({ email });
+
+  return res.status(200).json(new ApiResponse(200, {}, result.message));
+});
+
+// ─── POST /api/managers/resend-otp ─────────────────────────────────────────
+// Public. Cooldown/rate-limiting applied at the route level.
+export const resendManagerResetOtp = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const result = await resendOtpService({ email });
+
+  return res.status(200).json(new ApiResponse(200, {}, result.message));
+});
+
+// ─── POST /api/managers/verify-reset-otp ───────────────────────────────────
+// Public. On success, returns a short-lived resetToken that ONLY permits
+// the reset-password step — not a normal manager session.
+export const verifyManagerResetOtp = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+  const { resetToken } = await verifyResetOtpService({ email, otp });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { resetToken }, "Verification code confirmed"));
+});
+
+// ─── POST /api/managers/reset-password ─────────────────────────────────────
+// Public — authorized only via the short-lived resetToken from
+// verify-reset-otp.
+export const resetManagerPassword = asyncHandler(async (req, res) => {
+  const { email, resetToken, newPassword } = req.body;
+
+  await resetPasswordService({ email, resetToken, newPassword });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        {},
+        "Password reset successfully. Please log in with your new password."
+      )
+    );
+});
+
+// ─── POST /api/managers/refresh ────────────────────────────────────────────
+// Issues a new manager access token using the HttpOnly manager refresh
+// cookie. Strictly manager-only: a superadmin refresh token presented here
+// is rejected WITHOUT revoking any session (see auth.service.js).
+export const refreshManagerToken = asyncHandler(async (req, res) => {
+  const cookieName = refreshCookieNameForRole("manager");
+  const incomingRefreshToken = req.cookies?.[cookieName];
+
+  const { accessToken, refreshToken: newRefreshToken } =
+    await refreshAccessTokenService(incomingRefreshToken, "manager");
+
+  return res
+    .status(200)
+    .cookie(cookieName, newRefreshToken, cookieOptions)
+    .json(
+      new ApiResponse(200, { accessToken }, "Access token refreshed")
+    );
+});
+
+// ─── POST /api/managers/logout ─────────────────────────────────────────────
+// Protected — requires a valid manager access token. Clears ONLY the
+// manager refresh cookie and revokes ONLY the manager's session; a
+// superadmin session in the same browser is untouched.
+export const logoutManager = asyncHandler(async (req, res) => {
+  await logoutAdminService(req.admin._id);
+
+  return res
+    .status(200)
+    .clearCookie(refreshCookieNameForRole("manager"), cookieOptions)
+    .json(new ApiResponse(200, {}, "Logged out successfully"));
+});
+
+// ─── GET /api/managers/me ──────────────────────────────────────────────────
+// Returns the currently logged-in manager's public profile.
+// Protected — req.admin is set by verifyJWT, role enforced in the router.
+export const getManagerMe = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { admin: req.admin }, "Manager profile fetched"));
 });

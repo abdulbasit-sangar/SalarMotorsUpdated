@@ -235,6 +235,9 @@ export const updateCarFeatures = asyncHandler(async (req, res) => {
 // PATCH /api/cars/images/:id — add one or more images (Admin/Manager)
 // multipart/form-data, field name "images" (same as create) — uploaded to
 // ImageKit here, then appended to the car's existing image list.
+// PATCH /api/cars/images/:id — add one or more images (Admin/Manager)
+// multipart/form-data, field name "images" (same as create) — uploaded to
+// ImageKit here, then appended to the car's existing image list.
 export const addCarImages = asyncHandler(async (req, res) => {
   if (!req.files || req.files.length === 0) {
     return res
@@ -242,11 +245,11 @@ export const addCarImages = asyncHandler(async (req, res) => {
       .json(new ApiResponse(400, null, "No images provided"));
   }
   // Fail fast (before spending ImageKit uploads) if this would exceed the cap.
-  await assertCanAddImagesService(req.params.id, req.files.length);
+  await assertCanAddImagesService(req.params.id, req.files.length, req.admin);
   const newImages = await uploadManyToImageKit(req.files);
   let car;
   try {
-    car = await addCarImagesService(req.params.id, newImages);
+    car = await addCarImagesService(req.params.id, newImages, req.admin);
   } catch (error) {
     const cleanup = await deleteManyFromImageKit(newImages);
     if (cleanup.failed.length) {
@@ -303,12 +306,14 @@ export const removeCarImage = asyncHandler(async (req, res) => {
 });
 
 // PATCH /api/cars/images/:id/reorder — reorder existing images (Admin/Manager)
+// PATCH /api/cars/images/:id/reorder — reorder existing images (Admin/Manager)
 export const reorderCarImages = asyncHandler(async (req, res) => {
-  const car = await reorderCarImagesService(req.params.id, req.body.order);
+  const car = await reorderCarImagesService(req.params.id, req.body.order, req.admin);
   return res
     .status(200)
     .json(new ApiResponse(200, { car }, "Images reordered successfully"));
 });
+
 
 // Step 20: GET /api/cars/featured  (optimized homepage query)
 export const getFeaturedCars = asyncHandler(async (req, res) => {

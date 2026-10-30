@@ -59,19 +59,17 @@ export const assertManagerOwnsCar = async (admin, id) => {
   }
 };
 
-// A `province` filter value that exactly matches one of the special
-// category locations ("Dubai", "From America to Herat", "From Dubai to
-// Herat") is matched exactly — otherwise "Dubai" would also match "From
-// Dubai to Herat" as a substring. Any other value (a normal Afghan
-// province/city, or a partial search term) keeps the original
-// case-insensitive substring match.
+
+// The `province` filter only ever receives values from the controlled
+// location dropdowns (never free text — free-text search goes through the
+// keyword field), so every value is matched exactly and case-insensitively.
+// Exact matching prevents "Herat" from also returning "From America to
+// Herat" and "From Dubai to Herat".
 const buildProvinceFilter = (province) => {
   const escaped = province.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const isSpecialLocation = SPECIAL_LOCATIONS.some(
-    (loc) => loc.toLowerCase() === province.toLowerCase(),
-  );
-  return new RegExp(isSpecialLocation ? `^${escaped}$` : escaped, "i");
+  return new RegExp(`^${escaped}$`, "i");
 };
+
 
 // Every sort ends with a unique `_id` tie-breaker so cars with equal values
 // keep a deterministic order. Without it MongoDB may order ties differently

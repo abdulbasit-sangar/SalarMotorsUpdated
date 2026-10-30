@@ -50,18 +50,21 @@ const errorHandler = (err, req, res, next) => {
     );
   }
 
-  const statusCode = error.statusCode || 500;
+const statusCode = error.statusCode || 500;
   const message = error.message || "Internal Server Error";
   const errors = error.errors || [];
   const stack = process.env.NODE_ENV === "development" ? error.stack : undefined;
+  const code = error.code || undefined;
 
   return res.status(statusCode).json({
     success: false,
     statusCode,
     message,
     errors,
+    ...(code && { code }),
     ...(stack && { stack }),
   });
 };
 
 export default errorHandler;
+
