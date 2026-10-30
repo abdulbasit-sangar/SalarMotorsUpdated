@@ -1,11 +1,11 @@
 {
-  "hero": {
-    "tagline": "Find & Buy.",
-    "eyebrow": "SAFAR ONLINE VEHICLES MARKETPLACE",
-    "titleA": "Your Journey to the",
-    "titleB": "Perfect Car Starts Here.",
-    "subtitle": "Explore exceptional vehicles and find the right car for your next journey."
+"hero": {
+    "eyebrow": "SAFAR VEHICLES MARKETPLACE",
+    "titleA": "The World of Imported Cars",
+    "titleB": "All in One Place",
+    "subtitle": "Explore newly imported vehicles and discover cars on their way to Afghanistan, All in one place"
   },
+
   "search": {
     "brand": "Brand",
     "year": "Year",

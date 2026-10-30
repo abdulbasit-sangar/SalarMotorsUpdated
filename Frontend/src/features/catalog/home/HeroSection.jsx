@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HeroSearchBar } from "./HeroSearchBar.jsx";
@@ -57,17 +56,17 @@ export const HeroSection = () => {
     mounted ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0",
   ].join(" ")}
 >
-  
+
 
   <h1 className="font-serif text-2xl font-medium uppercase leading-[1.15] tracking-[0.01em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)] sm:text-3xl md:text-4xl lg:text-5xl">
-    The World of Imported Cars
+    {t("hero.titleA")}
     <span className="mt-1 block text-[#E5C18B]">
-      All in One Place
+      {t("hero.titleB")}
     </span>
   </h1>
 
   <p className="mx-auto mt-3 max-w-xl text-[11px] font-normal leading-5 text-white/90 drop-shadow-[0_1px_5px_rgba(0,0,0,0.75)] sm:mt-4 sm:text-xs md:text-sm">
-    Explore newly imported vehicles and discover cars on their way to Afghanistan, All in one place
+    {t("hero.subtitle")}
   </p>
 
   {/* Decorative accent */}
