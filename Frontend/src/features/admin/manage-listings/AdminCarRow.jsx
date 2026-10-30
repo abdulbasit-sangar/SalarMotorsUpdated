@@ -184,7 +184,7 @@ export const AdminCarRow = ({
           <button
             type="button"
             onClick={openGallery}
-            aria-label={`View photos of ${carTitle(car)}`}
+            aria-label={t("row.viewPhotos", { title: carTitle(car) })}
             className="relative block aspect-[4/3] w-full shrink-0 overflow-hidden rounded-xl bg-[#F2F0EB] text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2 md:w-40 lg:w-48 xl:w-56"
           >
             {primaryImage ? (
@@ -340,24 +340,24 @@ export const AdminCarRow = ({
 
               {isSuperAdmin && (
                 <div>
-                <Button
-                  size="sm"
-                  variant="soft"
-                  className={`${secondaryButtonClass} !text-[#245F91] hover:!text-[#17466D] focus-visible:!ring-[#245F91]`}
-                  loading={pending === "hide"}
-                  disabled={blockedFromPublish}
-                  aria-describedby={
-                    blockedFromPublish ? hintId : undefined
-                  }
-                  title={
-                    blockedFromPublish
-                      ? publishText.requirementMessage
-                      : undefined
-                  }
-                  onClick={() => onToggleHide(car)}
-                >
-                  {car.isHidden ? t("row.unhide") : t("row.hide")}
-                </Button>
+                  <Button
+                    size="sm"
+                    variant="soft"
+                    className={`${secondaryButtonClass} !text-[#245F91] hover:!text-[#17466D] focus-visible:!ring-[#245F91]`}
+                    loading={pending === "hide"}
+                    disabled={blockedFromPublish}
+                    aria-describedby={
+                      blockedFromPublish ? hintId : undefined
+                    }
+                    title={
+                      blockedFromPublish
+                        ? publishText.requirementMessage
+                        : undefined
+                    }
+                    onClick={() => onToggleHide(car)}
+                  >
+                    {car.isHidden ? t("row.unhide") : t("row.hide")}
+                  </Button>
                 </div>
               )}
 
@@ -377,15 +377,15 @@ export const AdminCarRow = ({
 
               {isSuperAdmin && (
                 <div>
-                <Button
-                  size="sm"
-                  variant="soft"
-                  className={`${secondaryButtonClass} !text-[#B4232F] hover:!text-[#8F1721] focus-visible:!ring-[#B4232F]`}
-                  loading={pending === "delete"}
-                  onClick={() => onDelete(car)}
-                >
-                  {t("row.delete")}
-                </Button>
+                  <Button
+                    size="sm"
+                    variant="soft"
+                    className={`${secondaryButtonClass} !text-[#B4232F] hover:!text-[#8F1721] focus-visible:!ring-[#B4232F]`}
+                    loading={pending === "delete"}
+                    onClick={() => onDelete(car)}
+                  >
+                    {t("row.delete")}
+                  </Button>
                 </div>
               )}
             </div>
@@ -420,7 +420,7 @@ export const AdminCarRow = ({
               <button
                 type="button"
                 onClick={() => setGalleryOpen(false)}
-                aria-label="Close gallery"
+                aria-label={t("row.closeGallery")}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
               >
                 <Icon name="close" className="h-5 w-5" />
@@ -440,7 +440,7 @@ export const AdminCarRow = ({
                   <button
                     type="button"
                     onClick={() => changeImage(-1)}
-                    aria-label="Previous image"
+                    aria-label={t("row.previousImage")}
                     className="absolute start-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:start-4 sm:h-12 sm:w-12"
                   >
                     <Icon name="previous" className="h-5 w-5" />
@@ -449,7 +449,7 @@ export const AdminCarRow = ({
                   <button
                     type="button"
                     onClick={() => changeImage(1)}
-                    aria-label="Next image"
+                    aria-label={t("row.nextImage")}
                     className="absolute end-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:end-4 sm:h-12 sm:w-12"
                   >
                     <Icon name="next" className="h-5 w-5" />
@@ -465,7 +465,7 @@ export const AdminCarRow = ({
                     key={`${image.id}-${index}`}
                     type="button"
                     onClick={() => setActiveImage(index)}
-                    aria-label={`View image ${index + 1}`}
+                    aria-label={t("row.viewImage", { count: index + 1 })}
                     aria-current={
                       activeImage === index ? "true" : undefined
                     }
