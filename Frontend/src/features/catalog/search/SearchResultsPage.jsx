@@ -86,11 +86,12 @@ export default function SearchResultsPage() {
       <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
         {t("search.eyebrow")}
       </p>
-      <h1 className="font-display text-4xl sm:text-5xl font-semibold text-bone mb-6">
+      <h1 className="font-display text-2xl sm:text-3xl font-medium text-bone mb-6">
+
         {keyword ? (
           <>
             {t("search.resultsFor")}{" "}
-            <bdi className="text-brass">&ldquo;{keyword}&rdquo;</bdi>
+            <bdi className="text-brass">{keyword}</bdi>
           </>
         ) : (
           t("search.title")
