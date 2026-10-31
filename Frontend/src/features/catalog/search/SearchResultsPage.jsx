@@ -38,7 +38,7 @@ function SearchResultsList({ keyword }) {
 
   if (initialLoading) {
     return (
-      <CarCardGrid>
+      <CarCardGrid dense>
         {Array.from({ length: LIMIT }).map((_, i) => (
           <CarCardSkeleton key={i} />
         ))}
@@ -61,7 +61,7 @@ function SearchResultsList({ keyword }) {
       <p className="text-ash text-sm mb-6">
         {t("search.results", { count: totalCars })}
       </p>
-      <CarCardGrid>
+      <CarCardGrid dense>
         {cars.map((car) => (
           <CarCard key={car._id} car={car} />
         ))}
@@ -82,7 +82,7 @@ export default function SearchResultsPage() {
   const [searchParams] = useSearchParams();
   const keyword = searchParams.get("keyword") || "";
   return (
-    <div className="container-page pb-10 pt-28 sm:pb-14 sm:pt-32">
+    <div className="container-listing pb-10 pt-28 sm:pb-14 sm:pt-32">
       <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
         {t("search.eyebrow")}
       </p>
@@ -104,7 +104,7 @@ export default function SearchResultsPage() {
           title={t("search.promptTitle")}
           description={t("search.promptDescription")}
         />
-      ) : (
+        ) : (
         <SearchResultsList keyword={keyword} />
       )}
     </div>

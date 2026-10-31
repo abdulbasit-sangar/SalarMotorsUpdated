@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "../../i18n/useLanguage.js";
 import { useEscapeKey } from "../hooks/useEscapeKey.js";
-import { ChevronDownIcon, CheckIcon, LanguagesIcon } from "./icons.jsx";
+import { ChevronDownIcon, CheckIcon, GlobeIcon } from "./icons.jsx";
 
 /**
  * LanguageSwitcher — English / پښتو / دری.
@@ -156,7 +156,7 @@ export const LanguageSwitcher = ({ variant = "menu", onChanged, className }) => 
         onKeyDown={onButtonKeyDown}
         className="flex h-10 shrink-0 items-center gap-1 rounded-full px-2.5 text-sm font-medium text-bone transition-colors hover:bg-graphite-100 disabled:opacity-60 lg:h-9"
       >
-        <LanguagesIcon className="h-[18px] w-[18px]" />
+        <GlobeIcon className="h-[18px] w-[18px]" />
         <span lang={current.htmlLang} dir={current.dir} className="hidden sm:inline">
           {current.label}
         </span>

@@ -104,7 +104,7 @@ const IconCard = ({ item, visible, delay }) => {
 
 const StepCard = ({ step, title, description, isLast, visible, delay }) => (
   <div
-    style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
+    style={{ transitionDelay: visible ? `${delay + 150}ms` : "0ms" }}
     className={
       "relative flex flex-col items-center text-center transition-all duration-700 ease-out " +
       (visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8")
@@ -174,9 +174,6 @@ export default function HomePage() {
                 : "opacity-0 translate-y-6")
             }
           >
-            <p className="section-eyebrow text-brass-dark font-semibold tracking-wider uppercase">
-              {t("why.eyebrow")}
-            </p>
             <h2 className="section-title text-section-light">
               {t("why.title")}
             </h2>
@@ -208,7 +205,6 @@ export default function HomePage() {
                 : "opacity-0 translate-y-6")
             }
           >
-            <p className="section-eyebrow">{t("how.eyebrow")}</p>
             <h2 className="section-title">{t("how.title")}</h2>
             <p className="section-subtitle mx-auto">{t("how.subtitle")}</p>
           </div>
@@ -236,16 +232,6 @@ export default function HomePage() {
       >
         <div className="container-page relative z-10">
           <div className="max-w-3xl mx-auto">
-            <p
-              className={
-                "section-eyebrow text-brass-dark font-semibold tracking-wider uppercase text-center transition-all duration-700 ease-out " +
-                (aboutVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-6")
-              }
-            >
-              {t("about.eyebrow")}
-            </p>
             <h2
               style={{ transitionDelay: aboutVisible ? "80ms" : "0ms" }}
               className={

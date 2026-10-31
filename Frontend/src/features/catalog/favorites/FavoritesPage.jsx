@@ -38,7 +38,7 @@ export default function FavoritesPage() {
   }, [favoriteIds, ready]);
 
   return (
-    <div className="container-page pb-8 pt-28 sm:pb-10 sm:pt-32">
+    <div className="container-listing pb-8 pt-28 sm:pb-10 sm:pt-32">
       <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
         {t("favorites.eyebrow")}
       </p>
@@ -49,13 +49,13 @@ export default function FavoritesPage() {
       {error ? (
         <ErrorState onRetry={load} />
       ) : loading ? (
-        <CarCardGrid>
+        <CarCardGrid dense>
           {Array.from({ length: 4 }).map((_, i) => (
             <CarCardSkeleton key={i} premium />
           ))}
         </CarCardGrid>
       ) : cars.length ? (
-        <CarCardGrid>
+        <CarCardGrid dense>
           {cars.map((car) => (
             <CarCard key={car._id} car={car} premium />
           ))}

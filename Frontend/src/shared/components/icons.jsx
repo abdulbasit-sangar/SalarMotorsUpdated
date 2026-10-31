@@ -70,6 +70,12 @@ import {
   Plane,
   Ship,
   Languages,
+  Layers,
+  Filter,
+  LayoutGrid,
+  Compass,
+  Anchor,
+  Building2,
 } from "lucide-react";
 
 const STROKE = 1.75;
@@ -104,6 +110,12 @@ export const ArrowRightIcon = ({ className, ...props }) => (
   <ArrowRight {...iconProps} {...props} className={mirrorInRtl(className)} />
 );
 export const LanguagesIcon = (props) => <Languages {...iconProps} {...props} />;
+export const LayersIcon = (props) => <Layers {...iconProps} {...props} />;
+export const FilterIcon = (props) => <Filter {...iconProps} {...props} />;
+export const LayoutGridIcon = (props) => <LayoutGrid {...iconProps} {...props} />;
+export const CompassIcon = (props) => <Compass {...iconProps} {...props} />;
+export const AnchorIcon = (props) => <Anchor {...iconProps} {...props} />;
+export const BuildingIcon = (props) => <Building2 {...iconProps} {...props} />;
 export const CalendarIcon = (props) => <Calendar {...iconProps} {...props} />;
 export const FuelIcon = (props) => <Fuel {...iconProps} {...props} />;
 export const CheckIcon = (props) => <Check {...iconProps} {...props} />;

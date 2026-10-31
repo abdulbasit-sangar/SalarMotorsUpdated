@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import clsx from "clsx";
@@ -11,10 +10,11 @@ import {
   CloseIcon,
   HeartIcon,
   HomeIcon,
-  CarSilhouetteIcon,
-  GlobeIcon,
-  PlaneIcon,
+  LayoutGridIcon,
+  BuildingIcon,
   ShipIcon,
+  CompassIcon,
+  AnchorIcon,
   ChevronDownIcon,
 } from "../../shared/components/icons.jsx";
 import {
@@ -29,20 +29,20 @@ const FAVORITES_PATH = "/favorites";
 
 const NAV_LINKS = [
   { to: "/", labelKey: "nav.home", end: true, icon: HomeIcon },
-  { to: "/listings", labelKey: "nav.allCars", icon: CarSilhouetteIcon },
-  { to: dubaiCarsPath(), labelKey: "nav.dubaiCars", icon: GlobeIcon },
+  { to: "/listings", labelKey: "nav.allCars", icon: LayoutGridIcon },
+  { to: dubaiCarsPath(), labelKey: "nav.dubaiCars", icon: BuildingIcon },
 ];
 
 const ON_THE_WAY_LINKS = [
   {
     to: onTheWayPath(LOCATION_ON_THE_WAY.AMERICA_TO_HERAT),
     labelKey: "nav.fromAmericaToHerat",
-    icon: PlaneIcon,
+    icon: ShipIcon,
   },
   {
     to: onTheWayPath(LOCATION_ON_THE_WAY.DUBAI_TO_HERAT),
     labelKey: "nav.fromDubaiToHerat",
-    icon: ShipIcon,
+    icon: AnchorIcon,
   },
 ];
 
@@ -184,7 +184,7 @@ const OnTheWayDropdown = () => {
         aria-expanded={open}
         onClick={() => setOpen(true)}
       >
-        <ShipIcon
+        <CompassIcon
           className="h-4 w-4 shrink-0 lg:h-[15px] lg:w-[15px]"
           aria-hidden="true"
         />
@@ -246,7 +246,7 @@ const MobileOnTheWaySection = ({ onNavigate }) => {
         onClick={() => setExpanded((value) => !value)}
       >
         <span className="flex items-center gap-2.5">
-          <ShipIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <CompassIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
           {t("nav.onTheWay")}
         </span>
 

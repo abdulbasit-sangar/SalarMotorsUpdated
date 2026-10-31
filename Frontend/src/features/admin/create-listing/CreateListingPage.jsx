@@ -21,6 +21,8 @@ import { useAuth } from "../../../store/auth/AuthContext.jsx";
 import { areaPath } from "../../../shared/utils/areaPath.js";
 
 import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
+import { useDraftForm } from "../../../shared/hooks/useDraftForm.js";
+import { useDraftImages } from "../../../shared/hooks/useDraftImages.js";
 
 import {
   validateCarForm,
@@ -72,8 +74,15 @@ export default function CreateListingPage() {
     refetch: refetchOptions,
   } = useCarOptions();
 
-  const [form, setForm] = useState(INITIAL_FORM);
-  const [images, setImages] = useState([]);
+  // Draft persistence: everything typed is saved to sessionStorage under a
+  // per-user key, and selected images are saved to IndexedDB under a
+  // per-user key, so leaving the page (menu, dashboard, refresh) and coming
+  // back restores the fields AND the photos for both managers and
+  // superadmins. A manager and a superadmin on the same device never see
+  // each other's drafts.
+  const userKey = admin?.id ?? admin?._id ?? admin?.role;
+  const [form, setForm, clearDraft] = useDraftForm(INITIAL_FORM, userKey);
+  const [images, setImages, clearImages] = useDraftImages(userKey);
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -115,6 +124,8 @@ export default function CreateListingPage() {
     try {
       const car = await createCar(form, images, creationRequestId.current);
 
+      clearDraft();
+      clearImages();
       toast.success(t("create.success", { title: car.title }));
 
       navigate(areaPath(admin?.role, "/listings"));
@@ -124,6 +135,8 @@ export default function CreateListingPage() {
           const statusCar = await waitForCreationStatus(
             creationRequestId.current,
           );
+          clearDraft();
+          clearImages();
           toast.success(t("create.success", { title: statusCar.title }));
           navigate(areaPath(admin?.role, "/listings"));
           return;
@@ -144,6 +157,13 @@ export default function CreateListingPage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleCancel = () => {
+    // Cancel means "discard this listing", so the draft goes with it.
+    clearDraft();
+    clearImages();
+    navigate(areaPath(admin?.role, "/listings"));
   };
 
   return (
@@ -230,7 +250,7 @@ export default function CreateListingPage() {
           <Button
             type="button"
             variant="ghost"
-            onClick={() => navigate(areaPath(admin?.role, "/listings"))}
+            onClick={handleCancel}
           >
             {t("create.cancel")}
           </Button>

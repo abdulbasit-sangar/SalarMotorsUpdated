@@ -19,24 +19,38 @@ export const CarSection = ({
   emptyMessage,
   dark = false,
   sponsored = false,
+  containerClassName = "container-page",
+  dense = false,
+  eyebrowBelow = false,
+  icon: Icon,
 }) => {
   const { t } = useTranslation();
   return (
-  <section className={clsx(dark ? "" : "container-page py-12 sm:py-16")}>
-    <div className={clsx(dark && "container-page")}>
+  <section className={clsx(dark ? "" : `${containerClassName} py-12 sm:py-16`)}>
+    <div className={clsx(dark && containerClassName)}>
       <div className="flex items-end justify-between mb-8 sm:mb-10">
         <div>
-          {eyebrow && (
+          {eyebrow && !eyebrowBelow && (
             <p className="section-eyebrow">{eyebrow}</p>
           )}
-          <h2
-            className={clsx(
-              "font-display text-3xl sm:text-4xl font-bold leading-tight",
-              dark ? "text-bone" : "text-section-light",
+          <div className="flex items-center gap-2.5">
+            {Icon && (
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-brass/20 bg-brass/10 text-brass-dark">
+                <Icon className="h-[18px] w-[18px]" />
+              </span>
             )}
-          >
-            {title}
-          </h2>
+            <h2
+              className={clsx(
+                "font-display text-3xl sm:text-4xl font-bold leading-tight",
+                dark ? "text-bone" : "text-section-light",
+              )}
+            >
+              {title}
+            </h2>
+          </div>
+          {eyebrow && eyebrowBelow && (
+            <p className="section-eyebrow mt-2">{eyebrow}</p>
+          )}
         </div>
         {viewAllTo && (
           <Link
@@ -59,13 +73,13 @@ export const CarSection = ({
       {error ? (
         <ErrorState onRetry={onRetry} />
       ) : loading ? (
-        <CarCardGrid>
+        <CarCardGrid dense={dense}>
           {Array.from({ length: skeletonCount }).map((_, i) => (
             <CarCardSkeleton key={i} premium />
           ))}
         </CarCardGrid>
       ) : cars?.length ? (
-        <CarCardGrid>
+        <CarCardGrid dense={dense}>
           {cars.map((car) => (
             <CarCard key={car._id} car={car} premium sponsored={sponsored} />
           ))}

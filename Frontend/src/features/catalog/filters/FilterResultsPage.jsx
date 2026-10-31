@@ -22,7 +22,7 @@ import { InfiniteScrollFooter } from "../../../shared/components/InfiniteScrollF
 import { useInfiniteCars } from "../../../shared/hooks/useInfiniteCars.js";
 import {
   CarSilhouetteIcon,
-  SlidersIcon,
+  FilterIcon,
   ChevronDownIcon,
   CloseIcon,
 } from "../../../shared/components/icons.jsx";
@@ -233,7 +233,6 @@ export default function FilterResultsPage({
 
   const {
     cars: listedCars,
-    totalCars: listedTotal,
     hasMore,
     initialLoading: loading,
     initialError: error,
@@ -316,12 +315,6 @@ export default function FilterResultsPage({
     return cars.filter((car) => !sponsoredIds.has(car._id));
   }, [listedCars, fixedProvince, sponsoredCars]);
 
-  const totalCars = Math.max(
-    0,
-    listedTotal -
-      (fixedProvince ? sponsoredCars.length : 0),
-  );
-
   return (
     <div className="container-listing py-10 sm:py-14">
       <Reveal className="relative z-10 mb-8 pt-16 sm:pt-20">
@@ -331,18 +324,14 @@ export default function FilterResultsPage({
           </h1>
         )}
 
-        <div
-          className={`flex w-full items-center gap-3 sm:justify-end sm:gap-3 ${
-            fixedProvince ? "justify-end" : "justify-between"
-          }`}
-        >
+        <div className="flex w-full items-center justify-end gap-2.5 sm:gap-3">
           {!fixedProvince && (
             <button
               type="button"
               onClick={() => setMobilePanelOpen(true)}
-              className="inline-flex h-11 min-w-[120px] flex-1 items-center justify-center gap-2 rounded-full glass-panel px-5 text-sm font-semibold text-bone shadow-sm transition-all duration-200 hover:bg-white/85 sm:min-w-[120px] sm:flex-none"
+              className="inline-flex h-10 min-w-[104px] items-center justify-center gap-1.5 rounded-xl bg-[#D9AD68] px-4 text-xs font-semibold tracking-wide text-[#17130D] shadow-sm transition-[background-color,transform,box-shadow] duration-200 hover:bg-[#E5C18B] hover:shadow-[0_5px_18px_rgba(217,173,104,0.22)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E5C18B] sm:h-11 sm:min-w-[120px] sm:gap-2 sm:px-5 sm:text-sm"
             >
-              <SlidersIcon className="h-4 w-4 shrink-0 text-brass-dark" />
+              <FilterIcon className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
               <span>
                 {t("results.filters")}
                 {activeCount > 0 && ` (${activeCount})`}
@@ -371,10 +360,10 @@ export default function FilterResultsPage({
 
             <button
               type="button"
-              className="inline-flex h-11 min-w-[105px] items-center justify-center gap-2 rounded-full glass-panel px-5 text-sm font-semibold text-bone shadow-sm transition-all duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-brass/40"
+              className="inline-flex h-10 min-w-[96px] items-center justify-center gap-1.5 rounded-xl border border-card bg-white/70 px-4 text-xs font-semibold text-bone shadow-sm backdrop-blur-md transition-all duration-200 hover:border-brass hover:text-brass-dark peer-focus-visible:ring-2 peer-focus-visible:ring-brass/40 sm:h-11 sm:min-w-[120px] sm:gap-2 sm:px-5 sm:text-sm"
             >
               <span>{t("results.sortButton")}</span>
-              <ChevronDownIcon className="h-4 w-4 shrink-0 text-brass-dark" />
+              <ChevronDownIcon className="h-3.5 w-3.5 shrink-0 text-brass-dark sm:h-4 sm:w-4" />
             </button>
           </div>
         </div>
@@ -456,9 +445,9 @@ export default function FilterResultsPage({
           <>
             {gridCars.length > 0 && (
               <>
-                <p className="mb-4 text-sm text-ash">
-                  {t("results.count", { count: totalCars })}
-                </p>
+                <h2 className="font-display text-base sm:text-lg font-medium text-bone mb-6">
+                  {t("results.discoverTitle")}
+                </h2>
 
                 <CarCardGrid dense>
                   {gridCars.map((car) => (

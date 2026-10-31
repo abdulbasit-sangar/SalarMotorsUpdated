@@ -31,7 +31,7 @@
     --color-danger: #c1493d;
     --color-signal: #2f8f7a;
 
-    --bg: var(--color-graphite-950);
+    --bg: #ffffff;
     --surface: var(--color-graphite-900);
     --surface-800: var(--color-graphite-800);
     --surface-muted: var(--color-graphite-900);

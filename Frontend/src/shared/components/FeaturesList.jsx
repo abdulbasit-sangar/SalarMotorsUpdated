@@ -1,14 +1,13 @@
 import { useTranslation } from "react-i18next";
 import { useOptionLabel } from "../../i18n/optionLabels.js";
-import { CheckIcon } from "./icons.jsx";
+import { CheckIcon, BoltIcon } from "./icons.jsx";
 
 /**
- * FeaturesList — details-page display. Groups `selectedFeatures` (an array
- * of feature strings from Car.features) under the same category labels used
- * in FeaturesSelector, but only renders groups/features that are actually
- * present on this vehicle — never the full catalog. Renders nothing if the
- * vehicle has no features (old listings created before this feature shipped
- * simply default to an empty array — see car.model.js).
+ * FeaturesList — details-page display. All feature groups live inside one
+ * box; each group keeps its title, with its features as small badges
+ * underneath. Same layout on all devices. Renders nothing if the vehicle
+ * has no features (old listings created before this feature shipped simply
+ * default to an empty array — see car.model.js).
  */
 export const FeaturesList = ({ featureGroups, selectedFeatures }) => {
   const { t } = useTranslation();
@@ -25,20 +24,46 @@ export const FeaturesList = ({ featureGroups, selectedFeatures }) => {
 
   if (!groups.length) return null;
 
+  const total = groups.reduce((count, g) => count + g.features.length, 0);
+
   return (
     <div className="mt-8">
-      <h2 className="font-display text-lg font-semibold text-bone mb-4">
-        {t("features.title")}
-      </h2>
-      <div className="grid sm:grid-cols-2 gap-x-6 gap-y-5">
-        {groups.map((g) => (
+      <div className="glass-panel rounded-premium-lg p-5 sm:p-6">
+        <div className="flex items-center gap-2.5 mb-5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-brass/20 bg-brass/10 text-brass-dark">
+            <BoltIcon className="h-[18px] w-[18px]" />
+          </span>
+          <h2 className="font-display text-lg font-semibold text-bone">
+            {t("features.title")}
+          </h2>
+          <span
+            aria-hidden="true"
+            className="chip-glass !py-0.5 font-mono"
+          >
+            {total}
+          </span>
+        </div>
+
+        {groups.map((g, groupIndex) => (
           <div key={g.group}>
-            <p className="font-mono text-[11px] uppercase tracking-widest text-brass mb-2">
-              {label("featureGroup", g.group)}
+            {groupIndex > 0 && (
+              <div
+                aria-hidden="true"
+                className="border-t border-card my-5"
+              />
+            )}
+            <p className="flex items-center gap-2 mb-2.5">
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full bg-brass shrink-0"
+              />
+              <span className="font-display text-[13px] font-bold text-bone uppercase tracking-wider">
+                {label("featureGroup", g.group)}
+              </span>
             </p>
-            <ul className="space-y-1.5">
+            <ul className="flex flex-wrap gap-2">
               {g.features.map((feature) => (
-                <li key={feature} className="flex items-center gap-2 text-sm text-ash">
+                <li key={feature} className="chip-glass !px-3 !py-1.5 !text-[13px]">
                   <CheckIcon className="h-3.5 w-3.5 text-signal shrink-0" />
                   <span>{label("feature", feature)}</span>
                 </li>

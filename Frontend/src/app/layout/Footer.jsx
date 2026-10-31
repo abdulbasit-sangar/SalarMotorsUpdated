@@ -55,7 +55,7 @@ const SOCIAL_LINKS = [
 export const Footer = () => {
   const { t } = useTranslation("layout");
   return (
-  <footer className="border-t border-card bg-graphite-900 text-bone">
+  <footer className="border-t border-card bg-white text-bone">
     {/* Main Content Container */}
     <div className="container-page py-12 sm:py-14">
       <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
@@ -167,7 +167,7 @@ export const Footer = () => {
     </div>
 
     {/* Bottom Copyright Bar */}
-    <div className="border-t border-card bg-graphite-100">
+    <div className="border-t border-card bg-white">
       <div className="container-page flex flex-col gap-3 py-4 text-xs text-ash sm:flex-row sm:items-center sm:justify-between">
         <p className="flex items-center gap-2 font-medium">
           <span className="text-bone">
