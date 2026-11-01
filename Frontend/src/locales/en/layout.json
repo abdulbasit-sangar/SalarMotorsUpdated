@@ -17,7 +17,9 @@
     "searchCars": "Search cars",
     "searchPlaceholder": "Search brand, model, or location…",
     "logoAlt": "Salar Motors logo",
-    "language": "Language"
+    "language": "Language",
+    "themeDark": "Switch to dark mode",
+    "themeLight": "Switch to light mode"
   },
   "footer": {
     "about": "The benchmark in luxury and imported vehicle logistics. Delivering verified inventory, unmatched global sourcing transparency, and seamless direct transit from international hubs to your destination.",

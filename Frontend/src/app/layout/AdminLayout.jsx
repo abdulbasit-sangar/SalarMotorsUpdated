@@ -11,6 +11,7 @@ import logo from "../../assets/salarmotors.svg";
 import { useEscapeKey } from "../../shared/hooks/useEscapeKey.js";
 import { MenuIcon, CloseIcon } from "../../shared/components/icons.jsx";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher.jsx";
+import { ThemeToggle } from "../../shared/components/ThemeToggle.jsx";
 
 export const AdminLayout = () => {
   const { t } = useTranslation("layout");
@@ -252,6 +253,7 @@ export const AdminLayout = () => {
           </div>
 
           <div className="ms-3 flex min-w-0 items-center">
+            <ThemeToggle />
             <LanguageSwitcher tone="light" />
           </div>
         </header>

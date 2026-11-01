@@ -13,6 +13,13 @@ import {
   GearIcon,
   EngineIcon,
   MapPinIcon,
+  AwardIcon,
+  CarSilhouetteIcon,
+  BanknoteIcon,
+  CheckCircleIcon,
+  PaletteIcon,
+  CarFrontIcon,
+  HashIcon,
 } from "../../../shared/components/icons.jsx";
 
 const SpecCell = ({ icon: Icon, label, value }) => {
@@ -43,25 +50,27 @@ export const SpecsGrid = ({ car }) => {
   return (
   <div className="grid sm:grid-cols-2 gap-x-10">
     <div>
-      <SpecCell label={t("specs.brand")} value={car.brand} />
-      <SpecCell label={t("specs.model")} value={car.model} />
+      <SpecCell icon={AwardIcon} label={t("specs.brand")} value={car.brand} />
+      <SpecCell icon={CarSilhouetteIcon} label={t("specs.model")} value={car.model} />
       <SpecCell icon={CalendarIcon} label={t("specs.year")} value={car.year} />
-      <SpecCell label={t("specs.price")} value={formatPrice(car.price, car.currency)} />
+      <SpecCell icon={BanknoteIcon} label={t("specs.price")} value={formatPrice(car.price, car.currency)} />
       <SpecCell
         icon={GaugeIcon}
         label={t("specs.mileage")}
         value={formatMileage(car.mileage, car.mileageUnit)}
       />
       <SpecCell
+        icon={CheckCircleIcon}
         label={t("specs.condition")}
         value={label("condition", car.condition)}
       />
-      <SpecCell label={t("specs.color")} value={car.color} />
+      <SpecCell icon={PaletteIcon} label={t("specs.color")} value={car.color} />
     </div>
     <div>
       <SpecCell icon={FuelIcon} label={t("specs.fuelType")}
         value={label("fuelType", car.fuelType)} />
       <SpecCell
+        icon={CarFrontIcon}
         label={t("specs.bodyType")}
         value={label("bodyType", car.bodyType)}
       />
@@ -74,6 +83,7 @@ export const SpecsGrid = ({ car }) => {
       />
       <SpecCell icon={MapPinIcon} label={t("specs.location")} value={carLocation(car)} />
       <SpecCell
+        icon={HashIcon}
         label={t("specs.vin")}
         value={car.vin ? <span className="ltr-isolate">{car.vin}</span> : null}
       />

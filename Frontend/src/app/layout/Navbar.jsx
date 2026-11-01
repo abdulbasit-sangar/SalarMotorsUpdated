@@ -23,6 +23,7 @@ import {
   onTheWayPath,
 } from "../../shared/constants/locations.js";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher.jsx";
+import { ThemeToggle } from "../../shared/components/ThemeToggle.jsx";
 import logo from "../../assets/salarmotors.svg";
 
 const FAVORITES_PATH = "/favorites";
@@ -383,6 +384,7 @@ export const Navbar = () => {
             {/* Search, Language, Favorites, and Mobile Menu */}
             <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
               <LanguageSwitcher />
+              <ThemeToggle />
 
               <button
                 type="button"
