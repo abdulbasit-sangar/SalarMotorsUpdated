@@ -83,9 +83,7 @@ export default function SearchResultsPage() {
   const keyword = searchParams.get("keyword") || "";
   return (
     <div className="container-listing pb-10 pt-28 sm:pb-14 sm:pt-32">
-      <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
-        {t("search.eyebrow")}
-      </p>
+
       <h1 className="font-display text-2xl sm:text-3xl font-medium text-bone mb-6">
 
         {keyword ? (

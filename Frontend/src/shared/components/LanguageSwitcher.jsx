@@ -11,12 +11,20 @@ import { ChevronDownIcon, CheckIcon, GlobeIcon } from "./icons.jsx";
  *  variant="menu"  compact dropdown for the navbar (listbox pattern).
  *  variant="list"  always-visible radio-style list for the mobile drawer.
  *
+ *  tone="dark"   (default) trigger styled for dark surfaces (public navbar).
+ *  tone="light"  trigger styled for light surfaces (admin header).
+ *
  * Keyboard (menu): Enter/Space/↓ opens; ↑ ↓ Home End move; Enter/Space
  * selects; Escape closes and returns focus to the button; Tab closes.
  * Each option is rendered in its own language/direction (lang + dir) so
  * screen readers pronounce the endonym correctly.
  */
-export const LanguageSwitcher = ({ variant = "menu", onChanged, className }) => {
+export const LanguageSwitcher = ({
+  variant = "menu",
+  tone = "dark",
+  onChanged,
+  className,
+}) => {
   const { t } = useTranslation("common");
   const { language, languages, setLanguage } = useLanguage();
   const [open, setOpen] = useState(false);
@@ -154,7 +162,12 @@ export const LanguageSwitcher = ({ variant = "menu", onChanged, className }) => 
         disabled={pending}
         onClick={() => (open ? setOpen(false) : openMenu())}
         onKeyDown={onButtonKeyDown}
-        className="flex h-10 shrink-0 items-center gap-1 rounded-full px-2.5 text-sm font-medium text-bone transition-colors hover:bg-graphite-100 disabled:opacity-60 lg:h-9"
+        className={clsx(
+          "flex h-10 shrink-0 items-center gap-1 rounded-full px-2.5 text-sm font-medium transition-colors disabled:opacity-60 lg:h-9",
+          tone === "light"
+            ? "text-[#45443D] hover:bg-[#F5F3EE]"
+            : "text-bone hover:bg-graphite-100",
+        )}
       >
         <GlobeIcon className="h-[18px] w-[18px]" />
         <span lang={current.htmlLang} dir={current.dir} className="hidden sm:inline">

@@ -10,6 +10,7 @@ import { OfflineBanner } from "../../shared/components/OfflineBanner.jsx";
 import logo from "../../assets/salarmotors.svg";
 import { useEscapeKey } from "../../shared/hooks/useEscapeKey.js";
 import { MenuIcon, CloseIcon } from "../../shared/components/icons.jsx";
+import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher.jsx";
 
 export const AdminLayout = () => {
   const { t } = useTranslation("layout");
@@ -257,6 +258,8 @@ export const AdminLayout = () => {
           </div>
 
           <div className="ms-3 flex min-w-0 items-center gap-3">
+            <LanguageSwitcher tone="light" />
+
             <div className="hidden h-9 w-px bg-[#EAE7E0] sm:block" />
 
             <div className="flex min-w-0 items-center gap-2.5">

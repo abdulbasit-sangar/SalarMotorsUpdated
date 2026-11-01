@@ -1,6 +1,6 @@
 
 import { useCallback, useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
 import { useCarOptions } from "../../../shared/hooks/useCarOptions.js";
@@ -22,12 +22,17 @@ import { AdminCarRow } from "./AdminCarRow.jsx";
 import { EditFeaturesModal } from "./EditFeaturesModal.jsx";
 import { ManageImagesModal } from "./ManageImagesModal.jsx";
 import { Button } from "../../../shared/components/Button.jsx";
+import { Input, Select } from "../../../shared/components/Input.jsx";
 import { SortSelect } from "../../../shared/components/SortSelect.jsx";
 import { Pagination } from "../../../shared/components/Pagination.jsx";
 import { ErrorState } from "../../../shared/components/ErrorState.jsx";
 import { EmptyState } from "../../../shared/components/EmptyState.jsx";
 import { Skeleton } from "../../../shared/components/Skeleton.jsx";
-import { CarSilhouetteIcon } from "../../../shared/components/icons.jsx";
+import {
+  CarSilhouetteIcon,
+  FilterIcon,
+  SlidersIcon,
+} from "../../../shared/components/icons.jsx";
 import { useToast } from "../../../store/ui/ToastContext.jsx";
 import { useAuth } from "../../../store/auth/AuthContext.jsx";
 import { areaPath } from "../../../shared/utils/areaPath.js";
@@ -43,15 +48,30 @@ export default function ManageListingsPage() {
 
   const page = Math.max(1, parseInt(searchParams.get("page"), 10) || 1);
   const sort = searchParams.get("sort") || "newest";
+  const keyword = searchParams.get("keyword") || "";
+  const status = searchParams.get("status") || "all";
+  const filtersActive = Boolean(keyword) || status !== "all";
+
+  const [filtersOpen, setFiltersOpen] = useState(() => filtersActive);
+  const [keywordInput, setKeywordInput] = useState(keyword);
 
   const fetcher = useCallback(
-    () => fetchAdminCars({ page, limit: LIMIT, sort }),
-    [page, sort],
+    () =>
+      fetchAdminCars({
+        page,
+        limit: LIMIT,
+        sort,
+        keyword: keyword || undefined,
+        status: status === "all" ? undefined : status,
+      }),
+    [page, sort, keyword, status],
   );
 
   const { data, loading, error, refetch } = useAsyncData(fetcher, [
     page,
     sort,
+    keyword,
+    status,
   ]);
 
   const { options } = useCarOptions();
@@ -87,6 +107,31 @@ export default function ManageListingsPage() {
 
     setSearchParams(params);
   };
+
+  const clearFilters = () => {
+    setKeywordInput("");
+    updateParams({ keyword: null, status: null, page: null });
+  };
+
+  // Keep the search box in sync with the URL (e.g. back/forward navigation).
+  useEffect(() => {
+    setKeywordInput(keyword);
+  }, [keyword]);
+
+  // Debounced: typing updates the URL (and refetches) 400ms after the
+  // last keystroke instead of on every character.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      if (keywordInput.trim() !== keyword) {
+        updateParams({
+          keyword: keywordInput.trim() || null,
+          page: null,
+        });
+      }
+    }, 400);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keywordInput]);
 
   const handleToggleFeatured = async (car) => {
     setPendingId({ id: car._id, action: "feature" });
@@ -251,38 +296,100 @@ export default function ManageListingsPage() {
 
   return (
     <main className="container-page min-w-0 py-6 sm:py-8 lg:py-10">
-      <header className="mb-6 flex min-w-0 flex-col gap-5 border-b border-card pb-5 sm:mb-8 sm:pb-6 lg:flex-row lg:items-end lg:justify-between">
-        <div className="min-w-0">
-          <p className="mb-2 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-brass sm:text-xs">
-            {t("listings.eyebrow")}
-          </p>
-
-          <h1 className="font-display text-3xl font-semibold leading-tight text-bone sm:text-4xl">
-            {t("listings.title")}
-          </h1>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:flex lg:shrink-0 lg:items-center">
+      <header className="mb-6 border-b border-card pb-5 sm:mb-8 sm:pb-6">
+        <div className="flex min-w-0 flex-col gap-4 sm:gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
-            <SortSelect
-              value={sort}
-              onChange={(value) =>
-                updateParams({ sort: value, page: null })
-              }
-            />
+            <p className="mb-2 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-brass sm:text-xs">
+              {t("listings.eyebrow")}
+            </p>
+
+            <h1 className="font-display text-3xl font-semibold leading-tight text-bone sm:text-4xl">
+              {t("listings.title")}
+            </h1>
           </div>
 
-          <Button
-            as={Link}
-            to={areaPath(admin?.role, "/listings/create")}
-            variant="primary"
-            size="md"
-            className="w-full lg:w-auto"
-          >
-            {t("listings.create")}
-          </Button>
+          <div className="grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 lg:flex lg:shrink-0 lg:items-center">
+            <div className="relative min-w-0 [&_select]:cursor-pointer [&_select]:ps-10 [&_select]:font-semibold [&_select]:hover:border-brass">
+              <SlidersIcon
+                className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ash"
+                aria-hidden="true"
+              />
+              <SortSelect
+                value={sort}
+                onChange={(value) =>
+                  updateParams({ sort: value, page: null })
+                }
+              />
+            </div>
+
+            <Button
+              type="button"
+              onClick={() => setFiltersOpen((open) => !open)}
+              variant="secondary"
+              size="md"
+              className="w-full min-w-0 lg:w-auto"
+              aria-expanded={filtersOpen}
+            >
+              <FilterIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="truncate">{t("listings.filter")}</span>
+              {filtersActive && (
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full bg-brass"
+                  aria-hidden="true"
+                />
+              )}
+            </Button>
+          </div>
         </div>
       </header>
+
+      {filtersOpen && (
+        <section
+          aria-label={t("listings.filter")}
+          className="mb-6 rounded-2xl border border-card bg-card p-4 sm:mb-8 sm:p-5"
+        >
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_220px_auto] lg:items-end">
+            <div className="min-w-0 sm:col-span-2 lg:col-span-1">
+              <Input
+                type="search"
+                value={keywordInput}
+                onChange={(event) => setKeywordInput(event.target.value)}
+                placeholder={t("listings.keywordPlaceholder")}
+                aria-label={t("listings.keywordPlaceholder")}
+              />
+            </div>
+            <Select
+              value={status}
+              onChange={(event) =>
+                updateParams({
+                  status:
+                    event.target.value === "all" ? null : event.target.value,
+                  page: null,
+                })
+              }
+              aria-label={t("listings.filter")}
+            >
+              <option value="all">{t("listings.statusAll")}</option>
+              <option value="available">
+                {t("listings.statusAvailable")}
+              </option>
+              <option value="sold">{t("listings.statusSold")}</option>
+              <option value="hidden">{t("listings.statusHidden")}</option>
+              <option value="featured">{t("listings.statusFeatured")}</option>
+            </Select>
+            <Button
+              type="button"
+              variant="ghost"
+              size="md"
+              onClick={clearFilters}
+              disabled={!filtersActive}
+              className="w-full lg:w-auto"
+            >
+              {t("listings.clearFilters")}
+            </Button>
+          </div>
+        </section>
+      )}
 
       {error ? (
         <div className="rounded-2xl border border-card bg-card p-4 sm:p-6">
@@ -352,15 +459,25 @@ export default function ManageListingsPage() {
         </>
       ) : (
         <div className="rounded-2xl border border-card bg-card px-4 py-10 sm:px-6 sm:py-14">
-          <EmptyState
-            icon={<CarSilhouetteIcon className="h-14 w-14" />}
-            title={t("listings.emptyTitle")}
-            description={t("listings.emptyDescription")}
-            actionLabel={t("listings.emptyAction")}
-            onAction={() => {
-              window.location.href = areaPath(admin?.role, "/listings/create");
-            }}
-          />
+          {filtersActive ? (
+            <EmptyState
+              icon={<FilterIcon className="h-14 w-14" />}
+              title={t("listings.noResultsTitle")}
+              description={t("listings.noResultsDescription")}
+              actionLabel={t("listings.clearFilters")}
+              onAction={clearFilters}
+            />
+          ) : (
+            <EmptyState
+              icon={<CarSilhouetteIcon className="h-14 w-14" />}
+              title={t("listings.emptyTitle")}
+              description={t("listings.emptyDescription")}
+              actionLabel={t("listings.emptyAction")}
+              onAction={() => {
+                window.location.href = areaPath(admin?.role, "/listings/create");
+              }}
+            />
+          )}
         </div>
       )}
 

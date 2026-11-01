@@ -39,10 +39,9 @@ export default function FavoritesPage() {
 
   return (
     <div className="container-listing pb-8 pt-28 sm:pb-10 sm:pt-32">
-      <p className="font-mono text-xs text-brass uppercase tracking-widest mb-2">
-        {t("favorites.eyebrow")}
-      </p>
-      <h1 className="font-display text-4xl font-semibold text-bone mb-8">
+
+      <h1 className="font-display text-2xl font-semibold text-bone mb-6">
+
         {t("favorites.title")}
       </h1>
 

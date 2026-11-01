@@ -188,6 +188,11 @@ export const createCarService = async (
 // Sponsored endpoint. The ADMIN path (includeHidden=true) intentionally
 // does NOT exclude featured — admins/managers must see and manage every
 // listing regardless of category.
+// ─────────────────────────────────────────────────────────────────────────────
+// FUNCTION REPLACEMENT — Backend/src/services/car.service.js
+// Replace ONLY the getAllCarsService function with this version.
+// Everything else in the file stays exactly as it is.
+// ─────────────────────────────────────────────────────────────────────────────
 export const getAllCarsService = async (query = {}, includeHidden = false, admin = null) => {
   const { page, limit, skip } = parsePagination(query);
   const sortOption = SORT_MAP[query.sort] || SORT_MAP.newest;
@@ -199,6 +204,32 @@ export const getAllCarsService = async (query = {}, includeHidden = false, admin
   // empty until the manager creates their first listing.
   if (admin?.role === "manager") {
     filter.createdBy = admin._id;
+  }
+
+  // Manage-listings filters (admin/… and manager/… list pages ONLY —
+  // never applied to the public list):
+  //  - keyword: substring match on title / brand / model (case-insensitive)
+  //  - status: available | sold | hidden | featured
+  if (includeHidden) {
+    const keyword =
+      typeof query.keyword === "string" ? query.keyword.trim() : "";
+    if (keyword) {
+      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(escaped, "i");
+      filter.$or = [{ title: regex }, { brand: regex }, { model: regex }];
+    }
+
+    const status = typeof query.status === "string" ? query.status : "";
+    if (status === "available") {
+      filter.isSold = { $ne: true };
+      filter.isHidden = { $ne: true };
+    } else if (status === "sold") {
+      filter.isSold = true;
+    } else if (status === "hidden") {
+      filter.isHidden = true;
+    } else if (status === "featured") {
+      filter.featured = true;
+    }
   }
 
   const [cars, totalCars] = await Promise.all([
@@ -215,6 +246,7 @@ export const getAllCarsService = async (query = {}, includeHidden = false, admin
 
   return { cars, pagination: buildPagination(page, limit, totalCars) };
 };
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 13 — Get single car by ID
