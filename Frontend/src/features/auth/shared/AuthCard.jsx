@@ -6,7 +6,7 @@
  * still owns its own state, validation, and API calls.
  */
 export const AuthShell = ({ children }) => (
-  <div className="min-h-[calc(100vh-var(--header-h,76px))] flex items-center justify-center px-4 py-14 sm:py-16">
+  <div className="min-h-screen min-h-dvh flex items-center justify-center px-4 py-14 sm:py-16">
     <div className="w-full max-w-sm">{children}</div>
   </div>
 );

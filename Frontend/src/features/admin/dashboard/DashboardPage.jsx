@@ -1,4 +1,3 @@
-import { useAuth } from "../../../store/auth/AuthContext.jsx";
 import { useAsyncData } from "../../../shared/hooks/useAsyncData.js";
 import { fetchAdminCars } from "../../../services/cars/carsApi.js";
 import { StatCard } from "../../../shared/components/StatCard.jsx";
@@ -18,7 +17,6 @@ import {
   Route,
   Star,
   TrendingUp,
-  Warehouse,
 } from "lucide-react";
 
 const PAGE_SIZE = 50;
@@ -97,12 +95,9 @@ const loadDashboardData = async () => {
 const formatNumber = (value) =>
   new Intl.NumberFormat("en-US").format(value ?? 0);
 
-function SectionHeading({ eyebrow, title }) {
+function SectionHeading({ title }) {
   return (
     <div className="mb-5">
-      <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-brass">
-        {eyebrow}
-      </p>
       <h2 className="text-lg font-semibold tracking-tight text-bone sm:text-xl">
         {title}
       </h2>
@@ -185,7 +180,6 @@ function StatusRow({ label, count, total, color, icon: Icon, title }) {
 }
 
 export default function DashboardPage() {
-  const { admin } = useAuth();
   const { t } = useTranslation("admin");
 
   const { data, loading, error, refetch } = useAsyncData(
@@ -234,44 +228,10 @@ export default function DashboardPage() {
 
   return (
     <div className="container-page min-h-full py-7 sm:py-10">
-      <header className="mb-8 flex flex-col gap-5 border-b border-white/[0.08] pb-7 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <div className="mb-3 flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#2F8F7A]" />
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-brass sm:text-xs">
-              SAFAR MOTORS / ADMIN
-            </p>
-          </div>
-
-          <h1 className="break-words font-display text-3xl font-semibold tracking-tight text-bone sm:text-4xl lg:text-[42px]">
-            {t("dashboard.title")}
-          </h1>
-
-          <p className="mt-2 text-sm text-ash sm:text-base">
-            {admin?.username
-              ? t("dashboard.welcomeName", { name: admin.username })
-              : t("dashboard.welcome")}
-          </p>
-        </div>
-
-        <div
-          title={t("dashboard.catalogStatusHint")}
-          className="flex w-fit items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3 transition-colors hover:border-brass/30 hover:bg-white/[0.045]"
-        >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brass/10 text-brass">
-            <Warehouse size={19} strokeWidth={1.8} />
-          </div>
-          <div>
-            <p className="text-xs text-ash">{t("dashboard.catalogStatus")}</p>
-            <p className="mt-0.5 text-sm font-medium text-bone">
-              {loading
-                ? t("dashboard.statusUpdating")
-                : error
-                  ? t("dashboard.statusAttention")
-                  : t("dashboard.statusReady")}
-            </p>
-          </div>
-        </div>
+      <header className="mb-8 border-b border-white/[0.08] pb-7 sm:mb-10">
+        <h1 className="break-words font-display text-3xl font-semibold tracking-tight text-bone sm:text-4xl lg:text-[42px]">
+          {t("dashboard.title")}
+        </h1>
       </header>
 
       {error ? (
@@ -279,10 +239,7 @@ export default function DashboardPage() {
       ) : (
         <>
           <section className="mb-10">
-            <SectionHeading
-              eyebrow={`01 / ${t("dashboard.sectionMetrics")}`}
-              title={t("dashboard.inventoryOverview")}
-            />
+            <SectionHeading title={t("dashboard.inventoryOverview")} />
 
             <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <StatCard
@@ -310,10 +267,7 @@ export default function DashboardPage() {
           </section>
 
           <section className="mb-10">
-            <SectionHeading
-              eyebrow={`02 / ${t("dashboard.sectionCategories")}`}
-              title={t("dashboard.vehicleDistribution")}
-            />
+            <SectionHeading title={t("dashboard.vehicleDistribution")} />
 
             <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-3">
               <OverviewCard
@@ -344,10 +298,7 @@ export default function DashboardPage() {
           </section>
 
           <section className="mb-10">
-            <SectionHeading
-              eyebrow={`03 / ${t("dashboard.sectionPerformance")}`}
-              title={t("dashboard.listingStatus")}
-            />
+            <SectionHeading title={t("dashboard.listingStatus")} />
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
               <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 transition-colors hover:border-white/[0.13] sm:p-6 lg:col-span-3">
@@ -356,9 +307,6 @@ export default function DashboardPage() {
                     <h3 className="font-semibold text-bone">
                       {t("dashboard.statusDistribution")}
                     </h3>
-                    <p className="mt-1 text-xs text-ash">
-                      {t("dashboard.allListings")}
-                    </p>
                   </div>
 
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brass/10 text-brass">

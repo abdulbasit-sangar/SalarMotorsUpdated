@@ -42,6 +42,7 @@ const LIMIT = 10;
 
 export default function ManageListingsPage() {
   const { t } = useTranslation("admin");
+  const { t: tCommon } = useTranslation();
   const toast = useToast();
   const { admin } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -297,29 +298,30 @@ export default function ManageListingsPage() {
   return (
     <main className="container-page min-w-0 py-6 sm:py-8 lg:py-10">
       <header className="mb-6 border-b border-card pb-5 sm:mb-8 sm:pb-6">
-        <div className="flex min-w-0 flex-col gap-4 sm:gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex min-w-0 flex-col gap-4 sm:gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <p className="mb-2 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-brass sm:text-xs">
-              {t("listings.eyebrow")}
-            </p>
-
             <h1 className="font-display text-3xl font-semibold leading-tight text-bone sm:text-4xl">
               {t("listings.title")}
             </h1>
           </div>
 
           <div className="grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 lg:flex lg:shrink-0 lg:items-center">
-            <div className="relative min-w-0 [&_select]:cursor-pointer [&_select]:ps-10 [&_select]:font-semibold [&_select]:hover:border-brass">
-              <SlidersIcon
-                className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ash"
-                aria-hidden="true"
-              />
+            <div className="relative min-w-0 lg:w-56 [&_select]:h-10 [&_select]:cursor-pointer [&_select]:!text-transparent [&_select]:hover:border-brass [&_option]:text-[#252722] sm:[&_select]:h-11">
               <SortSelect
                 value={sort}
                 onChange={(value) =>
                   updateParams({ sort: value, page: null })
                 }
               />
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 flex items-center justify-center gap-2 px-4"
+              >
+                <SlidersIcon className="h-4 w-4 shrink-0 text-ash" />
+                <span className="truncate text-[13px] font-semibold text-bone sm:text-sm">
+                  {tCommon("sort.label")}
+                </span>
+              </span>
             </div>
 
             <Button
@@ -327,7 +329,7 @@ export default function ManageListingsPage() {
               onClick={() => setFiltersOpen((open) => !open)}
               variant="secondary"
               size="md"
-              className="w-full min-w-0 lg:w-auto"
+              className="w-full min-w-0 lg:w-56 max-[639px]:!h-10 max-[639px]:!px-4 max-[639px]:!text-[13px]"
               aria-expanded={filtersOpen}
             >
               <FilterIcon className="h-4 w-4 shrink-0" aria-hidden="true" />

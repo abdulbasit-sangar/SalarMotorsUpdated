@@ -203,7 +203,7 @@ export default function ManagerRegisterPage() {
           </AuthCardPanel>
           <AuthFootnote>
             {t("manager.alreadyVerified")}{" "}
-            <Link to="/admin/login" className="text-brass-dark font-medium hover:underline">
+            <Link to="/manager/login" className="text-brass-dark font-medium hover:underline">
               {t("manager.signIn")}
             </Link>
           </AuthFootnote>
@@ -282,7 +282,7 @@ export default function ManagerRegisterPage() {
           <Button
             variant="primary"
             className="w-full"
-            onClick={() => navigate("/admin/login", { replace: true })}
+            onClick={() => navigate("/manager/login", { replace: true })}
           >
             {t("manager.goToSignIn")}
           </Button>

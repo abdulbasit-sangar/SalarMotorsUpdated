@@ -35,8 +35,6 @@ export default function LoginPage({
   expectedRole = "superadmin",
   heading,
   dashboardPath,
-  otherLoginPath,
-  otherLoginLabel,
 }) {
   const { t } = useTranslation("auth");
   const { loginAs } = useAuth();
@@ -45,7 +43,6 @@ export default function LoginPage({
   const location = useLocation();
 
   const dashboard = dashboardPath || (expectedRole === "manager" ? "/manager/dashboard" : "/admin/dashboard");
-  const otherLogin = otherLoginPath || (expectedRole === "manager" ? "/admin/login" : "/manager/login");
   const isManager = expectedRole === "manager";
 
   const [form, setForm] = useState({ email: "", password: "" });
@@ -154,7 +151,7 @@ export default function LoginPage({
         <AuthFootnote>
           Don&apos;t have a manager account?{" "}
           <Link to="/manager/register" className="text-brass-dark font-medium hover:underline">
-            Create a manager account
+            Sign up
           </Link>
         </AuthFootnote>
       ) : (
@@ -165,12 +162,6 @@ export default function LoginPage({
           </Link>
         </AuthFootnote>
       )}
-      <AuthFootnote>
-        {otherLoginLabel || (isManager ? "Are you the main admin?" : "Are you a manager?")}{" "}
-        <Link to={otherLogin} className="text-brass-dark font-medium hover:underline">
-          {isManager ? "Main admin login" : "Manager login"}
-        </Link>
-      </AuthFootnote>
     </AuthShell>
   );
 }

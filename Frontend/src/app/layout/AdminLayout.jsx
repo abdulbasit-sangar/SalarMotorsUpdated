@@ -60,9 +60,6 @@ export const AdminLayout = () => {
         </Link>
 
         <div className="flex-1 overflow-y-auto overscroll-contain px-2 py-5">
-          <p className="mb-3 px-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#99958B]">
-            {t("admin.navigation")}
-          </p>
           <AdminSidebar />
         </div>
 
@@ -168,9 +165,6 @@ export const AdminLayout = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto overscroll-contain px-2 py-5">
-            <p className="mb-3 px-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#99958B]">
-              {t("admin.navigation")}
-            </p>
             <AdminSidebar onNavigate={closeDrawer} />
           </div>
 
@@ -247,9 +241,9 @@ export const AdminLayout = () => {
               />
             </Link>
 
-            <div className="hidden md:block">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A18A60]">
-                SAFAR
+            <div className="hidden min-w-0 md:block">
+              <p className="truncate text-[10px] font-bold uppercase tracking-[0.2em] text-[#A18A60]">
+                {admin?.username || "Admin"}
               </p>
               <p className="mt-1 text-sm font-semibold text-[#33332D]">
                 {t("admin.navigation")}
@@ -257,23 +251,8 @@ export const AdminLayout = () => {
             </div>
           </div>
 
-          <div className="ms-3 flex min-w-0 items-center gap-3">
+          <div className="ms-3 flex min-w-0 items-center">
             <LanguageSwitcher tone="light" />
-
-            <div className="hidden h-9 w-px bg-[#EAE7E0] sm:block" />
-
-            <div className="flex min-w-0 items-center gap-2.5">
-              <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E8D9BC] bg-[#F3EBDD] text-sm font-bold text-[#87632C]"
-                aria-hidden="true"
-              >
-                {(admin?.username || "A").trim().charAt(0).toUpperCase()}
-              </div>
-
-              <span className="max-w-[140px] truncate text-sm font-semibold text-[#45443D] sm:max-w-[220px]">
-                {admin?.username || "Admin"}
-              </span>
-            </div>
           </div>
         </header>
 

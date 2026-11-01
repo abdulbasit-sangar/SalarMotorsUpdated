@@ -7,6 +7,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { PublicLayout } from "../layout/PublicLayout.jsx";
+import { AuthLayout } from "../layout/AuthLayout.jsx";
 import { AdminLayout } from "../layout/AdminLayout.jsx";
 import { GuestOnlyRoute } from "./GuestOnlyRoute.jsx";
 import { SuperAdminOnlyRoute } from "./SuperAdminOnlyRoute.jsx";
@@ -127,7 +128,10 @@ export const AppRouter = () => (
         <Route path="/filter" element={<RedirectToListings />} />
         <Route path="/cars/:id" element={withSuspense(<CarDetailsPage />)} />
         <Route path="/favorites" element={withSuspense(<FavoritesPage />)} />
+      </Route>
 
+      {/* ── Auth screens — footer, no navbar ────────────────────────── */}
+      <Route element={<AuthLayout />}>
         {/* ── Separate logins ─────────────────────────────────────── */}
         {/* Main admin only */}
         <Route
