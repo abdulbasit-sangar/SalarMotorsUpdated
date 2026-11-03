@@ -1,4 +1,3 @@
-
 import {
   Children,
   useCallback,
@@ -10,11 +9,14 @@ import { Link } from "react-router-dom";
 import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "../../i18n/useLanguage.js";
+import { useOptionLabel } from "../../i18n/optionLabels.js";
 import { Badge } from "./Badge.jsx";
 import { SoldRibbon, SoldSrLabel } from "./SoldRibbon.jsx";
 import { FavoriteButton } from "./FavoriteButton.jsx";
 import {
   CarSilhouetteIcon,
+  CalendarIcon,
+  FuelIcon,
   GaugeIcon,
   MapPinIcon,
   CameraIcon,
@@ -46,8 +48,9 @@ const compactPrice = (price, currency = "USD") => {
 
 /**
  * variant="default" — the original card (used by Home, Search, Favorites…).
- * variant="compact" — smaller listing card: price first, then title, then a
- *                     single "KM · Location" line. Used by the catalog tabs.
+ * variant="compact" — smaller listing card: price first, then title, then the
+ *                     spec chips (year / mileage / fuel / location / VIN).
+ *                     Used by the catalog tabs and the All listings page.
  */
 export const CarCard = ({
   car,
@@ -56,6 +59,7 @@ export const CarCard = ({
   variant = "default",
 }) => {
   const { t } = useTranslation();
+  const label = useOptionLabel();
   const compact = variant === "compact";
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -66,6 +70,7 @@ export const CarCard = ({
   const mileage = formatMileage(car.mileage, car.mileageUnit);
 
   const location = carLocation(car);
+  const fuelTypeLabel = label("fuelType", car.fuelType);
   const imageTotal = imageUrls.length;
   const showImageNavigation = imageTotal > 1;
 
@@ -199,10 +204,43 @@ export const CarCard = ({
             {carTitle(car)}
           </h3>
 
-          {(mileage || location) && (
-            <p className="mt-1 truncate text-xs text-ash">
-              {[mileage?.toUpperCase(), location].filter(Boolean).join(" · ")}
-            </p>
+          {(car.year || mileage || fuelTypeLabel || location || car.vin) && (
+            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+              {car.year && (
+                <span className="chip-glass">
+                  <CalendarIcon className="h-3.5 w-3.5 text-icon-secondary" />
+                  {car.year}
+                </span>
+              )}
+
+              {mileage && (
+                <span className="chip-glass">
+                  <GaugeIcon className="h-3.5 w-3.5 text-icon-secondary" />
+                  {mileage}
+                </span>
+              )}
+
+              {fuelTypeLabel && (
+                <span className="chip-glass">
+                  <FuelIcon className="h-3.5 w-3.5 text-icon-secondary" />
+                  {fuelTypeLabel}
+                </span>
+              )}
+
+              {location && (
+                <span className="chip-glass">
+                  <MapPinIcon className="h-3.5 w-3.5 text-icon-secondary" />
+                  {location}
+                </span>
+              )}
+
+              {car.vin && (
+                <span className="chip-glass font-mono" title={car.vin}>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-icon-secondary">VIN</span>
+                  {car.vin}
+                </span>
+              )}
+            </div>
           )}
         </div>
       ) : (
@@ -217,12 +255,12 @@ export const CarCard = ({
             </p>
           </div>
 
-          {(location || mileage) && (
+          {(car.year || mileage || fuelTypeLabel || location || car.vin) && (
             <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-5">
-              {location && (
+              {car.year && (
                 <span className="chip-glass">
-                  <MapPinIcon className="h-3.5 w-3.5 text-icon-secondary" />
-                  {location}
+                  <CalendarIcon className="h-3.5 w-3.5 text-icon-secondary" />
+                  {car.year}
                 </span>
               )}
 
@@ -230,6 +268,27 @@ export const CarCard = ({
                 <span className="chip-glass">
                   <GaugeIcon className="h-3.5 w-3.5 text-icon-secondary" />
                   {mileage}
+                </span>
+              )}
+
+              {fuelTypeLabel && (
+                <span className="chip-glass">
+                  <FuelIcon className="h-3.5 w-3.5 text-icon-secondary" />
+                  {fuelTypeLabel}
+                </span>
+              )}
+
+              {location && (
+                <span className="chip-glass">
+                  <MapPinIcon className="h-3.5 w-3.5 text-icon-secondary" />
+                  {location}
+                </span>
+              )}
+
+              {car.vin && (
+                <span className="chip-glass font-mono" title={car.vin}>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-icon-secondary">VIN</span>
+                  {car.vin}
                 </span>
               )}
             </div>

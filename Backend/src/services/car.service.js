@@ -235,7 +235,7 @@ export const getAllCarsService = async (query = {}, includeHidden = false, admin
   const [cars, totalCars] = await Promise.all([
     Car.find(filter)
       .select(
-        "title brand model year price currency mileage mileageUnit province images featured isSold features slug createdAt isHidden",
+        "title brand model year price currency mileage mileageUnit province city fuelType vin images featured isSold features slug createdAt isHidden",
       )
       .sort(sortOption)
       .skip(skip)
@@ -298,7 +298,7 @@ export const searchCarsService = async (query = {}) => {
   const [cars, totalCars] = await Promise.all([
     Car.find(filter)
       .select(
-        "title brand model year price currency mileage mileageUnit province images featured isSold slug createdAt",
+        "title brand model year price currency mileage mileageUnit province city fuelType vin images featured isSold slug createdAt",
       )
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -394,7 +394,7 @@ export const filterCarsService = async (query = {}) => {
   const [cars, totalCars] = await Promise.all([
     Car.find(filter)
       .select(
-        "title brand model year price currency mileage mileageUnit province fuelType bodyType images featured isSold slug createdAt",
+        "title brand model year price currency mileage mileageUnit province city fuelType bodyType vin images featured isSold slug createdAt",
       )
       .sort(sortOption)
       .skip(skip)
@@ -433,7 +433,7 @@ export const getSimilarCarsService = async (id) => {
 
   const cars = await Car.find(filter)
     .select(
-      "title brand model year price currency mileage mileageUnit province images featured isSold slug",
+      "title brand model year price currency mileage mileageUnit province city fuelType vin images featured isSold slug",
     )
     .limit(6)
     .lean();
@@ -822,7 +822,7 @@ export const reorderCarImagesService = async (id, orderedPublicIds = [], admin =
 export const getFeaturedCarsService = async (limitNum = 8) => {
   const cars = await Car.find({ isHidden: false, featured: true })
     .select(
-      "title brand model year price currency mileage mileageUnit province images featured isSold slug",
+      "title brand model year price currency mileage mileageUnit province city fuelType vin images featured isSold slug",
     )
     .sort({ createdAt: -1 })
     .limit(limitNum)
