@@ -1,8 +1,18 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "../../../shared/components/Button.jsx";
-import { CarSilhouetteIcon } from "../../../shared/components/icons.jsx";
+import {
+  AwardIcon,
+  CarSilhouetteIcon,
+  CheckCircleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CloseIcon,
+  DeleteIcon,
+  EditIcon,
+  EyeIcon,
+  EyeOffIcon,
+  SpinnerIcon,
+} from "../../../shared/components/icons.jsx";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../store/auth/AuthContext.jsx";
 import { areaPath } from "../../../shared/utils/areaPath.js";
@@ -24,64 +34,12 @@ const getImageUrl = (image) => {
   return image?.url || image?.secure_url || image?.src || "";
 };
 
-const Icon = ({ name, className = "h-4 w-4" }) => {
-  const paths = {
-    close: (
-      <path
-        d="m18 6-12 12M6 6l12 12"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-    previous: (
-      <path
-        d="m15 18-6-6 6-6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-    next: (
-      <path
-        d="m9 18 6-6-6-6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-    image: (
-      <>
-        <rect x="3" y="3" width="18" height="18" rx="3" />
-        <circle cx="8.5" cy="8.5" r="1.5" />
-        <path
-          d="m21 15-5-5L5 21"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </>
-    ),
-  };
+const iconButtonClass =
+  "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass " +
+  "disabled:cursor-not-allowed disabled:opacity-40";
 
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      className={className}
-    >
-      {paths[name]}
-    </svg>
-  );
-};
-
-const secondaryButtonClass =
-  "!flex !h-full !min-h-12 !w-full !min-w-0 !items-center !justify-center " +
-  "!whitespace-normal !break-words !rounded-lg !border !border-[#E1E4E8] " +
-  "!bg-[#F3F4F6] !px-3 !py-2.5 !text-center !text-xs !font-semibold " +
-  "!leading-4 shadow-sm transition-colors duration-150 " +
-  "hover:!bg-[#E9EBEF] focus-visible:!outline-none " +
-  "focus-visible:!ring-2 focus-visible:!ring-offset-2 " +
-  "disabled:!cursor-not-allowed disabled:!opacity-60";
+const actionIconClass = "h-[18px] w-[18px]";
 
 export const AdminCarRow = ({
   car,
@@ -176,75 +134,52 @@ export const AdminCarRow = ({
     );
   };
 
+  const hideTitle = blockedFromPublish
+    ? publishText.requirementMessage
+    : car.isHidden
+      ? t("row.unhide")
+      : t("row.hide");
+
   return (
     <>
-      <article className="group overflow-hidden rounded-2xl border border-card bg-card shadow-sm transition-all duration-200 hover:border-brass/35 hover:shadow-lg">
-        <div className="flex min-w-0 flex-col gap-4 p-3 sm:p-4 md:flex-row md:items-start md:gap-4 lg:gap-5">
-          {/* Vehicle image */}
+      <article className="rounded-2xl border border-card bg-card shadow-sm transition-all duration-200 hover:border-brass/35 hover:shadow-md">
+        <div className="flex flex-wrap items-center gap-3 p-3 sm:flex-nowrap sm:gap-4 sm:p-4">
+          {/* Circular vehicle thumbnail */}
           <button
             type="button"
             onClick={openGallery}
+            title={t("row.viewPhotos", { title: carTitle(car) })}
             aria-label={t("row.viewPhotos", { title: carTitle(car) })}
-            className="relative block aspect-[4/3] w-full shrink-0 overflow-hidden rounded-xl bg-[#F2F0EB] text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2 md:w-40 lg:w-48 xl:w-56"
+            className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-card bg-graphite-100 transition-transform duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:h-16 sm:w-16"
           >
             {primaryImage ? (
               <img
                 src={primaryImage}
-                alt={carTitle(car)}
+                alt=""
                 loading="lazy"
-                className="h-full w-full object-contain p-1 sm:p-1.5 lg:object-cover lg:p-0"
+                className="h-full w-full object-cover"
               />
             ) : (
               <span className="flex h-full w-full items-center justify-center">
-                <CarSilhouetteIcon className="h-12 w-16 text-icon-secondary" />
+                <CarSilhouetteIcon className="h-6 w-9 text-icon-secondary" />
               </span>
             )}
-
-            <span className="absolute inset-0 bg-gradient-to-t from-graphite/60 via-transparent to-transparent opacity-70 transition-opacity duration-200 group-hover:opacity-100" />
-
-            <span className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-graphite/65 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm backdrop-blur-md">
-                <Icon name="image" className="h-3.5 w-3.5" />
-                {imageCount}
-              </span>
-            </span>
           </button>
 
-          {/* Vehicle details */}
-          <div className="flex min-w-0 flex-1 flex-col">
-            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-              <div className="min-w-0 flex-1">
-                <h3 className="break-words font-display text-lg font-semibold leading-snug text-card sm:text-xl">
-                  {carTitle(car)}
-                </h3>
+          {/* Listing information */}
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate font-display text-base font-semibold leading-snug text-card sm:text-lg">
+              {carTitle(car)}
+            </h3>
 
-                <p className="mt-1 flex items-center gap-1.5 text-sm text-card-muted">
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    className="h-4 w-4 shrink-0"
-                  >
-                    <path
-                      d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <circle cx="12" cy="10" r="2.5" />
-                  </svg>
-                  <span className="break-words">{location}</span>
-                </p>
-              </div>
-
-              <p className="shrink-0 font-mono text-lg font-semibold tabular-nums text-brass-dark sm:text-right sm:text-xl">
-                {formatPrice(car.price, car.currency)}
-              </p>
-            </div>
+            <p className="mt-0.5 truncate text-xs text-ash sm:text-sm">
+              {[location, formatPrice(car.price, car.currency)]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
 
             {/* Listing status */}
-            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
               <span
                 className={`inline-flex min-h-6 items-center gap-1 rounded-sm border px-2 py-0.5 text-[11px] font-medium ${
                   car.featured
@@ -258,9 +193,7 @@ export const AdminCarRow = ({
                     car.featured ? "bg-[#B8863A]" : "bg-[#9298A2]"
                   }`}
                 />
-                {car.featured
-                  ? t("row.featured")
-                  : t("row.notFeatured")}
+                {car.featured ? t("row.featured") : t("row.notFeatured")}
               </span>
 
               <span
@@ -300,166 +233,181 @@ export const AdminCarRow = ({
             {blockedFromPublish && (
               <p
                 id={hintId}
-                className="mt-3 rounded-lg border border-danger/20 bg-danger/5 px-3 py-2 text-xs leading-relaxed text-danger"
+                className="mt-2 rounded-lg border border-danger/20 bg-danger/5 px-2.5 py-1.5 text-[11px] leading-relaxed text-danger"
               >
                 {publishText.requirementMessage}{" "}
                 {publishText.missingMessage}
               </p>
             )}
+          </div>
 
-            {/* Responsive admin actions */}
-            <div className="mt-4 grid grid-cols-2 items-stretch gap-2 border-t border-card pt-3 sm:grid-cols-3 xl:grid-cols-4 [&>div]:flex [&>div]:min-w-0 [&>div]:items-stretch">
-              {/* Primary action */}
-              <div className="col-span-2 sm:col-span-3 xl:col-span-4">
-                <Button
-                  as={Link}
-                  to={areaPath(admin?.role, `/listings/${car._id}/edit`)}
-                  size="sm"
-                  variant="primary"
-                  className="!flex !min-h-12 !w-full !items-center !justify-center !rounded-lg !px-3 !py-2.5 !text-center !text-xs !font-semibold !leading-4 !whitespace-normal !break-words"
-                >
-                  {t("row.editVehicle")}
-                </Button>
-              </div>
+          {/* Icon-only actions */}
+          <div className="flex w-full shrink-0 items-center justify-end gap-1 border-t border-card pt-3 sm:w-auto sm:border-t-0 sm:pt-0">
+            <Link
+              to={areaPath(admin?.role, `/listings/${car._id}/edit`)}
+              title={t("row.editVehicle")}
+              aria-label={t("row.editVehicle")}
+              className={`${iconButtonClass} hover:bg-brass/10`}
+            >
+              <EditIcon className={actionIconClass} />
+            </Link>
 
-              {isSuperAdmin && (
-                <div>
-                  <Button
-                    size="sm"
-                    variant="soft"
-                    className={`${secondaryButtonClass} !text-[#287442] hover:!text-[#1D5D33] focus-visible:!ring-[#287442]`}
-                    loading={pending === "feature"}
-                    onClick={() => onToggleFeatured(car)}
-                  >
-                    {car.featured
-                      ? t("row.unfeature")
-                      : t("row.feature")}
-                  </Button>
-                </div>
+            {isSuperAdmin && (
+              <button
+                type="button"
+                onClick={() => onToggleFeatured(car)}
+                disabled={pending === "feature"}
+                title={
+                  car.featured ? t("row.unfeature") : t("row.feature")
+                }
+                aria-label={
+                  car.featured ? t("row.unfeature") : t("row.feature")
+                }
+                className={`${iconButtonClass} hover:bg-brass/10`}
+              >
+                {pending === "feature" ? (
+                  <SpinnerIcon
+                    className={`${actionIconClass} animate-spin`}
+                  />
+                ) : (
+                  <AwardIcon className={actionIconClass} />
+                )}
+              </button>
+            )}
+
+            {isSuperAdmin && (
+              <button
+                type="button"
+                onClick={() => onToggleHide(car)}
+                disabled={pending === "hide" || blockedFromPublish}
+                title={hideTitle}
+                aria-label={
+                  car.isHidden ? t("row.unhide") : t("row.hide")
+                }
+                aria-describedby={
+                  blockedFromPublish ? hintId : undefined
+                }
+                className={`${iconButtonClass} hover:bg-brass/10`}
+              >
+                {pending === "hide" ? (
+                  <SpinnerIcon
+                    className={`${actionIconClass} animate-spin`}
+                  />
+                ) : car.isHidden ? (
+                  <EyeIcon className={actionIconClass} />
+                ) : (
+                  <EyeOffIcon className={actionIconClass} />
+                )}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => onToggleSold(car)}
+              disabled={pending === "sold"}
+              title={
+                car.isSold ? t("row.markAvailable") : t("row.markSold")
+              }
+              aria-label={
+                car.isSold ? t("row.markAvailable") : t("row.markSold")
+              }
+              className={`${iconButtonClass} hover:bg-brass/10`}
+            >
+              {pending === "sold" ? (
+                <SpinnerIcon className={`${actionIconClass} animate-spin`} />
+              ) : (
+                <CheckCircleIcon className={actionIconClass} />
               )}
+            </button>
 
-              {isSuperAdmin && (
-                <div>
-                  <Button
-                    size="sm"
-                    variant="soft"
-                    className={`${secondaryButtonClass} !text-[#245F91] hover:!text-[#17466D] focus-visible:!ring-[#245F91]`}
-                    loading={pending === "hide"}
-                    disabled={blockedFromPublish}
-                    aria-describedby={
-                      blockedFromPublish ? hintId : undefined
-                    }
-                    title={
-                      blockedFromPublish
-                        ? publishText.requirementMessage
-                        : undefined
-                    }
-                    onClick={() => onToggleHide(car)}
-                  >
-                    {car.isHidden ? t("row.unhide") : t("row.hide")}
-                  </Button>
-                </div>
-              )}
-
-              <div>
-                <Button
-                  size="sm"
-                  variant="soft"
-                  className={`${secondaryButtonClass} !text-[#946313] hover:!text-[#714B0B] focus-visible:!ring-[#946313]`}
-                  loading={pending === "sold"}
-                  onClick={() => onToggleSold(car)}
-                >
-                  {car.isSold
-                    ? t("row.markAvailable")
-                    : t("row.markSold")}
-                </Button>
-              </div>
-
-              {isSuperAdmin && (
-                <div>
-                  <Button
-                    size="sm"
-                    variant="soft"
-                    className={`${secondaryButtonClass} !text-[#B4232F] hover:!text-[#8F1721] focus-visible:!ring-[#B4232F]`}
-                    loading={pending === "delete"}
-                    onClick={() => onDelete(car)}
-                  >
-                    {t("row.delete")}
-                  </Button>
-                </div>
-              )}
-            </div>
+            {isSuperAdmin && (
+              <button
+                type="button"
+                onClick={() => onDelete(car)}
+                disabled={pending === "delete"}
+                title={t("row.delete")}
+                aria-label={t("row.delete")}
+                className={`${iconButtonClass} hover:bg-danger/10`}
+              >
+                {pending === "delete" ? (
+                  <SpinnerIcon
+                    className={`${actionIconClass} animate-spin`}
+                  />
+                ) : (
+                  <DeleteIcon className={actionIconClass} />
+                )}
+              </button>
+            )}
           </div>
         </div>
       </article>
 
-      {/* Image gallery */}
+      {/* Image gallery — full-screen viewer */}
       {galleryOpen && galleryImages.length > 0 && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-graphite-950/95 p-3 backdrop-blur-md sm:p-6"
+          className="fixed inset-0 z-[100] flex select-none flex-col bg-[#121419]"
           role="dialog"
           aria-modal="true"
           aria-label={carTitle(car)}
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setGalleryOpen(false);
-            }
-          }}
         >
-          <div className="flex max-h-full w-full max-w-6xl flex-col gap-3">
-            <div className="flex min-w-0 items-center justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="truncate text-base font-semibold text-white sm:text-lg">
-                  {carTitle(car)}
-                </h2>
-                <p className="mt-0.5 text-xs text-white/60">
-                  {activeImage + 1} / {imageCount}
-                </p>
-              </div>
+          {/* Top bar: counter centered, close pinned to the top-right corner */}
+          <div className="relative flex shrink-0 items-center justify-center px-4 py-3 sm:py-4">
+            <p className="text-sm font-medium tabular-nums text-white/70">
+              {activeImage + 1} / {imageCount}
+            </p>
+            <button
+              type="button"
+              onClick={() => setGalleryOpen(false)}
+              aria-label={t("row.closeGallery")}
+              className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:right-6"
+            >
+              <CloseIcon className="h-5 w-5" />
+            </button>
+          </div>
 
-              <button
-                type="button"
-                onClick={() => setGalleryOpen(false)}
-                aria-label={t("row.closeGallery")}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
-              >
-                <Icon name="close" className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl bg-black/25">
-              <img
-                key={galleryImages[activeImage].url}
-                src={galleryImages[activeImage].url}
-                alt={`${carTitle(car)} — ${activeImage + 1}`}
-                className="max-h-[68vh] w-full object-contain sm:max-h-[72vh]"
-              />
-
-              {imageCount > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => changeImage(-1)}
-                    aria-label={t("row.previousImage")}
-                    className="absolute start-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:start-4 sm:h-12 sm:w-12"
-                  >
-                    <Icon name="previous" className="h-5 w-5" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => changeImage(1)}
-                    aria-label={t("row.nextImage")}
-                    className="absolute end-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:end-4 sm:h-12 sm:w-12"
-                  >
-                    <Icon name="next" className="h-5 w-5" />
-                  </button>
-                </>
-              )}
-            </div>
+          {/* Full-screen stage */}
+          <div
+            className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-1 sm:px-4"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) {
+                setGalleryOpen(false);
+              }
+            }}
+          >
+            <img
+              key={galleryImages[activeImage].url}
+              src={galleryImages[activeImage].url}
+              alt={`${carTitle(car)} — ${activeImage + 1}`}
+              className="max-h-full max-w-full object-contain"
+              draggable={false}
+            />
 
             {imageCount > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
+              <>
+                <button
+                  type="button"
+                  onClick={() => changeImage(-1)}
+                  aria-label={t("row.previousImage")}
+                  className="absolute start-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:start-6 sm:h-12 sm:w-12"
+                >
+                  <ChevronLeftIcon className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => changeImage(1)}
+                  aria-label={t("row.nextImage")}
+                  className="absolute end-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:end-6 sm:h-12 sm:w-12"
+                >
+                  <ChevronRightIcon className="h-5 w-5" />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Bottom thumbnail strip */}
+          {imageCount > 1 && (
+            <div className="shrink-0 overflow-x-auto px-4 py-4 sm:py-5">
+              <div className="mx-auto flex w-max max-w-full gap-2 sm:gap-3">
                 {galleryImages.map((image, index) => (
                   <button
                     key={`${image.id}-${index}`}
@@ -469,23 +417,24 @@ export const AdminCarRow = ({
                     aria-current={
                       activeImage === index ? "true" : undefined
                     }
-                    className={`h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:h-16 sm:w-24 ${
+                    className={`h-16 w-24 shrink-0 overflow-hidden rounded-lg border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:h-20 sm:w-32 ${
                       activeImage === index
                         ? "border-brass opacity-100"
-                        : "border-white/15 opacity-60 hover:border-white/50 hover:opacity-100"
+                        : "border-white/15 opacity-50 hover:border-white/40 hover:opacity-90"
                     }`}
                   >
                     <img
                       src={image.url}
                       alt=""
                       loading="lazy"
+                      draggable={false}
                       className="h-full w-full object-cover"
                     />
                   </button>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </>

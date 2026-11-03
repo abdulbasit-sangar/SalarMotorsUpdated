@@ -116,7 +116,7 @@ function OverviewCard({
   return (
     <div
       title={tooltip || label}
-      className="group min-w-0 cursor-default rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-brass/40 hover:bg-white/[0.055] hover:shadow-lg hover:shadow-black/10 sm:p-5"
+      className="group min-w-0 cursor-default rounded-2xl border border-card bg-white/[0.025] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-brass/40 hover:bg-white/[0.055] hover:shadow-lg hover:shadow-black/10 sm:p-5"
     >
       <div className="mb-5 flex items-center justify-between">
         <div
@@ -228,7 +228,7 @@ export default function DashboardPage() {
 
   return (
     <div className="container-page min-h-full py-7 sm:py-10">
-      <header className="mb-8 border-b border-white/[0.08] pb-7 sm:mb-10">
+      <header className="mb-8 border-b border-card pb-7 sm:mb-10">
         <h1 className="break-words font-display text-3xl font-semibold tracking-tight text-bone sm:text-4xl lg:text-[42px]">
           {t("dashboard.title")}
         </h1>
@@ -301,7 +301,7 @@ export default function DashboardPage() {
             <SectionHeading title={t("dashboard.listingStatus")} />
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-              <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 transition-colors hover:border-white/[0.13] sm:p-6 lg:col-span-3">
+              <div className="rounded-2xl border border-card bg-white/[0.025] p-5 transition-colors hover:border-brass/40 sm:p-6 lg:col-span-3">
                 <div className="mb-6 flex items-center justify-between gap-3">
                   <div>
                     <h3 className="font-semibold text-bone">
@@ -353,7 +353,7 @@ export default function DashboardPage() {
                   />
                 </div>
 
-                <div className="mt-5 flex items-center justify-between border-t border-white/[0.07] pt-4">
+                <div className="mt-5 flex items-center justify-between border-t border-card pt-4">
                   <span className="text-sm text-ash">{t("dashboard.totalInventory")}</span>
                   <span className="text-lg font-semibold tabular-nums text-bone">
                     {formatNumber(data?.total ?? 0)}
@@ -361,7 +361,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 transition-colors hover:border-white/[0.13] sm:p-6 lg:col-span-2">
+              <div className="rounded-2xl border border-card bg-white/[0.025] p-5 transition-colors hover:border-brass/40 sm:p-6 lg:col-span-2">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brass/10 text-brass">
                     <TrendingUp size={20} strokeWidth={1.8} />
@@ -380,7 +380,7 @@ export default function DashboardPage() {
                         key={item.label}
                         title={item.tooltip}
                         className={`group flex cursor-help items-center gap-3 rounded-lg px-2 py-4 transition-colors hover:bg-white/[0.04] ${
-                          index > 0 ? "border-t border-white/[0.07]" : ""
+                          index > 0 ? "border-t border-card" : ""
                         }`}
                       >
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-brass transition-colors group-hover:bg-brass/10">
@@ -402,7 +402,7 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          <footer className="flex items-center justify-between gap-3 border-t border-white/[0.08] pt-5">
+          <footer className="flex items-center justify-between gap-3 border-t border-card pt-5">
             <span className="text-xs text-ash">
               SAFAR Motors
             </span>

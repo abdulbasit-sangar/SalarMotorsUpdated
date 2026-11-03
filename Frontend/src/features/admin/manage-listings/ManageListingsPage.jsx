@@ -400,27 +400,29 @@ export default function ManageListingsPage() {
       ) : loading ? (
         <div className="space-y-3 sm:space-y-4" aria-busy="true">
           {Array.from({ length: 5 }).map((_, index) => (
-            <div
-              key={index}
-              className="flex flex-col gap-4 rounded-2xl border border-card bg-card p-3 sm:p-4 lg:flex-row"
-            >
-              <Skeleton className="aspect-[16/9] w-full rounded-xl sm:aspect-[16/7] lg:aspect-[4/3] lg:w-48 xl:w-56" />
+<div
+  key={index}
+  className="flex items-center gap-3 rounded-2xl border border-card bg-card p-3 sm:gap-4 sm:p-4"
+>
+  <Skeleton className="h-14 w-14 shrink-0 rounded-full sm:h-16 sm:w-16" />
 
-              <div className="flex min-w-0 flex-1 flex-col gap-3">
-                <Skeleton className="h-6 w-3/5 max-w-64" />
-                <Skeleton className="h-4 w-2/5 max-w-40" />
-                <div className="flex flex-wrap gap-2">
-                  <Skeleton className="h-6 w-20 rounded-full" />
-                  <Skeleton className="h-6 w-20 rounded-full" />
-                  <Skeleton className="h-6 w-24 rounded-full" />
-                </div>
-                <div className="mt-1 flex flex-wrap gap-2 border-t border-card pt-3">
-                  <Skeleton className="h-9 w-20 rounded-lg" />
-                  <Skeleton className="h-9 w-20 rounded-lg" />
-                  <Skeleton className="h-9 w-24 rounded-lg" />
-                </div>
-              </div>
-            </div>
+  <div className="flex min-w-0 flex-1 flex-col gap-2">
+    <Skeleton className="h-5 w-3/5 max-w-64" />
+    <Skeleton className="h-4 w-2/5 max-w-40" />
+    <div className="flex flex-wrap gap-1.5">
+      <Skeleton className="h-5 w-16 rounded-sm" />
+      <Skeleton className="h-5 w-16 rounded-sm" />
+      <Skeleton className="h-5 w-16 rounded-sm" />
+    </div>
+  </div>
+
+  <div className="flex shrink-0 items-center gap-1">
+    <Skeleton className="h-9 w-9 rounded-full" />
+    <Skeleton className="h-9 w-9 rounded-full" />
+    <Skeleton className="h-9 w-9 rounded-full" />
+  </div>
+</div>
+
           ))}
         </div>
       ) : cars.length > 0 ? (
