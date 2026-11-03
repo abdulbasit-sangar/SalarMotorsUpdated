@@ -268,7 +268,7 @@ export const SearchableSelect = ({
           >
             <div className="shrink-0 border-b border-card p-2">
               <div className="relative">
-                <SearchIcon className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ash" />
+                <SearchIcon className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-icon-secondary" />
 
                 <input
                   ref={searchInputRef}

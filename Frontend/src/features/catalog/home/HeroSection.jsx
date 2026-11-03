@@ -58,16 +58,15 @@ export const HeroSection = () => {
 >
 
 
-  <h1 className="font-serif text-2xl font-medium uppercase leading-[1.15] tracking-[0.01em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)] sm:text-3xl md:text-4xl lg:text-5xl">
+<h1 className="font-serif text-xl font-medium uppercase leading-[1.15] tracking-[0.01em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)] sm:text-2xl md:text-3xl lg:text-4xl">
+
     {t("hero.titleA")}
     <span className="mt-1 block text-[#E5C18B]">
       {t("hero.titleB")}
     </span>
   </h1>
 
-  <p className="mx-auto mt-3 max-w-xl text-[11px] font-normal leading-5 text-white/90 drop-shadow-[0_1px_5px_rgba(0,0,0,0.75)] sm:mt-4 sm:text-xs md:text-sm">
-    {t("hero.subtitle")}
-  </p>
+
 
   {/* Decorative accent */}
   <div className="mx-auto mt-5 flex items-center justify-center gap-2.5 sm:mt-6">

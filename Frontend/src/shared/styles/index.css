@@ -292,6 +292,15 @@
   .bg-graphite-50 {
     background-color: var(--color-graphite-50) !important;
   }
+  /* Hand-written hover variants (Tailwind only generates these for theme
+     colors, not for the hand-written utilities above). Theme-aware through
+     the variables. */
+  .hover\:bg-graphite-100:hover {
+    background-color: var(--color-graphite-100) !important;
+  }
+  .hover\:text-bone:hover {
+    color: var(--color-bone) !important;
+  }
   .border-steel {
     border-color: var(--color-steel) !important;
   }
@@ -377,6 +386,37 @@
     background: rgba(30, 34, 43, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
+
+  /* Hero — dark mode: darker glass search panel + dimmed background photo.
+     Hook classes live in HeroSection.jsx / HeroSearchBar.jsx; light mode
+     keeps the existing Tailwind classes untouched. */
+  .hero-bg-img {
+    transition: filter 350ms ease;
+  }
+  html[data-theme="dark"] .hero-bg-img {
+    filter: brightness(0.7) saturate(0.92);
+  }
+  html[data-theme="dark"] .hero-shade-base {
+    background-color: rgb(0 0 0 / 0.42);
+  }
+  html[data-theme="dark"] .hero-shade-side {
+    background-image: linear-gradient(to right, rgb(0 0 0 / 0.5), transparent 55%, rgb(0 0 0 / 0.3));
+  }
+  html[data-theme="dark"] .hero-shade-top {
+    background-image: linear-gradient(to bottom, rgb(0 0 0 / 0.45), transparent 42%);
+  }
+ /* Dark mode: hero search panel becomes a solid dark card like the rest of the site */
+/* Dark mode: hero search panel uses the same dark glass as the navbar */
+html[data-theme="dark"] .hero-search-glass,
+html[data-theme="dark"] section[aria-label] > div[class*="rounded-2xl"] {
+  background: rgba(18, 20, 25, 0.72);
+  border-color: rgb(255 255 255 / 0.08);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 12px 40px rgb(0 0 0 / 0.5);
+}
+
+
   html[data-theme="dark"] .card-light {
     box-shadow:
       0 1px 3px rgba(0, 0, 0, 0.35),
@@ -396,8 +436,21 @@
   html[data-theme="dark"] .bg-white\/90 {
     background-color: rgb(26 30 37 / 0.9) !important;
   }
+  html[data-theme="dark"] .bg-white\/80 {
+    background-color: rgb(26 30 37 / 0.8) !important;
+  }
   html[data-theme="dark"] .hover\:bg-white:hover {
     background-color: var(--color-graphite-800) !important;
+  }
+  /* Outline buttons (Button.jsx primary variant + converted gold CTAs):
+     their hover/active fill uses brass/10 and brass/20, which the
+     !important .bg-white override above would otherwise kill in dark mode.
+     Dark brass #c99a4a = rgb(201 154 74). Inert unless those classes exist. */
+  html[data-theme="dark"] .hover\:bg-brass\/10:hover {
+    background-color: rgb(201 154 74 / 0.1) !important;
+  }
+  html[data-theme="dark"] .active\:bg-brass\/20:active {
+    background-color: rgb(201 154 74 / 0.2) !important;
   }
   html[data-theme="dark"] .bg-\[\#F7F6F3\] {
     background-color: var(--bg) !important;
@@ -443,6 +496,48 @@
   }
   html[data-theme="dark"] .border-\[\#E8D9BC\] {
     border-color: rgb(201 154 74 / 0.35) !important;
+  }
+
+  /* ── Theme-adaptive logo ──────────────────────────────────────────────
+     The navbar / footer / admin header render two <img> tags carrying
+     .logo-light and .logo-dark. This swap shows the matching artwork for
+     the active theme with zero JS. */
+  .logo-dark {
+    display: none;
+  }
+  html[data-theme="dark"] .logo-light {
+    display: none;
+  }
+  html[data-theme="dark"] .logo-dark {
+    display: block;
+  }
+
+  /* ── Admin sidebar + dashboard ─────────────────────────────────────── */
+  /* Sidebar active link: warm brass tint per theme (replaces the hardcoded
+     light beige that glowed in dark mode). */
+  .admin-link-active {
+    background-color: #f7f0e4;
+    color: #80551f;
+  }
+  html[data-theme="dark"] .admin-link-active {
+    background-color: rgb(201 154 74 / 0.16) !important;
+    color: #e2ba72 !important;
+  }
+  /* Dashboard cards use translucent-white utilities that are invisible
+     (boxless) in light mode; neutralize them in dark mode too so the
+     dashboard matches instead of drawing boxes around each portion.
+     These utilities are used only by DashboardPage. */
+  html[data-theme="dark"] .border-white\/\[0\.07\] {
+    border-color: transparent !important;
+  }
+  html[data-theme="dark"] .bg-white\/\[0\.025\] {
+    background-color: transparent !important;
+  }
+  html[data-theme="dark"] .hover\:border-white\/\[0\.13\]:hover {
+    border-color: transparent !important;
+  }
+  html[data-theme="dark"] .hover\:bg-white\/\[0\.055\]:hover {
+    background-color: transparent !important;
   }
 }
 

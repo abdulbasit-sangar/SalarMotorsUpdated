@@ -55,7 +55,7 @@ export const FavoriteButton = ({ carId, className, size = "md" }) => {
         className={clsx(
           iconDims,
           "transition-colors duration-200",
-          active ? "text-danger" : "text-graphite",
+          active ? "text-danger" : "text-icon",
         )}
       />
     </button>

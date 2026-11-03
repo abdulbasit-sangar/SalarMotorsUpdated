@@ -138,7 +138,7 @@ className={clsx(
           className={clsx(
             "grid grid-cols-2 gap-2",
             "sm:gap-3",
-            "lg:grid-cols-4",
+            "lg:grid-cols-5",
           )}
         >
           {FILTER_FIELDS.map((field, index) => (
@@ -173,11 +173,11 @@ className={clsx(
             </div>
           ))}
 
-          <div className="col-span-2 lg:col-span-4">
+          <div className="col-span-2 flex lg:col-span-1">
             <button
               type="submit"
               className={clsx(
-                "group inline-flex h-12 w-full items-center justify-center gap-2",
+                "group inline-flex min-h-12 w-full flex-1 items-center justify-center gap-2",
                 "rounded-xl px-5",
                 "bg-[#D9AD68] text-[#17130D]",
                 "text-sm font-semibold tracking-wide",

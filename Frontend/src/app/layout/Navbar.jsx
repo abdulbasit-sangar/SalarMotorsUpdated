@@ -24,7 +24,8 @@ import {
 } from "../../shared/constants/locations.js";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher.jsx";
 import { ThemeToggle } from "../../shared/components/ThemeToggle.jsx";
-import logo from "../../assets/salarmotors.svg";
+import logoLight from "../../assets/safarLogo-Light.svg";
+import logoDark from "../../assets/safarLogo-Dark.svg";
 
 const FAVORITES_PATH = "/favorites";
 
@@ -51,7 +52,7 @@ const navLinkClass = ({ isActive }) =>
   clsx(
     "relative inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-sm lg:text-[13px] font-medium transition-colors py-1",
     isActive
-      ? "text-brass-dark after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-[2px] after:rounded-full after:bg-brass"
+      ? "text-brass-dark"
       : "text-ash hover:text-bone",
   );
 
@@ -341,13 +342,18 @@ export const Navbar = () => {
             {/* Logo */}
             <NavLink
               to="/"
-              className="flex shrink-0 items-center"
+              className="flex shrink-0 items-center self-center"
               onClick={() => setOpen(false)}
             >
               <img
-                src={logo}
+                src={logoLight}
                 alt={t("nav.logoAlt")}
-                className="h-8 w-auto object-contain sm:h-9 lg:h-9"
+                className="logo-light h-7 w-auto object-contain sm:h-8 lg:h-9"
+              />
+              <img
+                src={logoDark}
+                alt={t("nav.logoAlt")}
+                className="logo-dark h-7 w-auto object-contain sm:h-8 lg:h-9"
               />
             </NavLink>
 
@@ -448,9 +454,14 @@ export const Navbar = () => {
             tabIndex={open ? 0 : -1}
           >
             <img
-              src={logo}
+              src={logoLight}
               alt={t("nav.logoAlt")}
-              className="h-8 w-auto object-contain"
+              className="logo-light h-8 w-auto object-contain"
+            />
+            <img
+              src={logoDark}
+              alt={t("nav.logoAlt")}
+              className="logo-dark h-8 w-auto object-contain"
             />
           </NavLink>
 

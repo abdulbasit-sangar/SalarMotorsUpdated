@@ -27,7 +27,7 @@ const SpecCell = ({ icon: Icon, label, value }) => {
   return (
     <div className="flex items-center justify-between gap-4 py-3 border-b border-card">
       <span className="flex items-center gap-2 text-ash text-xs uppercase tracking-wider">
-        {Icon && <Icon className="w-4 h-4 text-brass-dark shrink-0" />}
+        {Icon && <Icon className="w-4 h-4 text-icon-accent shrink-0" />}
         {label}
       </span>
       <span className="text-bone text-sm font-mono text-end">{value}</span>

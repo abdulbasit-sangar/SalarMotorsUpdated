@@ -317,7 +317,7 @@ export default function ManageListingsPage() {
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 flex items-center justify-center gap-2 px-4"
               >
-                <SlidersIcon className="h-4 w-4 shrink-0 text-ash" />
+                <SlidersIcon className="h-4 w-4 shrink-0 text-icon-secondary" />
                 <span className="truncate text-[13px] font-semibold text-bone sm:text-sm">
                   {tCommon("sort.label")}
                 </span>

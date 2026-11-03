@@ -76,7 +76,7 @@ export const Select = forwardRef(
           className={clsx(
             "w-full h-11 px-3.5 bg-white/70 border border-card text-bone",
             "rounded-xl text-sm transition-colors appearance-none backdrop-blur-sm",
-            "bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22none%22 stroke=%22%235B6472%22 stroke-width=%221.6%22><path d=%22M5 7.5L10 12.5L15 7.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-no-repeat ltr:bg-[right_0.9rem_center] rtl:bg-[left_0.9rem_center] pe-9",
+            "bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22none%22 stroke=%22%238A8178%22 stroke-width=%221.6%22><path d=%22M5 7.5L10 12.5L15 7.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-no-repeat ltr:bg-[right_0.9rem_center] rtl:bg-[left_0.9rem_center] pe-9",
             "focus:outline-none focus:border-brass focus:ring-2 focus:ring-brass/20 focus:bg-white",
             error && "border-danger focus:border-danger focus:ring-danger/20",
             className

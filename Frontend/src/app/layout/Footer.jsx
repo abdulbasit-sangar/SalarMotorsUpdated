@@ -12,7 +12,8 @@ import {
   dubaiCarsPath,
   onTheWayPath,
 } from "../../shared/constants/locations.js";
-import logo from "../../assets/salarmotors.svg";
+import logoLight from "../../assets/safarLogo-Light.svg";
+import logoDark from "../../assets/safarLogo-Dark.svg";
 
 const QUICK_LINKS = [
   { to: "/", labelKey: "nav.home" },
@@ -66,9 +67,14 @@ export const Footer = () => {
             className="inline-block rounded-lg focus-visible:ring-2 focus-visible:ring-brass/70"
           >
             <img
-              src={logo}
-              alt="Salar Motors"
-              className="h-12 w-auto object-contain"
+              src={logoLight}
+              alt="Safar"
+              className="logo-light h-12 w-auto object-contain"
+            />
+            <img
+              src={logoDark}
+              alt="Safar"
+              className="logo-dark h-12 w-auto object-contain"
             />
           </Link>
 

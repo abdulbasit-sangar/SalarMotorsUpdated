@@ -96,7 +96,7 @@ export const FeaturesSelector = ({ featureGroups = [], selected = [], onChange }
                         {checked ? (
                           <CheckSquareIcon className="h-[18px] w-[18px] text-brass shrink-0" />
                         ) : (
-                          <SquareIcon className="h-[18px] w-[18px] text-steel shrink-0" />
+                          <SquareIcon className="h-[18px] w-[18px] text-icon-secondary shrink-0" />
                         )}
                         <span className="truncate">{label("feature", feature)}</span>
                       </label>

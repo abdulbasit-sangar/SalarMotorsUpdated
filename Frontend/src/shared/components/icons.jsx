@@ -20,11 +20,22 @@
  *     logo's recognizability IS its function, so these keep minimal,
  *     accurate brand-mark SVGs rather than a generic Lucide stand-in.
  *
- * Every icon below carries its own bright default color via the `colored`
- * helper — one paste makes icons colorful everywhere (navbar, cards, car
+ * Every icon below carries a professional default color from the SAFAR icon
+ * color system — one paste applies it everywhere (navbar, cards, car
  * details, admin dashboard) with no call-site changes. If a call site passes
  * its own `text-*` color class, that always wins (e.g. the favorite heart's
- * `text-danger` / `text-graphite` states).
+ * `text-danger` / `text-icon` states).
+ *
+ * Color roles (all theme-adaptive — see the `.text-icon*` utilities in
+ * shared/styles/index.css; each flips to a readable counterpart in dark
+ * mode so icons stay clearly visible in both themes):
+ *   text-icon           — default: charcoal #2D2926
+ *   text-icon-secondary — secondary: muted gray-brown #8A8178
+ *   text-icon-accent    — active / selected / important: bronze #B8863A
+ *   text-icon-success   — success states: green
+ *   text-icon-danger    — errors / destructive actions: red
+ * Brand marks (Facebook, Instagram) keep their brand colors — a logo's
+ * recognizability IS its function.
  */
 import clsx from "clsx";
 import {
@@ -100,10 +111,10 @@ const STROKE = 1.75;
  * text (a `className` prop passed at the call site still overrides this). */
 const iconProps = { strokeWidth: STROKE, "aria-hidden": true };
 
-// ── Colorful icons ──────────────────────────────────────────────────────────────────
-// Wraps a Lucide glyph with a fixed bright default color. The icon keeps its
-// own color everywhere (no longer inherits the parent text color), while
-// call-site `className` sizing still merges normally.
+// ── Professional icon color system ────────────────────────────────────────────
+// Wraps a Lucide glyph with a fixed default color from the SAFAR palette.
+// The icon keeps its own color everywhere (no longer inherits the parent
+// text color), while call-site `className` sizing still merges normally.
 // Caller-supplied `text-*` color always wins; otherwise the icon's own
 // default color applies.
 const withColor = (className = "", color) =>
@@ -116,7 +127,7 @@ const colored = (Glyph, color) => {
   return ColoredIcon;
 };
 
-export const CarSilhouetteIcon = colored(Car, "text-sky-600");
+export const CarSilhouetteIcon = colored(Car, "text-icon");
 // Directional glyphs mirror automatically in RTL (they point "back/forward",
 // which swap sides). Non-directional icons (chevron-down, search, etc.) never
 // flip. Call sites place the buttons themselves with logical start/end
@@ -124,87 +135,87 @@ export const CarSilhouetteIcon = colored(Car, "text-sky-600");
 const mirrorInRtl = (className) => clsx("rtl:-scale-x-100", className);
 
 export const ChevronLeftIcon = ({ className = "", ...props }) => (
-  <ChevronLeft {...iconProps} {...props} className={mirrorInRtl(withColor(className, "text-indigo-500"))} />
+  <ChevronLeft {...iconProps} {...props} className={mirrorInRtl(withColor(className, "text-icon"))} />
 );
 export const ChevronRightIcon = ({ className = "", ...props }) => (
-  <ChevronRight {...iconProps} {...props} className={mirrorInRtl(withColor(className, "text-indigo-500"))} />
+  <ChevronRight {...iconProps} {...props} className={mirrorInRtl(withColor(className, "text-icon"))} />
 );
-export const ChevronDownIcon = colored(ChevronDown, "text-indigo-500");
-export const GaugeIcon = colored(Gauge, "text-cyan-600");
-export const MapPinIcon = colored(MapPin, "text-rose-500");
-export const SearchIcon = colored(Search, "text-sky-500");
-export const CloseIcon = colored(X, "text-slate-500");
-export const MenuIcon = colored(Menu, "text-slate-500");
+export const ChevronDownIcon = colored(ChevronDown, "text-icon");
+export const GaugeIcon = colored(Gauge, "text-icon");
+export const MapPinIcon = colored(MapPin, "text-icon");
+export const SearchIcon = colored(Search, "text-icon");
+export const CloseIcon = colored(X, "text-icon");
+export const MenuIcon = colored(Menu, "text-icon");
 export const ArrowRightIcon = ({ className = "", ...props }) => (
-  <ArrowRight {...iconProps} {...props} className={mirrorInRtl(withColor(className, "text-indigo-500"))} />
+  <ArrowRight {...iconProps} {...props} className={mirrorInRtl(withColor(className, "text-icon"))} />
 );
-export const LanguagesIcon = colored(Languages, "text-violet-500");
-export const LayersIcon = colored(Layers, "text-purple-500");
-export const FilterIcon = colored(Filter, "text-teal-500");
-export const CompassIcon = colored(Compass, "text-sky-500"); // On the way
-export const ContainerIcon = colored(Container, "text-orange-500"); // America → Herat
-export const AnchorIcon = colored(Anchor, "text-blue-600"); // Dubai → Herat
-export const WarehouseIcon = colored(Warehouse, "text-amber-500"); // Dubai Cars
-export const LayoutGridIcon = colored(LayoutGrid, "text-emerald-500"); // All cars
-export const HomeIcon = colored(Home, "text-teal-600"); // Home
-// Interim aliases — kept colored in case a call site still uses them:
-export const ShipIcon = colored(Ship, "text-orange-500");
-export const BuildingIcon = colored(Building2, "text-amber-500");
-export const CalendarIcon = colored(Calendar, "text-blue-500");
-export const FuelIcon = colored(Fuel, "text-amber-600");
-export const CheckIcon = colored(Check, "text-emerald-500");
-export const EyeIcon = colored(Eye, "text-sky-500");
-export const EyeOffIcon = colored(EyeOff, "text-slate-400");
-export const PlusIcon = colored(Plus, "text-emerald-500");
-export const DashboardIcon = colored(LayoutDashboard, "text-indigo-500");
-export const UsersIcon = colored(Users, "text-violet-500");
-export const UserIcon = colored(User, "text-violet-400");
-export const SlidersIcon = colored(SlidersHorizontal, "text-teal-500");
+export const LanguagesIcon = colored(Languages, "text-icon");
+export const LayersIcon = colored(Layers, "text-icon");
+export const FilterIcon = colored(Filter, "text-icon-accent");
+export const CompassIcon = colored(Compass, "text-icon"); // On the way
+export const ContainerIcon = colored(Container, "text-icon"); // America → Herat
+export const AnchorIcon = colored(Anchor, "text-icon"); // Dubai → Herat
+export const WarehouseIcon = colored(Warehouse, "text-icon"); // Dubai Cars
+export const LayoutGridIcon = colored(LayoutGrid, "text-icon"); // All cars
+export const HomeIcon = colored(Home, "text-icon"); // Home
+// Interim aliases — kept in case a call site still uses them:
+export const ShipIcon = colored(Ship, "text-icon");
+export const BuildingIcon = colored(Building2, "text-icon");
+export const CalendarIcon = colored(Calendar, "text-icon");
+export const FuelIcon = colored(Fuel, "text-icon");
+export const CheckIcon = colored(Check, "text-icon-success");
+export const EyeIcon = colored(Eye, "text-icon");
+export const EyeOffIcon = colored(EyeOff, "text-icon-secondary");
+export const PlusIcon = colored(Plus, "text-icon");
+export const DashboardIcon = colored(LayoutDashboard, "text-icon");
+export const UsersIcon = colored(Users, "text-icon");
+export const UserIcon = colored(User, "text-icon");
+export const SlidersIcon = colored(SlidersHorizontal, "text-icon-secondary");
 // transmission spec icon — closest Lucide equivalent to a mechanical gear
-export const GearIcon = colored(Cog, "text-slate-500");
-export const PhoneIcon = colored(Phone, "text-green-500");
-export const SquareIcon = colored(Square, "text-slate-400");
-export const CheckSquareIcon = colored(CheckSquare, "text-emerald-500");
-export const CameraIcon = colored(Camera, "text-sky-500");
-export const EditIcon = colored(Pencil, "text-blue-500");
-export const DeleteIcon = colored(Trash2, "text-red-500");
-export const SaveIcon = colored(Save, "text-emerald-600");
-export const SettingsIcon = colored(Settings, "text-slate-500");
-export const AddImageIcon = colored(ImagePlus, "text-sky-500");
-export const DragHandleIcon = colored(GripVertical, "text-slate-400");
-export const SpinnerIcon = colored(Loader2, "text-indigo-500");
-export const AlertIcon = colored(AlertCircle, "text-red-500");
-export const ShieldIcon = colored(ShieldCheck, "text-emerald-600");
-export const BoltIcon = colored(Zap, "text-amber-500");
-export const HeadsetIcon = colored(Headset, "text-violet-500");
-export const CommentIcon = colored(MessagesSquare, "text-sky-500");
-export const CheckCircleIcon = colored(CheckCircle2, "text-emerald-500");
-export const MailIcon = colored(Mail, "text-blue-500");
-export const ClipboardCheckIcon = colored(ClipboardCheck, "text-teal-600");
-export const ShippingIcon = colored(Truck, "text-orange-500");
-export const GlobeIcon = colored(Globe, "text-sky-500");
-export const PlaneIcon = colored(Plane, "text-indigo-400");
+export const GearIcon = colored(Cog, "text-icon");
+export const PhoneIcon = colored(Phone, "text-icon");
+export const SquareIcon = colored(Square, "text-icon-secondary");
+export const CheckSquareIcon = colored(CheckSquare, "text-icon-success");
+export const CameraIcon = colored(Camera, "text-icon");
+export const EditIcon = colored(Pencil, "text-icon");
+export const DeleteIcon = colored(Trash2, "text-icon-danger");
+export const SaveIcon = colored(Save, "text-icon");
+export const SettingsIcon = colored(Settings, "text-icon");
+export const AddImageIcon = colored(ImagePlus, "text-icon");
+export const DragHandleIcon = colored(GripVertical, "text-icon-secondary");
+export const SpinnerIcon = colored(Loader2, "text-icon-secondary");
+export const AlertIcon = colored(AlertCircle, "text-icon-danger");
+export const ShieldIcon = colored(ShieldCheck, "text-icon-success");
+export const BoltIcon = colored(Zap, "text-icon-accent");
+export const HeadsetIcon = colored(Headset, "text-icon");
+export const CommentIcon = colored(MessagesSquare, "text-icon");
+export const CheckCircleIcon = colored(CheckCircle2, "text-icon-success");
+export const MailIcon = colored(Mail, "text-icon");
+export const ClipboardCheckIcon = colored(ClipboardCheck, "text-icon");
+export const ShippingIcon = colored(Truck, "text-icon");
+export const GlobeIcon = colored(Globe, "text-icon");
+export const PlaneIcon = colored(Plane, "text-icon");
 // Specification icons (car details page)
-export const AwardIcon = colored(Award, "text-amber-500"); // brand
-export const BanknoteIcon = colored(Banknote, "text-emerald-600"); // price
-export const PaletteIcon = colored(Palette, "text-pink-500"); // color
-export const CarFrontIcon = colored(CarFront, "text-sky-600"); // body type
-export const HashIcon = colored(Hash, "text-slate-500"); // VIN
+export const AwardIcon = colored(Award, "text-icon-accent"); // brand
+export const BanknoteIcon = colored(Banknote, "text-icon"); // price
+export const PaletteIcon = colored(Palette, "text-icon"); // color
+export const CarFrontIcon = colored(CarFront, "text-icon"); // body type
+export const HashIcon = colored(Hash, "text-icon-secondary"); // VIN
 // Theme toggle
-export const SunIcon = colored(Sun, "text-amber-400");
-export const MoonIcon = colored(Moon, "text-indigo-300");
+export const SunIcon = colored(Sun, "text-icon-accent");
+export const MoonIcon = colored(Moon, "text-icon-accent");
 
 // WhatsApp — no official brand icon in Lucide (an outline icon set); the
 // closest appropriate substitute is a chat-bubble icon, per the spec's own
 // guidance for this exact case.
-export const WhatsappIcon = colored(MessageCircle, "text-green-500");
+export const WhatsappIcon = colored(MessageCircle, "text-icon-success");
 
 // Heart keeps its `filled` prop API (used by FavoriteButton/SoldRibbon
 // call sites) — Lucide's Heart accepts `fill` directly, so this just
 // translates one prop name to the other.
 export const HeartIcon = ({ className = "", filled = false, ...props }) => (
   <Heart
-    className={withColor(className, "text-rose-500")}
+    className={withColor(className, "text-icon-accent")}
     strokeWidth={STROKE}
     fill={filled ? "currentColor" : "none"}
     aria-hidden="true"
@@ -215,7 +226,7 @@ export const HeartIcon = ({ className = "", filled = false, ...props }) => (
 // ── Bespoke exceptions (see file header) ───────────────────────────────────────
 
 export const EngineIcon = ({ className = "" }) => (
-  <svg viewBox="0 0 20 20" fill="none" className={withColor(className, "text-slate-500")} aria-hidden="true">
+  <svg viewBox="0 0 20 20" fill="none" className={withColor(className, "text-icon")} aria-hidden="true">
     <rect
       x="3"
       y="8"

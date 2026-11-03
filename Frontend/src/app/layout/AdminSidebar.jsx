@@ -65,13 +65,13 @@ const linkClass = ({ isActive }) =>
     ],
     isActive
       ? [
-          "bg-[#F7F0E4] text-[#80551F]",
+          "admin-link-active",
           "before:absolute before:inset-y-2.5 before:left-0",
           "before:w-[3px] before:rounded-r-full before:bg-[#B8863A]",
         ]
       : [
-          "text-[#68645D]",
-          "hover:bg-[#F7F5F0] hover:text-[#292722]",
+          "text-ash",
+          "hover:bg-graphite-100 hover:text-bone",
         ],
   );
 

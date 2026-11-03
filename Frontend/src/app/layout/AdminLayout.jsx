@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Outlet, useNavigate } from "react-router-dom";
@@ -7,7 +6,8 @@ import { useToast } from "../../store/ui/ToastContext.jsx";
 import { AdminSidebar } from "./AdminSidebar.jsx";
 import { SkipToContent } from "../../shared/components/SkipToContent.jsx";
 import { OfflineBanner } from "../../shared/components/OfflineBanner.jsx";
-import logo from "../../assets/salarmotors.svg";
+import logoLight from "../../assets/safarLogo-Light.svg";
+import logoDark from "../../assets/safarLogo-Dark.svg";
 import { useEscapeKey } from "../../shared/hooks/useEscapeKey.js";
 import { MenuIcon, CloseIcon } from "../../shared/components/icons.jsx";
 import { LanguageSwitcher } from "../../shared/components/LanguageSwitcher.jsx";
@@ -44,19 +44,24 @@ export const AdminLayout = () => {
     <div className="flex min-h-screen min-h-dvh bg-[#F7F6F3] text-[#252722]">
       <SkipToContent />
 
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar — sticky so it stays fixed while the content scrolls */}
       <aside
-        className="relative z-20 hidden w-64 shrink-0 flex-col border-e border-[#E9E6DF] bg-white md:flex lg:w-[272px]"
+        className="sticky top-0 z-20 hidden h-screen h-dvh w-64 shrink-0 flex-col border-e border-[#E9E6DF] bg-white md:flex lg:w-[272px]"
         aria-label={t("admin.navigation")}
       >
         <Link
           to="/"
-          className="flex h-[76px] shrink-0 items-center border-b border-[#EEECE6] px-6 transition-colors hover:bg-[#FAF9F6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brass"
+          className="flex h-[76px] shrink-0 items-center border-b border-[#EEECE6] px-6 transition-colors hover:bg-graphite-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brass"
         >
           <img
-            src={logo}
+            src={logoLight}
             alt={t("nav.logoAlt")}
-            className="h-10 w-auto max-w-full object-contain object-left"
+            className="logo-light h-10 w-auto max-w-full object-contain object-left"
+          />
+          <img
+            src={logoDark}
+            alt={t("nav.logoAlt")}
+            className="logo-dark h-10 w-auto max-w-full object-contain object-left"
           />
         </Link>
 
@@ -148,9 +153,14 @@ export const AdminLayout = () => {
               className="flex min-w-0 items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
             >
               <img
-                src={logo}
+                src={logoLight}
                 alt={t("nav.logoAlt")}
-                className="h-9 w-auto max-w-[190px] object-contain object-left"
+                className="logo-light h-9 w-auto max-w-[190px] object-contain object-left"
+              />
+              <img
+                src={logoDark}
+                alt={t("nav.logoAlt")}
+                className="logo-dark h-9 w-auto max-w-[190px] object-contain object-left"
               />
             </Link>
 
@@ -236,9 +246,14 @@ export const AdminLayout = () => {
               className="flex min-w-0 items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass md:hidden"
             >
               <img
-                src={logo}
+                src={logoLight}
                 alt={t("nav.logoAlt")}
-                className="h-8 w-auto max-w-[150px] object-contain object-left"
+                className="logo-light h-8 w-auto max-w-[150px] object-contain object-left"
+              />
+              <img
+                src={logoDark}
+                alt={t("nav.logoAlt")}
+                className="logo-dark h-8 w-auto max-w-[150px] object-contain object-left"
               />
             </Link>
 

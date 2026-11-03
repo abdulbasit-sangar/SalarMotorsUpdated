@@ -30,7 +30,7 @@ export const ImageGallery = ({ images = [], title }) => {
   if (!images.length) {
     return (
       <div className="aspect-[4/3] sm:aspect-[16/10] bg-graphite-100 border border-card rounded-premium-lg flex items-center justify-center text-steel">
-        <CarSilhouetteIcon className="w-24 h-14" />
+        <CarSilhouetteIcon className="w-24 h-14 text-icon-secondary" />
       </div>
     );
   }
@@ -185,7 +185,7 @@ const ImageLightbox = ({ images, title, active, onChangeActive, onClose }) => {
         aria-label={t("gallery.closeViewer")}
         className="absolute top-4 end-4 sm:top-6 sm:end-6 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white transition-colors duration-200 hover:bg-white/25"
       >
-        <CloseIcon className="h-5 w-5" />
+        <CloseIcon className="h-5 w-5 text-white" />
       </button>
 
       {showNav && (
@@ -204,7 +204,7 @@ const ImageLightbox = ({ images, title, active, onChangeActive, onClose }) => {
           aria-label={t("gallery.previous")}
           className="absolute start-2 sm:start-6 top-1/2 z-20 flex h-11 w-11 sm:h-14 sm:w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition-colors duration-200 hover:bg-white/25 active:scale-95"
         >
-          <ChevronLeftIcon className="h-6 w-6" />
+          <ChevronLeftIcon className="h-6 w-6 text-white" />
         </button>
       )}
 
@@ -231,7 +231,7 @@ const ImageLightbox = ({ images, title, active, onChangeActive, onClose }) => {
           aria-label={t("gallery.next")}
           className="absolute end-2 sm:end-6 top-1/2 z-20 flex h-11 w-11 sm:h-14 sm:w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition-colors duration-200 hover:bg-white/25 active:scale-95"
         >
-          <ChevronRightIcon className="h-6 w-6" />
+          <ChevronRightIcon className="h-6 w-6 text-white" />
         </button>
       )}
 

@@ -196,7 +196,7 @@ export const AdminCarRow = ({
               />
             ) : (
               <span className="flex h-full w-full items-center justify-center">
-                <CarSilhouetteIcon className="h-12 w-16 text-steel" />
+                <CarSilhouetteIcon className="h-12 w-16 text-icon-secondary" />
               </span>
             )}
 

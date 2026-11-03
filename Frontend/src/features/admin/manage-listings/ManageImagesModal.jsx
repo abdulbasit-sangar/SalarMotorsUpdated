@@ -187,7 +187,7 @@ export const ManageImagesModal = ({
                     title={t("imagesModal.remove")}
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-graphite-950/75 text-white shadow-sm backdrop-blur transition-colors hover:bg-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    <DeleteIcon className="h-4 w-4" />
+                    <DeleteIcon className="h-4 w-4 text-white" />
                   </button>
                 </div>
 
@@ -202,7 +202,7 @@ export const ManageImagesModal = ({
                     title={t("imagesModal.moveEarlier")}
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-graphite-950/75 text-white shadow-sm backdrop-blur transition-colors hover:bg-graphite-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    <ChevronLeftIcon className="h-4 w-4" />
+                    <ChevronLeftIcon className="h-4 w-4 text-white" />
                   </button>
 
                   <button
@@ -217,7 +217,7 @@ export const ManageImagesModal = ({
                     title={t("imagesModal.moveLater")}
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-graphite-950/75 text-white shadow-sm backdrop-blur transition-colors hover:bg-graphite-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    <ChevronRightIcon className="h-4 w-4" />
+                    <ChevronRightIcon className="h-4 w-4 text-white" />
                   </button>
                 </div>
               </div>

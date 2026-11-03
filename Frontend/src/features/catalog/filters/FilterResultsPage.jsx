@@ -363,7 +363,7 @@ export default function FilterResultsPage({
               className="inline-flex h-10 min-w-[96px] items-center justify-center gap-1.5 rounded-xl border border-card bg-white/70 px-4 text-xs font-semibold text-bone shadow-sm backdrop-blur-md transition-all duration-200 hover:border-brass hover:text-brass-dark peer-focus-visible:ring-2 peer-focus-visible:ring-brass/40 sm:h-11 sm:min-w-[120px] sm:gap-2 sm:px-5 sm:text-sm"
             >
               <span>{t("results.sortButton")}</span>
-              <ChevronDownIcon className="h-3.5 w-3.5 shrink-0 text-brass-dark sm:h-4 sm:w-4" />
+              <ChevronDownIcon className="h-3.5 w-3.5 shrink-0 text-icon-accent sm:h-4 sm:w-4" />
             </button>
           </div>
         </div>

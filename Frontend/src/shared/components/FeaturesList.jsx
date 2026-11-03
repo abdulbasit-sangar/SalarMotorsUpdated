@@ -64,7 +64,7 @@ export const FeaturesList = ({ featureGroups, selectedFeatures }) => {
             <ul className="flex flex-wrap gap-2">
               {g.features.map((feature) => (
                 <li key={feature} className="chip-glass !px-3 !py-1.5 !text-[13px]">
-                  <CheckIcon className="h-3.5 w-3.5 text-signal shrink-0" />
+                  <CheckIcon className="h-3.5 w-3.5 text-icon-success shrink-0" />
                   <span>{label("feature", feature)}</span>
                 </li>
               ))}
