@@ -71,7 +71,8 @@ const carSchema = new mongoose.Schema(
         values: CAR_BRANDS,
         message: `Brand must be one of: ${CAR_BRANDS.join(", ")}`,
       },
-      index: true, // frequently filtered
+      // No single-field index: { brand: 1, price: 1 } below serves brand
+      // queries via its prefix (only regex filters exist; no btree use).
     },
 
     model: {
@@ -94,7 +95,8 @@ const carSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Price is required"],
       min: [0, "Price cannot be negative"],
-      index: true, // sorted and range-filtered frequently
+      // No single-field index: every price query also filters isHidden,
+      // so { isHidden: 1, price: 1 } below dominates this one.
     },
 
     // Currency Selection: stored separately from the numeric price — never
@@ -271,7 +273,8 @@ const carSchema = new mongoose.Schema(
     isHidden: {
       type: Boolean,
       default: false,
-      index: true, // ALL public queries filter by this
+      // No single-field index: five compound indexes below share the
+      // { isHidden: 1 } prefix, which serves every isHidden equality query.
     },
 
     // Sold Vehicle Indicator: set only via PATCH /api/cars/sold/:id
@@ -324,13 +327,17 @@ const carSchema = new mongoose.Schema(
 carSchema.index({ brand: 1, price: 1 });
 carSchema.index({ isHidden: 1, featured: 1 });
 carSchema.index({ isHidden: 1, createdAt: -1 });
-carSchema.index({ isHidden: 1, isSold: 1 });
-// Sort support: the catalog's price_asc/price_desc and mileage_low sorts had
-// no index backing, forcing an in-memory sort of all matching listings
-// (which fails past MongoDB's 32MB sort limit on large datasets).
-// Equality on isHidden + sort field follows the ESR rule.
+// NOTE: { isHidden: 1, isSold: 1 } was removed (2026-11-04 audit): no query
+// filters isHidden+isSold with equality on both — admin status filters use
+// isSold alone (served by the single-field index) and public queries never
+// filter isSold. The old index lingers in existing databases until dropped
+// manually; see the index audit report for the drop commands.
 carSchema.index({ isHidden: 1, price: 1 });
 carSchema.index({ isHidden: 1, mileage: 1 });
+// Multikey index for the pre-deletion reference checks
+// (imageCleanup.service.js + upload.middleware.js): without it, every image
+// delete scans the whole collection for {"images.public_id": {$in: [...]}}.
+carSchema.index({ "images.public_id": 1 });
 // ─── Pre-save hook: auto-generate slug from title + partial _id ───────────────
 carSchema.pre("save", async function (next) {
   if (!this.isModified("title") && this.slug) return next();
