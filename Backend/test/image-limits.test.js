@@ -192,7 +192,7 @@ test("unhide is rejected for 0 and 1–4 valid images and writes nothing", async
 test("unhide succeeds with exactly 5 and with 20 images, and the write is count-guarded", async () => {
   for (const n of [5, 20]) {
     mock.method(Car, "findById", () => query(carDoc({ isHidden: true, images: images(n) })));
-    const write = mock.method(Car, "findOneAndUpdate", () => query({ title: "T", isHidden: false }));
+    const write = mock.method(Car, "findOneAndUpdate", () => query({ title: "T", images: images(n) }));
     const out = await service.toggleHideCarService("665f1c2e8f1b2c0012345678");
     assert.equal(out.isHidden, false);
     const [filter, update] = write.mock.calls[0].arguments;
@@ -445,4 +445,230 @@ test("there is no other route that can flip isHidden to visible", () => {
     "post /",
     "put /images/:id",
   ].sort());
+});
+
+// ── malformed multipart handling (security regression) ───────────────────────
+// Multer 1.4.5-lts.2 removed busboy's error listener on teardown, so crafted
+// multipart payloads (CVE-2025-48997, CVE-2025-7338) could surface as an
+// unhandled 'error' event and crash the whole Node process — no auth needed.
+// Multer 2.x keeps a guard listener and funnels parser errors to Express, so
+// these requests must now fail gracefully and the server must keep serving.
+const postRaw = (url, body, boundary) =>
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": `multipart/form-data; boundary=${boundary}` },
+    body,
+  });
+
+test("malformed multipart requests are rejected gracefully, never crash", async () => {
+  await withUploadServer(async (url) => {
+    const boundary = "----safar-malformed-probe";
+
+    // Empty field name — the CVE-2025-48997 trigger on multer 1.x.
+    const emptyName = await postRaw(
+      url,
+      `--${boundary}\r\nContent-Disposition: form-data; name=""; filename="x.png"\r\n` +
+        `Content-Type: image/png\r\n\r\n${"A".repeat(20)}\r\n--${boundary}--\r\n`,
+      boundary,
+    );
+    assert.equal(emptyName.status, 400);
+    assert.match((await emptyName.json()).message, /field name/i);
+
+    // Truncated body: the closing boundary never arrives — must not hang or crash.
+    const truncated = await postRaw(
+      url,
+      `--${boundary}\r\nContent-Disposition: form-data; name="images"; filename="x.png"\r\n` +
+        `Content-Type: image/png\r\n\r\n${"B".repeat(100)}`,
+      boundary,
+    );
+    assert.equal(truncated.status, 400);
+    assert.match((await truncated.json()).message, /incomplete/i);
+
+    // The server is still alive and accepts a valid upload afterwards.
+    const ok = await post(url, 1);
+    assert.equal(ok.status, 200);
+    assert.equal((await ok.json()).count, 1);
+  });
+});
+
+// ── P0 hardening: explicit multipart limits ──────────────────────────────────
+test("excessive text fields are rejected with 400 (fields limit)", async () => {
+  await withUploadServer(async (url) => {
+    const fd = new FormData();
+    fd.append("images", new Blob([Buffer.alloc(20, 1)], { type: "image/png" }), "p0.png");
+    for (let i = 0; i < 40; i++) fd.append(`f${i}`, "x");
+    const res = await fetch(url, { method: "POST", body: fd });
+    assert.equal(res.status, 400);
+  });
+});
+
+test("request-size guard rejects >106MB before multer parses (413)", async () => {
+  const err = await new Promise((resolve) =>
+    upload.rejectOversizedRequests(
+      { headers: { "content-length": String(200 * 1048576) } },
+      {},
+      resolve,
+    ),
+  );
+  assert.equal(err.statusCode, 413);
+  assert.match(err.message, /106 MB/);
+
+  // Under the cap, missing, or garbage Content-Length all pass through.
+  for (const headers of [
+    { "content-length": String(10 * 1048576) },
+    {},
+    { "content-length": "not-a-number" },
+  ]) {
+    const ok = await new Promise((resolve) =>
+      upload.rejectOversizedRequests({ headers }, {}, resolve),
+    );
+    assert.equal(ok, undefined);
+  }
+});
+
+test("truncated multipart body is a 400, not a 500", async () => {
+  await withUploadServer(async (url) => {
+    const boundary = "----safar-truncated-400";
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": `multipart/form-data; boundary=${boundary}` },
+      body:
+        `--${boundary}\r\nContent-Disposition: form-data; name="images"; filename="x.png"\r\n` +
+        `Content-Type: image/png\r\n\r\n${"B".repeat(100)}`,
+    });
+    assert.equal(res.status, 400);
+    assert.match((await res.json()).message, /incomplete/i);
+  });
+});
+
+test("upload limiter keys by authenticated user, falls back to IP", async () => {
+  const { uploadLimitKey } = await import(
+    "../src/middlewares/rateLimiter.middleware.js"
+  );
+  assert.equal(
+    uploadLimitKey({ admin: { _id: "user-1" }, ip: "1.2.3.4" }),
+    "user:user-1",
+  );
+  assert.equal(uploadLimitKey({ ip: "1.2.3.4" }), "ip:1.2.3.4");
+});
+
+// ── dimension validation ─────────────────────────────────────────────────────
+const { validateImageBuffers } = await import(
+  "../src/middlewares/imageValidation.middleware.js"
+);
+
+const withValidatedUploadServer = async (fn) => {
+  const app = express();
+  app.post(
+    "/up",
+    upload.uploadMultiple,
+    upload.handleUploadErrors,
+    validateImageBuffers,
+    (req, res) => res.json({ count: req.files.length }),
+  );
+  app.use(errorHandler);
+  const server = await new Promise((resolve) => {
+    const s = app.listen(0, () => resolve(s));
+  });
+  try {
+    await fn(`http://127.0.0.1:${server.address().port}/up`);
+  } finally {
+    await new Promise((r) => server.close(r));
+  }
+};
+
+// Minimal hand-crafted headers: real magic bytes + real dimension fields.
+const pngBuffer = (w, h) => {
+  const b = Buffer.alloc(33, 0);
+  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).copy(b, 0);
+  b.writeUInt32BE(13, 8);
+  b.write("IHDR", 12);
+  b.writeUInt32BE(w, 16);
+  b.writeUInt32BE(h, 20);
+  return b;
+};
+const jpegBuffer = (w, h) => {
+  const b = Buffer.alloc(24, 0);
+  b[0] = 0xff; b[1] = 0xd8; b[2] = 0xff; b[3] = 0xc0; // SOI + SOF0
+  b.writeUInt16BE(11, 4);
+  b[6] = 0x08; // precision
+  b.writeUInt16BE(h, 7);
+  b.writeUInt16BE(w, 9);
+  b[20] = 0xff; b[21] = 0xd9; // EOI
+  return b;
+};
+const webpBuffer = (w, h) => {
+  const b = Buffer.alloc(30, 0);
+  b.write("RIFF", 0);
+  b.write("WEBP", 8);
+  b.write("VP8 ", 12);
+  b[20] = 0x9d; b[21] = 0x01; b[22] = 0x2a; // frame tag + start code
+  b.writeUInt16LE(w, 26);
+  b.writeUInt16LE(h, 28);
+  return b;
+};
+const postFile = (url, buffer, type, name) => {
+  const fd = new FormData();
+  fd.append("images", new Blob([buffer], { type }), name);
+  return fetch(url, { method: "POST", body: fd });
+};
+
+test("images within the dimension cap upload fine", async () => {
+  await withValidatedUploadServer(async (url) => {
+    const cases = [
+      [pngBuffer(100, 100), "image/png", "a.png"],
+      [jpegBuffer(800, 600), "image/jpeg", "b.jpg"],
+      [webpBuffer(640, 480), "image/webp", "c.webp"],
+    ];
+    for (const [buf, type, name] of cases) {
+      const res = await postFile(url, buf, type, name);
+      assert.equal(res.status, 200, name);
+    }
+  });
+});
+
+test("dimension bombs are rejected with 400", async () => {
+  await withValidatedUploadServer(async (url) => {
+    const cases = [
+      [pngBuffer(13000, 100), "image/png", "a.png"],
+      [jpegBuffer(100, 20000), "image/jpeg", "b.jpg"],
+      [webpBuffer(15000, 15000), "image/webp", "c.webp"],
+    ];
+    for (const [buf, type, name] of cases) {
+      const res = await postFile(url, buf, type, name);
+      assert.equal(res.status, 400, name);
+      assert.match((await res.json()).message, /dimensions/i);
+    }
+  });
+});
+
+test("unparseable dimensions fail open (ImageKit decides)", async () => {
+  await withValidatedUploadServer(async (url) => {
+    // Valid PNG magic bytes but no IHDR: passes the dimension guard as before.
+    const res = await postFile(
+      url,
+      pngBuffer(100, 100).subarray(0, 8),
+      "image/png",
+      "truncated.png",
+    );
+    assert.equal(res.status, 200);
+  });
+});
+
+// ── concurrency smoke ────────────────────────────────────────────────────────
+test("concurrent uploads are both served", async () => {
+  await withUploadServer(async (url) => {
+    // NOTE: withUploadServer's chain has no validateImageBuffers, so plain
+    // zero-filled blobs are fine here; this probes concurrency, not content.
+    const one = () =>
+      post(url, 20, "image/png").then(async (r) => ({
+        status: r.status,
+        count: (await r.json()).count,
+      }));
+    const [a, b] = await Promise.all([one(), one()]);
+    assert.equal(a.status, 200);
+    assert.equal(a.count, 20);
+    assert.equal(b.status, 200);
+    assert.equal(b.count, 20);
+  });
 });

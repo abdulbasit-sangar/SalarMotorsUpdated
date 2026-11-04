@@ -53,10 +53,19 @@ export const authLimiter = createLimiter(
   emailOrIpKey,
 );
 
+export const uploadLimitKey = (req) =>
+  // SECURITY HARDENING (2026-11-03 audit): key uploads by the authenticated
+  // user, not just the IP. IP-only keying lets one account behind NAT burn the
+  // bucket for everyone on that IP, and gives each attacker IP a 30/hr budget.
+  // Every upload route runs verifyJWT before this limiter, so req.admin is set
+  // for all legitimate traffic; the IP fallback is belt-and-braces.
+  req.admin?._id ? `user:${req.admin._id}` : `ip:${req.ip}`;
+
 export const uploadLimiter = createLimiter(
   60 * 60 * 1000,
   30,
   "Upload limit reached. Maximum 30 car listings per hour.",
+  uploadLimitKey,
 );
 
 export const searchLimiter = createLimiter(
@@ -110,7 +119,7 @@ export const resetPasswordLimiter = createLimiter(
 export const adminRegisterLimiter = createLimiter(
   15 * 60 * 1000,
   5,
-  "Too many admin registration attempts. Please try again later.",
+  "Too many admin registration requests. Please try again later.",
 );
 
 export const favoritesLimiter = createLimiter(

@@ -26,6 +26,7 @@ import { verifyJWT, requireRole } from "../middlewares/auth.middleware.js";
 import {
   uploadMultiple,
   handleUploadErrors,
+  rejectOversizedRequests,
 } from "../middlewares/upload.middleware.js";
 import { validateImageBuffers } from "../middlewares/imageValidation.middleware.js";
 import {
@@ -63,6 +64,7 @@ router.post(
   verifyJWT,
   requireRole("superadmin", "manager"),
   uploadLimiter,
+  rejectOversizedRequests,
   uploadMultiple,
   handleUploadErrors,
   validateImageBuffers,
@@ -82,6 +84,7 @@ router.patch(
   verifyJWT,
   requireRole("superadmin", "manager"),
   uploadLimiter,
+  rejectOversizedRequests,
   uploadMultiple,
   handleUploadErrors,
   validateImageBuffers,
@@ -92,6 +95,7 @@ router.put(
   verifyJWT,
   requireRole("superadmin"),
   uploadLimiter,
+  rejectOversizedRequests,
   uploadMultiple,
   handleUploadErrors,
   validateImageBuffers,

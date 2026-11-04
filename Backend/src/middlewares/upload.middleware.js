@@ -33,6 +33,21 @@ const MAX_FILES = MAX_CAR_IMAGES; // single source: car.constants.js
 const IMAGEKIT_OPERATION_TIMEOUT_MS = 30_000;
 const UPLOAD_CONCURRENCY = 5; // parallel ImageKit uploads per request
 
+// ─── Explicit multipart limits ──────────────────────────────────────────────
+// SECURITY HARDENING (2026-11-03 audit): multer leaves fields/parts/fieldSize
+// unbounded by default. fileSize + files alone cap the *files*, but an
+// attacker could smuggle gigabytes through *fields* (each up to 1 MB,
+// unlimited count) with a single file attached. These bounds make the worst
+// case explicit: 20 × 5 MB files + 30 × 16 KB fields ≈ 100.5 MB per request.
+// The create-listing form sends 23 text fields (car.validator.js) — 30 leaves
+// margin. parts = files + fields, +5 margin.
+const MAX_FIELDS = 30;
+const MAX_PARTS = MAX_FILES + MAX_FIELDS + 5; // 55
+const MAX_FIELD_SIZE_BYTES = 16 * 1024; // largest legit field: description (2000 chars)
+// Total HTTP request-size guard (see rejectOversizedRequests below):
+// 100 MB of images + text fields + multipart framing overhead.
+export const MAX_REQUEST_BYTES = 106 * 1024 * 1024;
+
 const withTimeout = (promise, message) =>
   Promise.race([
     promise,
@@ -68,8 +83,13 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: MAX_FILE_SIZE_BYTES, // 5 MB per file
-    files: MAX_FILES, // max MAX_CAR_IMAGES files per request
+    fileSize: MAX_FILE_SIZE_BYTES, // 5 MB per file — UNCHANGED
+    files: MAX_FILES, // max MAX_CAR_IMAGES files per request — UNCHANGED
+    fields: MAX_FIELDS, // max text fields per request (hardening)
+    parts: MAX_PARTS, // max total parts = files + fields (hardening)
+    fieldSize: MAX_FIELD_SIZE_BYTES, // max bytes per text field (hardening)
+    fieldNameSize: 100, // multer default, now explicit
+    headerPairs: 2000, // multer default, now explicit
   },
 });
 
@@ -250,6 +270,32 @@ export const deleteManyFromImageKit = async (
 export const uploadSingle = upload.single("image");
 export const uploadMultiple = upload.array("images", MAX_FILES);
 
+// ─── Total request-size guard ───────────────────────────────────────────────
+/**
+ * rejectOversizedRequests
+ *
+ * Rejects requests whose Content-Length exceeds MAX_REQUEST_BYTES with 413
+ * BEFORE multer parses anything into memory. Must be registered BEFORE
+ * uploadMultiple in the route chain:
+ *   router.post("/", verifyJWT, uploadLimiter, rejectOversizedRequests,
+ *     uploadMultiple, handleUploadErrors, ...)
+ *
+ * Requests without Content-Length (chunked encoding) pass through — the
+ * explicit multer limits above are the backstop for those.
+ */
+export const rejectOversizedRequests = (req, res, next) => {
+  const raw = req.headers?.["content-length"];
+  if (raw == null) return next();
+  const length = Number(raw);
+  if (!Number.isFinite(length) || length < 0) return next();
+  if (length > MAX_REQUEST_BYTES) {
+    return next(
+      new ApiError(413, "Request too large. Maximum upload request size is 106 MB."),
+    );
+  }
+  next();
+};
+
 // ─── Multer error handler ──────────────────────────────────────────────────────
 /**
  * handleUploadErrors
@@ -287,6 +333,14 @@ export const handleUploadErrors = (err, req, res, next) => {
       );
     }
     return next(new ApiError(400, err.message));
+  }
+  // Busboy-level parse failures (e.g. a truncated multipart body) arrive as
+  // plain Errors, not MulterErrors. A client-malformed request is a 400, not
+  // a 500 — and the raw parser message stays out of the response.
+  if (err && /unexpected end of form/i.test(err.message || "")) {
+    return next(
+      new ApiError(400, "Malformed upload request: the multipart body is incomplete."),
+    );
   }
   next(err);
 };
