@@ -325,6 +325,12 @@ carSchema.index({ brand: 1, price: 1 });
 carSchema.index({ isHidden: 1, featured: 1 });
 carSchema.index({ isHidden: 1, createdAt: -1 });
 carSchema.index({ isHidden: 1, isSold: 1 });
+// Sort support: the catalog's price_asc/price_desc and mileage_low sorts had
+// no index backing, forcing an in-memory sort of all matching listings
+// (which fails past MongoDB's 32MB sort limit on large datasets).
+// Equality on isHidden + sort field follows the ESR rule.
+carSchema.index({ isHidden: 1, price: 1 });
+carSchema.index({ isHidden: 1, mileage: 1 });
 // ─── Pre-save hook: auto-generate slug from title + partial _id ───────────────
 carSchema.pre("save", async function (next) {
   if (!this.isModified("title") && this.slug) return next();

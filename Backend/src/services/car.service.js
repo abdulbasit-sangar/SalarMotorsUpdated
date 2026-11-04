@@ -82,14 +82,30 @@ const SORT_MAP = {
   mileage_low: { mileage: 1, _id: 1 },
 };
 
-const buildPagination = (page, limit, total) => ({
+const buildPagination = (page, limit, total, hasNextPage) => ({
   page,
   limit,
   totalCars: total,
-  totalPages: Math.ceil(total / limit),
-  hasNextPage: page < Math.ceil(total / limit),
+  totalPages: total == null ? null : Math.ceil(total / limit),
+  // When the exact total was skipped (public page 2+), hasNextPage comes
+  // from the limit+1 fetch. Otherwise keep the original total-based logic.
+  hasNextPage: total == null ? Boolean(hasNextPage) : page < Math.ceil(total / limit),
   hasPrevPage: page > 1,
 });
+
+// Runs a paged query fetching one extra document, so hasNextPage is known
+// without an exact count query. The extra doc is trimmed before returning.
+const runPagedQuery = async (query, limit) => {
+  const docs = await query.limit(limit + 1).lean();
+  const hasNextPage = docs.length > limit;
+  return { cars: hasNextPage ? docs.slice(0, limit) : docs, hasNextPage };
+};
+
+// The exact total is only computed where the UI genuinely needs it:
+// every admin request (arbitrary page jumps need totalPages) and public
+// page 1 (the "X results" display; the infinite-scroll hook keeps page 1's
+// value for later pages). Scroll requests skip the count entirely.
+const needsExactTotal = (includeHidden, page) => includeHidden || page === 1;
 
 const parsePagination = (query) => {
   const page = Math.max(1, parseInt(query.page) || 1);
@@ -232,19 +248,25 @@ export const getAllCarsService = async (query = {}, includeHidden = false, admin
     }
   }
 
-  const [cars, totalCars] = await Promise.all([
-    Car.find(filter)
-      .select(
-        "title brand model year price currency mileage mileageUnit province city fuelType vin images featured isSold features slug createdAt isHidden",
-      )
-      .sort(sortOption)
-      .skip(skip)
-      .limit(limit)
-      .lean(),
-    Car.countDocuments(filter),
+  const [pageResult, totalCars] = await Promise.all([
+    runPagedQuery(
+      Car.find(filter)
+        .select(
+          "title brand model year price currency mileage mileageUnit province city fuelType vin images featured isSold features slug createdAt isHidden",
+        )
+        .sort(sortOption)
+        .skip(skip),
+      limit,
+    ),
+    needsExactTotal(includeHidden, page)
+      ? Car.countDocuments(filter)
+      : Promise.resolve(null),
   ]);
 
-  return { cars, pagination: buildPagination(page, limit, totalCars) };
+  return {
+    cars: pageResult.cars,
+    pagination: buildPagination(page, limit, totalCars, pageResult.hasNextPage),
+  };
 };
 
 
@@ -295,19 +317,26 @@ export const searchCarsService = async (query = {}) => {
     ],
   };
 
-  const [cars, totalCars] = await Promise.all([
-    Car.find(filter)
-      .select(
-        "title brand model year price currency mileage mileageUnit province city fuelType vin images featured isSold slug createdAt",
-      )
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean(),
-    Car.countDocuments(filter),
+  const [pageResult, totalCars] = await Promise.all([
+    runPagedQuery(
+      Car.find(filter)
+        .select(
+          "title brand model year price currency mileage mileageUnit province city fuelType vin images featured isSold slug createdAt",
+        )
+        .sort({ createdAt: -1 })
+        .skip(skip),
+      limit,
+    ),
+    needsExactTotal(false, page)
+      ? Car.countDocuments(filter)
+      : Promise.resolve(null),
   ]);
 
-  return { cars, pagination: buildPagination(page, limit, totalCars), keyword };
+  return {
+    cars: pageResult.cars,
+    pagination: buildPagination(page, limit, totalCars, pageResult.hasNextPage),
+    keyword,
+  };
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -391,21 +420,24 @@ export const filterCarsService = async (query = {}) => {
     if (maxMileage) filter.mileage.$lte = Number(maxMileage);
   }
 
-  const [cars, totalCars] = await Promise.all([
-    Car.find(filter)
-      .select(
-        "title brand model year price currency mileage mileageUnit province city fuelType bodyType vin images featured isSold slug createdAt",
-      )
-      .sort(sortOption)
-      .skip(skip)
-      .limit(limit)
-      .lean(),
-    Car.countDocuments(filter),
+  const [pageResult, totalCars] = await Promise.all([
+    runPagedQuery(
+      Car.find(filter)
+        .select(
+          "title brand model year price currency mileage mileageUnit province city fuelType bodyType vin images featured isSold slug createdAt",
+        )
+        .sort(sortOption)
+        .skip(skip),
+      limit,
+    ),
+    needsExactTotal(false, page)
+      ? Car.countDocuments(filter)
+      : Promise.resolve(null),
   ]);
 
   return {
-    cars,
-    pagination: buildPagination(page, limit, totalCars),
+    cars: pageResult.cars,
+    pagination: buildPagination(page, limit, totalCars, pageResult.hasNextPage),
     appliedFilters: filter,
   };
 };
