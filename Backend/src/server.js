@@ -1,6 +1,7 @@
 import "dotenv/config";
 import app from "./app.js";
 import connectDB from "./config/db.js";
+import { initRedis, closeRedis } from "./config/redis.js";
 import Admin from "./models/admin.model.js";
 import Car from "./models/car.model.js";
 import {
@@ -82,6 +83,17 @@ const validateEnvironment = () => {
           "or all visitors will share one rate-limit bucket.",
       );
     }
+    // Warn (don't crash) if REDIS_URL isn't set in production: rate
+    // limits fall back to per-instance memory stores, so multiple
+    // backend instances enforce limits independently and restarts reset
+    // counters. Set REDIS_URL (Redis) for multi-instance deployments.
+    if (!process.env.REDIS_URL?.trim()) {
+      console.warn(
+        "WARNING: REDIS_URL is not set — rate limits use per-instance " +
+          "memory stores. Set REDIS_URL (Redis) so all backend instances " +
+          "share counters and they survive restarts.",
+      );
+    }
   }
 
   if (process.env.ADMIN_SETUP_TOKEN === "change-me") {
@@ -111,10 +123,18 @@ const startServer = async () => {
   try {
     validateEnvironment();
     await connectDB();
+    // Best-effort and non-blocking: a down Redis never prevents boot.
+    // Per-request Redis failures follow the configured rate-limit
+    // failure policy (see rateLimitStore.js).
+    await initRedis();
     await migrateLegacyAdminRole();
     await ListingCreation.createIndexes();
     await ImageCleanupTask.createIndexes();
     await Car.createIndexes();
+    // Builds the Admin indexes, including the partial unique index that
+    // makes initial Super Admin setup atomic (initial_superadmin_singleton).
+    // Instant on small collections; required once per deployment.
+    await Admin.createIndexes();
 
     const server = app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
@@ -147,6 +167,7 @@ const startServer = async () => {
       console.log(`${signal} received — shutting down gracefully...`);
       clearInterval(cleanupInterval);
       clearInterval(reconciliationInterval);
+      closeRedis().catch(() => {});
       server.close(() => {
         console.log("HTTP server closed.");
         process.exit(0);

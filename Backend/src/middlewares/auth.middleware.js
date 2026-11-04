@@ -46,15 +46,26 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
   if (!admin.emailVerified) {
     throw new ApiError(403, "Admin email has not been verified");
   }
-  // tokenVersion is 0 for accounts created before this fix.
+  // tokenVersion defaults to 0 (see the Admin model) for accounts created
+  // before this fix.
   const tokenVersion = admin.tokenVersion ?? 0;
-  if (decoded.tokenVersion !== undefined && decoded.tokenVersion !== tokenVersion) {
+  if (decoded.tokenVersion === undefined) {
+    // LEGACY-TOKEN POLICY: tokens issued before tokenVersion existed
+    // carry no version claim. They are honored only while the account
+    // has never experienced a revocation event (tokenVersion still 0):
+    // the first logout, password change/reset, deactivation, or
+    // reuse-revocation bumps the version and permanently invalidates
+    // every legacy token. All tokens issued since the fix carry the
+    // claim, so a legacy token can only be an old one nearing its
+    // natural expiry (15m access / 7d refresh) — and any revocation
+    // since its issuance now kills it instead of being bypassed.
+    // Missing the claim is never treated as "no check needed".
+    if (tokenVersion !== 0) {
+      throw new ApiError(401, "Access token has been revoked");
+    }
+  } else if (decoded.tokenVersion !== tokenVersion) {
     throw new ApiError(401, "Access token has been revoked");
   }
-  // Tokens issued before tokenVersion existed carry no version field;
-  // they are still accepted once, then replaced on next login/refresh.
-  // To force immediate revocation for all old tokens, set every admin's
-  // tokenVersion to 1 in a one-off migration and require the field above.
 
   req.admin = admin.toPublicJSON();
   next();
@@ -71,4 +82,4 @@ export const requireRole = (...allowedRoles) => (req, res, next) => {
     throw new ApiError(403, "You do not have permission to perform this action");
   }
   next();
-};
+}

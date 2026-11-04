@@ -161,12 +161,20 @@ export const refreshAccessTokenService = async (incomingRefreshToken, expectedRo
   if (!admin.isActive || !admin.emailVerified) {
     throw new ApiError(401, "Refresh token has been revoked");
   }
-  if (
-    decoded.tokenVersion !== undefined &&
-    decoded.tokenVersion !== (admin.tokenVersion ?? 0)
-  ) {
+// LEGACY-TOKEN POLICY (mirrors verifyJWT): a refresh token without a
+// version claim is honored only while the account has never had a
+// revocation event. Logout / password change / reset already clear the
+// stored refresh hash, so this check is defense in depth for the
+// refresh flow — but it must stay consistent with the middleware.
+const currentVersion = admin.tokenVersion ?? 0;
+if (decoded.tokenVersion === undefined) {
+  if (currentVersion !== 0) {
     throw new ApiError(401, "Refresh token has been revoked");
   }
+} else if (decoded.tokenVersion !== currentVersion) {
+  throw new ApiError(401, "Refresh token has been revoked");
+}
+
   if (!admin.refreshToken || admin.refreshToken !== hashRefreshToken(incomingRefreshToken)) {
     // Possible reuse / theft: revoke the whole family.
     await Admin.findByIdAndUpdate(admin._id, {
@@ -186,12 +194,34 @@ export const refreshAccessTokenService = async (incomingRefreshToken, expectedRo
 };
 
 export const registerAdminService = async ({ username, email, password }) => {
+  // Fast path: setup is one-time. This count check is NOT the concurrency
+  // guard — it is only a cheap early rejection. The atomic guarantee is
+  // the partial unique index on initialSuperAdmin (see admin.model.js):
+  // concurrent requests that both pass this check still cannot both
+  // insert, because MongoDB admits only one document with the marker.
   const existing = await Admin.countDocuments();
   if (existing > 0) {
     throw new ApiError(403, "Admin already exists. Registration is disabled.");
   }
 
-  const admin = await Admin.create({ username, email, password });
+  let admin;
+  try {
+    admin = await Admin.create({
+      username,
+      email,
+      password,
+      initialSuperAdmin: true, // claimed atomically via the unique index
+    });
+  } catch (err) {
+    // Lost the race: another request claimed the one-time setup slot
+    // (E11000 on the initialSuperAdmin marker), or an admin was created
+    // between our count check and this insert. Either way, setup is done.
+    if (err && err.code === 11000) {
+      throw new ApiError(403, "Admin already exists. Registration is disabled.");
+    }
+    throw err;
+  }
+
   const { accessToken, refreshToken } = generateTokenPair(tokenPayloadFor(admin));
 
   admin.refreshToken = hashRefreshToken(refreshToken);
@@ -200,6 +230,7 @@ export const registerAdminService = async ({ username, email, password }) => {
 
   return { admin: admin.toPublicJSON(), accessToken, refreshToken };
 };
+
 
 export const changePasswordService = async ({
   adminId,

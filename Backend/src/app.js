@@ -36,14 +36,27 @@ app.use(globalLimiter);
 // 3. CORS — single configured origin only. In production there is no
 // localhost fallback: server.js already requires FRONTEND_URL, and this
 // guard protects standalone use of app.js (tests, another entry point).
+// CORS — exactly one configured origin. In production there is no
+// localhost fallback: server.js already requires FRONTEND_URL, and this
+// guard protects standalone use of app.js (tests, another entry point).
+// A validation function (not a fixed string) is used so the server
+// actively omits ACAO for disallowed origins instead of merely labeling
+// every response — browsers enforce the match either way; this is
+// defense in depth.
 const frontendUrl = process.env.FRONTEND_URL;
-const corsOrigin =
-  frontendUrl || process.env.NODE_ENV === "production"
-    ? frontendUrl
+const corsOrigin = frontendUrl
+  ? frontendUrl
+  : process.env.NODE_ENV === "production"
+    ? false
     : "http://localhost:3000";
 app.use(
   cors({
-    origin: corsOrigin || false,
+    origin: (origin, callback) => {
+      // No Origin header (curl, mobile apps, server-to-server): nothing
+      // to enforce — browsers are the CORS boundary.
+      if (!origin || origin === corsOrigin) return callback(null, true);
+      return callback(null, false);
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
@@ -56,6 +69,7 @@ app.use(
     ],
   }),
 );
+
 
 // Body parsers — BEFORE mongoSanitize (security fix).
 // Previously mongoSanitize ran before express.json(), so JSON bodies

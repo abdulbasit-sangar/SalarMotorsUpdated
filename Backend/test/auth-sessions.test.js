@@ -369,3 +369,136 @@ test("page reload: each session is restored from its refresh cookie alone", asyn
   assert.ok(mgrRes.body.data.accessToken);
   assert.ok(mgrRes.cookies["managerRefreshToken"]);
 });
+
+// ── legacy tokenVersion policy ───────────────────────────────────────────────
+// Tokens issued before tokenVersion existed carry no version claim. Policy:
+// such a token is honored only while the account has never experienced a
+// revocation event (tokenVersion still 0). The first logout, password
+// change/reset, deactivation, or reuse-revocation bumps the version and
+// permanently invalidates every legacy token. Missing the claim is never
+// treated as "no check needed".
+
+// A "legacy" pair: signed exactly like a real one, but WITHOUT the
+// tokenVersion claim — as issued before the fix.
+const legacyPair = (role, id) => {
+  const base = { _id: id, email: `${id}@test.local`, role };
+  return {
+    accessToken: jwt.sign(base, process.env.ACCESS_TOKEN_SECRET, {
+      algorithm: "HS256",
+      expiresIn: "15m",
+    }),
+    refreshToken: jwt.sign(base, process.env.REFRESH_TOKEN_SECRET, {
+      algorithm: "HS256",
+      expiresIn: "7d",
+    }),
+  };
+};
+
+test("legacy access token (no version claim) is honored while account version is 0", async () => {
+  const { accessToken } = legacyPair("superadmin", "legacy1");
+  const doc = makeDoc({
+    _id: "legacy1",
+    email: "legacy1@test.local",
+    role: "superadmin",
+  });
+  mock.method(Admin, "findById", () => query(doc));
+  const req = { headers: { authorization: `Bearer ${accessToken}` } };
+  const err = await runMiddleware(verifyJWT, req);
+  assert.equal(err, undefined);
+  assert.equal(req.admin._id, "legacy1");
+});
+
+test("legacy access token is rejected after a revocation bumped the version", async () => {
+  const { accessToken } = legacyPair("superadmin", "legacy2");
+  const doc = makeDoc({
+    _id: "legacy2",
+    email: "legacy2@test.local",
+    role: "superadmin",
+  });
+  doc.tokenVersion = 1; // e.g. a logout or password change happened
+  mock.method(Admin, "findById", () => query(doc));
+  const req = { headers: { authorization: `Bearer ${accessToken}` } };
+  const err = await runMiddleware(verifyJWT, req);
+  assert.ok(err);
+  assert.equal(err.statusCode, 401);
+  assert.match(err.message, /revoked/i);
+});
+
+test("versioned access token with a mismatched version is rejected", async () => {
+  const pair = tokenPairFor("superadmin", "v1"); // token carries version 0
+  const doc = makeDoc({ _id: "v1", email: "v1@test.local", role: "superadmin" });
+  doc.tokenVersion = 2;
+  mock.method(Admin, "findById", () => query(doc));
+  const req = { headers: { authorization: `Bearer ${pair.accessToken}` } };
+  const err = await runMiddleware(verifyJWT, req);
+  assert.ok(err);
+  assert.equal(err.statusCode, 401);
+  assert.match(err.message, /revoked/i);
+});
+
+test("malformed tokenVersion claim (null) is rejected, never bypassed", async () => {
+  const bad = jwt.sign(
+    { _id: "m1", email: "m1@test.local", role: "superadmin", tokenVersion: null },
+    process.env.ACCESS_TOKEN_SECRET,
+    { algorithm: "HS256", expiresIn: "15m" },
+  );
+  const doc = makeDoc({ _id: "m1", email: "m1@test.local", role: "superadmin" });
+  mock.method(Admin, "findById", () => query(doc));
+  const req = { headers: { authorization: `Bearer ${bad}` } };
+  const err = await runMiddleware(verifyJWT, req);
+  assert.ok(err);
+  assert.equal(err.statusCode, 401);
+});
+
+test("legacy refresh token migrates cleanly while account version is 0", async () => {
+  const { refreshToken } = legacyPair("superadmin", "legacy3");
+  const doc = makeDoc({
+    _id: "legacy3",
+    email: "legacy3@test.local",
+    role: "superadmin",
+    refreshToken: hashSecret(refreshToken),
+  });
+  mock.method(Admin, "findById", () => query(doc));
+  const { accessToken, refreshToken: rotated } =
+    await authService.refreshAccessTokenService(refreshToken, "superadmin");
+  assert.ok(accessToken);
+  assert.ok(rotated);
+  // The newly issued pair carries the version claim — the session is now
+  // fully versioned with no user-visible interruption.
+  const decodedAccess = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, {
+    algorithms: ["HS256"],
+  });
+  const decodedRefresh = jwt.verify(rotated, process.env.REFRESH_TOKEN_SECRET, {
+    algorithms: ["HS256"],
+  });
+  assert.equal(decodedAccess.tokenVersion, 0);
+  assert.equal(decodedRefresh.tokenVersion, 0);
+});
+
+test("legacy refresh token is rejected after a revocation bumped the version", async () => {
+  const { refreshToken } = legacyPair("superadmin", "legacy4");
+  const doc = makeDoc({
+    _id: "legacy4",
+    email: "legacy4@test.local",
+    role: "superadmin",
+    refreshToken: hashSecret(refreshToken),
+  });
+  doc.tokenVersion = 1;
+  mock.method(Admin, "findById", () => query(doc));
+  await assert.rejects(
+    authService.refreshAccessTokenService(refreshToken, "superadmin"),
+    /revoked/i,
+  );
+});
+
+test("newly issued tokens always carry the tokenVersion claim", () => {
+  const pair = tokenPairFor("superadmin", "fresh1");
+  const a = jwt.verify(pair.accessToken, process.env.ACCESS_TOKEN_SECRET, {
+    algorithms: ["HS256"],
+  });
+  const r = jwt.verify(pair.refreshToken, process.env.REFRESH_TOKEN_SECRET, {
+    algorithms: ["HS256"],
+  });
+  assert.equal(a.tokenVersion, 0);
+  assert.equal(r.tokenVersion, 0);
+});

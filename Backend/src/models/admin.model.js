@@ -67,6 +67,16 @@ const adminSchema = new mongoose.Schema(
     lastLogin: {
       type: Date,
     },
+    // SECURITY FIX: One-time-setup atomicity. registerAdminService sets
+    // this flag on the initial Super Admin; the partial unique index
+    // below makes the claim atomic across concurrent requests AND
+    // backend instances — concurrent losers get E11000 (duplicate key)
+    // instead of creating a second admin. The partial filter means
+    // ordinary admins/managers (flag unset) are never constrained.
+    // No default: the path stays unset (and unindexed) unless set.
+    initialSuperAdmin: {
+      type: Boolean,
+    },
   },
   { timestamps: true },
 );
@@ -94,6 +104,22 @@ adminSchema.methods.toPublicJSON = function () {
     createdAt: this.createdAt,
   };
 };
+
+// Partial unique index: at most one Admin document may carry
+// initialSuperAdmin: true. This is the database-enforced guarantee
+// behind one-time setup — it holds across processes and backend
+// instances, unlike the application-level count check in
+// registerAdminService (which remains as a cheap fast path).
+// Defined BEFORE mongoose.model() so autoIndex and createIndexes()
+// both pick it up.
+adminSchema.index(
+  { initialSuperAdmin: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { initialSuperAdmin: true },
+    name: "initial_superadmin_singleton",
+  },
+);
 
 const Admin = mongoose.model("Admin", adminSchema);
 

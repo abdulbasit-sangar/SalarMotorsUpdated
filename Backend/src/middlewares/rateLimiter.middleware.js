@@ -1,5 +1,6 @@
 import rateLimit from "express-rate-limit";
 import { ApiError } from "../utils/apiHelpers.js";
+import { createRateLimitStore } from "./rateLimitStore.js";
 
 // SECURITY FIXES:
 // - Every sensitive endpoint gets its OWN limiter instance. Previously
@@ -10,6 +11,11 @@ import { ApiError } from "../utils/apiHelpers.js";
 //   top of per-IP protection and survives IP rotation.
 // - New limiters for refresh, reset-password, admin registration and
 //   favorites, which previously had only the global limiter.
+//
+// SHARED STORAGE: each limiter below gets its own store instance with a
+// distinct Redis key prefix (see rateLimitStore.js). With REDIS_URL set,
+// counters are shared across backend instances and survive restarts;
+// without it, the default in-memory store is used (previous behavior).
 
 const emailOrIpKey = (req) => {
   const email = req.body?.email;
@@ -27,11 +33,19 @@ const ipAndEmailKey = (req) => {
   return req.ip;
 };
 
-const createLimiter = (windowMs, max, message, keyGenerator) =>
-  rateLimit({
+const FAIL_CLOSED = process.env.RATE_LIMIT_FAIL_CLOSED === "true";
+
+const createLimiter = (windowMs, max, message, keyGenerator, storeName) => {
+  const store = createRateLimitStore(storeName);
+  const limiter = rateLimit({
     windowMs,
     max,
     keyGenerator,
+    store,
+    // Fail-open path: if the store throws, express-rate-limit logs and
+    // allows the request instead of 500ing. (Fail-closed is handled
+    // inside GuardedRedisStore by reporting the bucket as exceeded.)
+    passOnStoreError: !FAIL_CLOSED,
     skip: (req) => req.method === "OPTIONS",
     standardHeaders: true,
     legacyHeaders: false,
@@ -39,11 +53,18 @@ const createLimiter = (windowMs, max, message, keyGenerator) =>
       next(new ApiError(429, message));
     },
   });
+  // Exposed for observability/tests: which store (and key prefix) backs
+  // this limiter. Harmless — Express ignores extra function properties.
+  limiter.store = store;
+  return limiter;
+};
 
 export const globalLimiter = createLimiter(
   15 * 60 * 1000,
   process.env.NODE_ENV === "development" ? 500 : 100,
   "Too many requests from this IP. Please try again after 15 minutes.",
+  undefined,
+  "global",
 );
 
 export const authLimiter = createLimiter(
@@ -51,6 +72,7 @@ export const authLimiter = createLimiter(
   10,
   "Too many login attempts. Please try again after 15 minutes.",
   emailOrIpKey,
+  "login",
 );
 
 export const uploadLimitKey = (req) =>
@@ -66,12 +88,15 @@ export const uploadLimiter = createLimiter(
   30,
   "Upload limit reached. Maximum 30 car listings per hour.",
   uploadLimitKey,
+  "upload",
 );
 
 export const searchLimiter = createLimiter(
   60 * 1000,
   60,
   "Too many search requests. Please slow down.",
+  undefined,
+  "search",
 );
 
 // Separate instances — do not reuse these across endpoints.
@@ -80,6 +105,7 @@ export const otpRequestLimiter = createLimiter(
   5,
   "Too many password reset requests. Please try again later.",
   ipAndEmailKey,
+  "otp-request",
 );
 
 export const managerRegisterLimiter = createLimiter(
@@ -87,6 +113,7 @@ export const managerRegisterLimiter = createLimiter(
   5,
   "Too many manager registration requests. Please try again later.",
   ipAndEmailKey,
+  "manager-register",
 );
 
 export const otpResendLimiter = createLimiter(
@@ -94,6 +121,7 @@ export const otpResendLimiter = createLimiter(
   1,
   "Please wait before requesting another code.",
   ipAndEmailKey,
+  "otp-resend",
 );
 
 export const otpVerifyLimiter = createLimiter(
@@ -101,12 +129,15 @@ export const otpVerifyLimiter = createLimiter(
   10,
   "Too many verification attempts. Please try again later.",
   ipAndEmailKey,
+  "otp-verify",
 );
 
 export const refreshLimiter = createLimiter(
   15 * 60 * 1000,
   20,
   "Too many refresh attempts. Please try again later.",
+  undefined,
+  "refresh",
 );
 
 export const resetPasswordLimiter = createLimiter(
@@ -114,16 +145,21 @@ export const resetPasswordLimiter = createLimiter(
   10,
   "Too many password reset attempts. Please try again later.",
   ipAndEmailKey,
+  "reset-password",
 );
 
 export const adminRegisterLimiter = createLimiter(
   15 * 60 * 1000,
   5,
-  "Too many admin registration requests. Please try again later.",
+  "Too many admin registration attempts. Please try again later.",
+  undefined,
+  "admin-register",
 );
 
 export const favoritesLimiter = createLimiter(
   60 * 1000,
   60,
   "Too many favorites requests. Please slow down.",
+  undefined,
+  "favorites",
 );
