@@ -7,6 +7,7 @@ import Car from "./models/car.model.js";
 import {
   processPendingImageCleanup,
   reconcileUnreferencedImageKitFiles,
+  releaseWorkerLeases,
 } from "./services/imageCleanup.service.js";
 import ListingCreation from "./models/listingCreation.model.js";
 import ImageCleanupTask from "./models/imageCleanupTask.model.js";
@@ -168,6 +169,9 @@ const startServer = async () => {
       clearInterval(cleanupInterval);
       clearInterval(reconciliationInterval);
       closeRedis().catch(() => {});
+      // Let the next boot reclaim this worker's in-flight cleanup tasks
+      // immediately instead of waiting out their leases.
+      releaseWorkerLeases().catch(() => {});
       server.close(() => {
         console.log("HTTP server closed.");
         process.exit(0);

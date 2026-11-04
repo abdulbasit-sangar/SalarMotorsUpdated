@@ -238,7 +238,11 @@ export const deleteFromImageKit = async (
     }
     console.warn(`ImageKit delete failed for fileId: ${fileId}`, err.message);
     if (throwOnError) throw err;
-    return { public_id: fileId, ok: false, missing: false, error: message };
+    // 4xx (other than 404, handled above) means the request itself is
+    // invalid — retrying will never succeed. 5xx, timeouts and network
+    // errors are temporary and worth retrying with backoff.
+    const permanent = status === 400 || status === 401 || status === 403;
+    return { public_id: fileId, ok: false, missing: false, error: message, permanent };
   }
 };
 

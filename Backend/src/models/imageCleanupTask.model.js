@@ -23,9 +23,16 @@ const imageCleanupTaskSchema = new mongoose.Schema(
     },
     images: { type: [cleanupImageSchema], required: true },
     imagePublicId: String,
+    // Multi-instance task ownership. A worker claims a task by setting
+    // claimedBy + leaseUntil atomically; the lease expires so crashed
+    // workers' tasks become reclaimable. Every terminal state transition
+    // is guarded on (claimedBy, status) so a stale worker can never
+    // modify a task it no longer owns.
+    claimedBy: { type: String, default: null, index: true },
+    leaseUntil: { type: Date, default: null },
     status: {
       type: String,
-      enum: ["pending", "processing", "completed", "failed"],
+      enum: ["pending", "processing", "completed", "failed", "exhausted"],
       default: "pending",
       index: true,
     },
@@ -37,5 +44,6 @@ const imageCleanupTaskSchema = new mongoose.Schema(
 );
 
 imageCleanupTaskSchema.index({ status: 1, nextAttemptAt: 1 });
+imageCleanupTaskSchema.index({ leaseUntil: 1 });
 
 export default mongoose.model("ImageCleanupTask", imageCleanupTaskSchema);
