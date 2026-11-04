@@ -248,11 +248,16 @@ export const getAllCarsService = async (query = {}, includeHidden = false, admin
     }
   }
 
+  // Public cards only need image URLs (carousel + photo-count badge);
+  // public_id is only used for ImageKit deletion through admin endpoints,
+  // which return full documents. Admin list views keep complete images.
+  const imageField = includeHidden ? "images" : "images.url";
+
   const [pageResult, totalCars] = await Promise.all([
     runPagedQuery(
       Car.find(filter)
         .select(
-          "title brand model year price currency mileage mileageUnit province city fuelType vin images featured isSold features slug createdAt isHidden",
+          `title brand model year price currency mileage mileageUnit province city fuelType vin ${imageField} featured isSold features slug createdAt isHidden`,
         )
         .sort(sortOption)
         .skip(skip),
@@ -321,7 +326,7 @@ export const searchCarsService = async (query = {}) => {
     runPagedQuery(
       Car.find(filter)
         .select(
-          "title brand model year price currency mileage mileageUnit province city fuelType vin images featured isSold slug createdAt",
+          "title brand model year price currency mileage mileageUnit province city fuelType vin images.url featured isSold slug createdAt",
         )
         .sort({ createdAt: -1 })
         .skip(skip),
@@ -424,7 +429,7 @@ export const filterCarsService = async (query = {}) => {
     runPagedQuery(
       Car.find(filter)
         .select(
-          "title brand model year price currency mileage mileageUnit province city fuelType bodyType vin images featured isSold slug createdAt",
+          "title brand model year price currency mileage mileageUnit province city fuelType bodyType vin images.url featured isSold slug createdAt",
         )
         .sort(sortOption)
         .skip(skip),
@@ -465,7 +470,7 @@ export const getSimilarCarsService = async (id) => {
 
   const cars = await Car.find(filter)
     .select(
-      "title brand model year price currency mileage mileageUnit province city fuelType vin images featured isSold slug",
+      "title brand model year price currency mileage mileageUnit province city fuelType vin images.url featured isSold slug",
     )
     .limit(6)
     .lean();
@@ -854,7 +859,7 @@ export const reorderCarImagesService = async (id, orderedPublicIds = [], admin =
 export const getFeaturedCarsService = async (limitNum = 8) => {
   const cars = await Car.find({ isHidden: false, featured: true })
     .select(
-      "title brand model year price currency mileage mileageUnit province city fuelType vin images featured isSold slug",
+      "title brand model year price currency mileage mileageUnit province city fuelType vin images.url featured isSold slug",
     )
     .sort({ createdAt: -1 })
     .limit(limitNum)
