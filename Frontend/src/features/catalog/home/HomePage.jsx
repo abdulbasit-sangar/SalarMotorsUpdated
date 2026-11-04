@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { HeroSection } from "./HeroSection.jsx";
@@ -45,48 +44,14 @@ const loadHomeData = async () => {
   };
 };
 
-// Lightweight scroll-reveal hook — observes an element and flips `visible`
-// to true the first time it enters the viewport, then disconnects.
-const useReveal = (threshold = 0.15) => {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-
-    if (typeof IntersectionObserver === "undefined") {
-      setVisible(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.unobserve(node);
-        }
-      },
-      { threshold, rootMargin: "0px 0px -60px 0px" },
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [threshold]);
-
-  return [ref, visible];
-};
-
-const IconCard = ({ item, visible, delay }) => {
+const IconCard = ({ item }) => {
   const { t } = useTranslation("home");
   const Icon = item.icon;
   return (
     <div
-      style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
       className={
         "group card-light rounded-premium-lg p-5 sm:p-7 shadow-card text-center " +
-        "transition-all duration-500 ease-out hover:-translate-y-0.5 hover:border-brass/30 " +
-        (visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8")
+        "transition-all duration-500 ease-out hover:-translate-y-0.5 hover:border-brass/30"
       }
     >
       <div className="w-12 h-12 mx-auto flex items-center justify-center rounded-xl bg-graphite-100 text-brass-dark mb-4">
@@ -102,20 +67,12 @@ const IconCard = ({ item, visible, delay }) => {
   );
 };
 
-const StepCard = ({ step, title, description, isLast, visible, delay }) => (
-  <div
-    style={{ transitionDelay: visible ? `${delay + 150}ms` : "0ms" }}
-    className={
-      "relative flex flex-col items-center text-center transition-all duration-700 ease-out " +
-      (visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8")
-    }
-  >
+const StepCard = ({ step, title, description, isLast }) => (
+  <div className="relative flex flex-col items-center text-center">
     <div
-      style={{ transitionDelay: visible ? `${delay + 150}ms` : "0ms" }}
       className={
         "w-12 h-12 flex items-center justify-center rounded-full bg-brass text-graphite-950 font-display font-bold text-lg mb-4 " +
-        "transition-all duration-500 ease-out hover:scale-110 " +
-        (visible ? "scale-100" : "scale-50")
+        "transition-all duration-500 ease-out hover:scale-110"
       }
     >
       {step}
@@ -130,13 +87,7 @@ const StepCard = ({ step, title, description, isLast, visible, delay }) => (
         style={{ width: "calc(100% - 4rem)" }}
         aria-hidden="true"
       >
-        <div
-          style={{ transitionDelay: visible ? `${delay + 250}ms` : "0ms" }}
-          className={
-            "h-full bg-brass/60 transition-all duration-700 ease-out " +
-            (visible ? "w-full" : "w-0")
-          }
-        />
+        <div className="h-full bg-brass/60 w-full" />
       </div>
     )}
   </div>
@@ -145,10 +96,6 @@ const StepCard = ({ step, title, description, isLast, visible, delay }) => (
 export default function HomePage() {
   const { t } = useTranslation("home");
   const { data } = useAsyncData(loadHomeData, []);
-
-  const [whyRef, whyVisible] = useReveal();
-  const [howRef, howVisible] = useReveal();
-  const [aboutRef, aboutVisible] = useReveal();
 
   return (
     <div>
@@ -161,19 +108,9 @@ export default function HomePage() {
           reusing the full py-16/24 for THIS section's top as well stacked
           two paddings together and showed as extra empty space beneath
           the hero on mobile. Bottom padding is unchanged. */}
-      <section
-        ref={whyRef}
-        className="bg-section-light pt-10 pb-16 sm:pt-14 sm:pb-24 relative overflow-hidden"
-      >
+      <section className="bg-section-light pt-10 pb-16 sm:pt-14 sm:pb-24 relative overflow-hidden">
         <div className="container-page relative z-10">
-          <div
-            className={
-              "text-center max-w-2xl mx-auto mb-10 sm:mb-12 transition-all duration-700 ease-out " +
-              (whyVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-6")
-            }
-          >
+          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
             <h2 className="section-title text-section-light">
               {t("why.title")}
             </h2>
@@ -182,29 +119,17 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            {WHY_CHOOSE.map((item, index) => (
-              <IconCard
-                key={item.key}
-                item={item}
-                visible={whyVisible}
-                delay={index * 100}
-              />
+            {WHY_CHOOSE.map((item) => (
+              <IconCard key={item.key} item={item} />
             ))}
           </div>
         </div>
       </section>
 
       {/* How It Works */}
-      <section ref={howRef} className="bg-graphite-950 py-16 sm:py-24">
+      <section className="bg-graphite-950 py-16 sm:py-24">
         <div className="container-page">
-          <div
-            className={
-              "text-center max-w-2xl mx-auto mb-12 sm:mb-16 transition-all duration-700 ease-out " +
-              (howVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-6")
-            }
-          >
+          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
             <h2 className="section-title">{t("how.title")}</h2>
             <p className="section-subtitle mx-auto">{t("how.subtitle")}</p>
           </div>
@@ -216,8 +141,6 @@ export default function HomePage() {
                 title={t(`how.steps.${item.key}.title`)}
                 description={t(`how.steps.${item.key}.description`)}
                 isLast={index === HOW_IT_WORKS.length - 1}
-                visible={howVisible}
-                delay={index * 120}
               />
             ))}
           </div>
@@ -225,35 +148,14 @@ export default function HomePage() {
       </section>
 
       {/* About Section */}
-      <section
-        id="about"
-        ref={aboutRef}
-        className="bg-graphite-900 py-14 sm:py-20"
-      >
+      <section id="about" className="bg-graphite-900 py-14 sm:py-20">
         <div className="container-page relative z-10">
           <div className="max-w-3xl mx-auto">
-            <h2
-              style={{ transitionDelay: aboutVisible ? "80ms" : "0ms" }}
-              className={
-                "section-title text-section-light text-center transition-all duration-700 ease-out " +
-                (aboutVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-6")
-              }
-            >
+            <h2 className="section-title text-section-light text-center">
               {t("about.title")}
             </h2>
 
-            <div
-              style={{ transitionDelay: aboutVisible ? "180ms" : "0ms" }}
-              className={
-                "card-light rounded-premium-lg shadow-card p-5 sm:p-8 mt-8 sm:mt-10 space-y-5 " +
-                "transition-all duration-700 ease-out " +
-                (aboutVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8")
-              }
-            >
+            <div className="card-light rounded-premium-lg shadow-card p-5 sm:p-8 mt-8 sm:mt-10 space-y-5">
               <p className="text-card text-base sm:text-lg leading-relaxed">
                 {t("about.p1")}
               </p>

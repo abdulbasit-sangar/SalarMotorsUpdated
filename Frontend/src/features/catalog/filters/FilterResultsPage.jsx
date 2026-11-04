@@ -90,58 +90,6 @@ const rangeChipLabel = (t, chip, min, max) => {
     : t(`chips.${chip}UpTo`, { max });
 };
 
-const useReveal = (threshold = 0.15) => {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return undefined;
-
-    if (typeof IntersectionObserver === "undefined") {
-      setVisible(true);
-      return undefined;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.unobserve(node);
-        }
-      },
-      {
-        threshold,
-        rootMargin: "0px 0px -60px 0px",
-      },
-    );
-
-    observer.observe(node);
-
-    return () => observer.disconnect();
-  }, [threshold]);
-
-  return [ref, visible];
-};
-
-const Reveal = ({ children, delay = 0, className = "", threshold }) => {
-  const [ref, visible] = useReveal(threshold);
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        transitionDelay: visible ? `${delay}ms` : "0ms",
-      }}
-      className={`transition-all duration-700 ease-out ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      } ${className}`}
-    >
-      {children}
-    </div>
-  );
-};
-
 const buildActiveChips = (filters, t, label) => {
   const chips = [];
 
@@ -317,7 +265,7 @@ export default function FilterResultsPage({
 
   return (
     <div className="container-listing py-10 sm:py-14">
-      <Reveal className="relative z-10 mb-8 pt-16 sm:pt-20">
+      <div className="relative z-10 mb-8 pt-16 sm:pt-20">
         {fixedProvince && (
           <h1 className="mb-6 font-display text-3xl font-semibold text-bone">
             {categoryTitle}
@@ -367,7 +315,7 @@ export default function FilterResultsPage({
             </button>
           </div>
         </div>
-      </Reveal>
+      </div>
 
       {!fixedProvince && (
         <FilterSheet
@@ -383,7 +331,7 @@ export default function FilterResultsPage({
       )}
 
       {activeChips.length > 0 && (
-        <Reveal delay={60} className="mb-8 flex flex-wrap items-center gap-2">
+        <div className="mb-8 flex flex-wrap items-center gap-2">
           {activeChips.map((chip) => (
             <button
               key={chip.id}
@@ -403,12 +351,12 @@ export default function FilterResultsPage({
           >
             {t("results.resetFilter")}
           </button>
-        </Reveal>
+        </div>
       )}
 
       {/* SPONSORED VEHICLES */}
       {!error && !loading && sponsoredCars.length > 0 && (
-        <Reveal delay={120} className="mb-8 sm:mb-10">
+        <div className="mb-8 sm:mb-10">
           <section aria-labelledby="sponsored-heading">
             <h2
               id="sponsored-heading"
@@ -429,12 +377,11 @@ export default function FilterResultsPage({
               ))}
             </CarCardRow>
           </section>
-        </Reveal>
+        </div>
       )}
 
-      <Reveal delay={180} threshold={0}>
-        {error ? (
-          <ErrorState onRetry={refetch} />
+      {error ? (
+        <ErrorState onRetry={refetch} />
         ) : loading ? (
           <CarCardGrid dense>
             {Array.from({ length: LIMIT }).map((_, index) => (
@@ -482,7 +429,6 @@ export default function FilterResultsPage({
             onAction={activeCount > 0 ? resetFilters : undefined}
           />
         )}
-      </Reveal>
     </div>
   );
 }

@@ -1,15 +1,8 @@
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HeroSearchBar } from "./HeroSearchBar.jsx";
 
 export const HeroSection = () => {
   const { t } = useTranslation("home");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setMounted(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
 
   return (
     <section className="relative isolate flex min-h-[760px] min-h-screen flex-col justify-between overflow-hidden bg-graphite-950">
@@ -47,13 +40,10 @@ export const HeroSection = () => {
         {/* Headline */}
 
 <div
-  style={{ transitionDelay: mounted ? "120ms" : "0ms" }}
   className={[
     "mx-auto w-full max-w-4xl text-center",
     "rounded-2xl px-4 py-5 sm:px-6 sm:py-6",
     "[background:radial-gradient(ellipse_at_center,rgba(0,0,0,0.38)_0%,rgba(0,0,0,0.20)_48%,rgba(0,0,0,0.06)_68%,transparent_78%)]",
-    "transition-[opacity,transform] duration-700 ease-out",
-    mounted ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0",
   ].join(" ")}
 >
 
@@ -78,14 +68,7 @@ export const HeroSection = () => {
 
 
         {/* Search */}
-        <div
-          style={{ transitionDelay: mounted ? "260ms" : "0ms" }}
-          className={[
-            "w-full",
-            "transition-[opacity,transform] duration-700 ease-out",
-            mounted ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0",
-          ].join(" ")}
-        >
+        <div className="w-full">
           <HeroSearchBar />
         </div>
       </div>

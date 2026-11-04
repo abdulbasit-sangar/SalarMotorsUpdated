@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { useTranslation } from "react-i18next";
@@ -27,13 +27,6 @@ export const HeroSearchBar = ({ className }) => {
     minYear: "",
     province: "",
   });
-
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setMounted(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
 
   const FILTER_FIELDS = [
     {
@@ -109,12 +102,7 @@ export const HeroSearchBar = ({ className }) => {
   return (
     <section
       aria-label={t("search.sectionLabel")}
-      className={clsx(
-        "relative -top-8 w-full max-w-7xl",
-        "transition-opacity duration-500 ease-out",
-        mounted ? "opacity-100" : "opacity-0",
-        className,
-      )}
+      className={clsx("relative -top-8 w-full max-w-7xl", className)}
     >
       <div
 className={clsx(
@@ -141,19 +129,13 @@ className={clsx(
             "lg:grid-cols-5",
           )}
         >
-          {FILTER_FIELDS.map((field, index) => (
+          {FILTER_FIELDS.map((field) => (
             <div
               key={field.key}
-              style={{
-                transitionDelay: mounted ? `${index * 50}ms` : "0ms",
-              }}
               className={clsx(
                 "relative min-w-0 rounded-xl",
-                "transition-[background-color,opacity,transform] duration-300",
+                "transition-[background-color] duration-300",
                 "focus-within:bg-white/[0.05]",
-                mounted
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-2 opacity-0",
               )}
             >
               <div className="flex min-h-12 items-center">
