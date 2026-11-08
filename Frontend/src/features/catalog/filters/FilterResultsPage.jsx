@@ -277,7 +277,7 @@ export default function FilterResultsPage({
             <button
               type="button"
               onClick={() => setMobilePanelOpen(true)}
-              className="inline-flex h-10 min-w-[104px] items-center justify-center gap-1.5 rounded-xl bg-[#D9AD68] px-4 text-xs font-semibold tracking-wide text-[#17130D] shadow-sm transition-[background-color,transform,box-shadow] duration-200 hover:bg-[#E5C18B] hover:shadow-[0_5px_18px_rgba(217,173,104,0.22)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E5C18B] sm:h-11 sm:min-w-[120px] sm:gap-2 sm:px-5 sm:text-sm"
+              className="inline-flex h-10 min-w-[104px] items-center justify-center gap-1.5 rounded-xl bg-brand px-4 text-xs font-semibold tracking-wide text-white shadow-sm transition-[background-color,transform,box-shadow] duration-200 hover:bg-brand-dark hover:shadow-[0_5px_18px_rgba(37,99,235,0.25)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand sm:h-11 sm:min-w-[120px] sm:gap-2 sm:px-5 sm:text-sm"
             >
               <FilterIcon className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
               <span>
@@ -347,7 +347,7 @@ export default function FilterResultsPage({
           <button
             type="button"
             onClick={resetFilters}
-            className="inline-flex items-center rounded-full bg-brass px-4 py-1.5 text-xs font-semibold text-graphite-950 shadow-sm transition-all hover:bg-brass-light"
+            className="inline-flex items-center rounded-full bg-brass px-4 py-1.5 text-xs font-semibold text-graphite-950 shadow-sm transition-all hover:bg-brass-dark"
           >
             {t("results.resetFilter")}
           </button>

@@ -51,7 +51,7 @@ export const HeroSection = () => {
 <h1 className="font-serif text-xl font-medium uppercase leading-[1.15] tracking-[0.01em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)] sm:text-2xl md:text-3xl lg:text-4xl">
 
     {t("hero.titleA")}
-    <span className="mt-1 block text-[#E5C18B]">
+    <span className="mt-1 block text-[#93C5FD]">
       {t("hero.titleB")}
     </span>
   </h1>
@@ -60,9 +60,9 @@ export const HeroSection = () => {
 
   {/* Decorative accent */}
   <div className="mx-auto mt-5 flex items-center justify-center gap-2.5 sm:mt-6">
-    <span className="h-px w-7 bg-gradient-to-r from-transparent to-[#D9AD68]/80 sm:w-10" />
-    <span className="h-1 w-1 rotate-45 bg-[#D9AD68]" />
-    <span className="h-px w-7 bg-gradient-to-l from-transparent to-[#D9AD68]/80 sm:w-10" />
+    <span className="h-px w-7 bg-gradient-to-r from-transparent to-[#60A5FA]/80 sm:w-10" />
+    <span className="h-1 w-1 rotate-45 bg-[#60A5FA]" />
+    <span className="h-px w-7 bg-gradient-to-l from-transparent to-[#60A5FA]/80 sm:w-10" />
   </div>
 </div>
 

@@ -212,7 +212,7 @@ export const FilterPanel = ({ initialValues, onApply, onReset }) => {
             text-graphite-950
             shadow-sm
             transition-all
-            hover:bg-brass-light
+            hover:bg-brass-dark
             focus-visible:outline-none
             focus-visible:ring-2
             focus-visible:ring-brass/50

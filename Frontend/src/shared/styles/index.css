@@ -15,21 +15,34 @@
        (vehicle names, VINs, prices) inside RTL text. */
     --font-sans: "Inter", sans-serif;
 
-    /* Bright automotive-glass palette. Names are kept stable so every
-       screen that already references these tokens updates together. */
-    --color-graphite-50: #fdfcfa;
-    --color-graphite-100: #f1eee7;
-    --color-graphite-800: #ede8dd;
-    --color-graphite-900: #f4f1ea;
-    --color-graphite-950: #faf9f6;
-    --color-steel: #e3ded2;
-    --color-ash: #5b6472;
-    --color-bone: #14161b;
-    --color-brass: #b8863a;
-    --color-brass-light: #d9ad68;
-    --color-brass-dark: #8c6423;
-    --color-danger: #c1493d;
-    --color-signal: #2f8f7a;
+    /* Blue automotive-glass palette (gold -> blue, 2026-11-05). Token and
+       class NAMES are kept stable (brass/bone/graphite/...) so every
+       screen that already references these tokens updates together;
+       the names are legacy aliases now — `brass` means brand blue.
+       Canonical new tokens: --color-brand* / `brand` in tailwind. */
+    --color-graphite-50: #f8fafc;
+    --color-graphite-100: #eff6ff;
+    --color-graphite-800: #dbeafe;
+    --color-graphite-900: #eff6ff;
+    --color-graphite-950: #ffffff;
+    --color-steel: #e2e8f0;
+    --color-ash: #475569;
+    --color-bone: #0f172a;
+    --color-brass: #2563eb;
+    --color-brass-light: #60a5fa;
+    --color-brass-dark: #1d4ed8;
+    --color-danger: #dc2626;
+    --color-signal: #16a34a;
+
+    /* Canonical brand-blue tokens (user palette, 2026-11-05).
+       brass/bone/graphite above are legacy aliases of these. */
+    --color-brand: #2563eb;
+    --color-brand-light: #60a5fa;
+    --color-brand-dark: #1d4ed8;
+    --color-brand-soft: #dbeafe;
+    --color-brand-pale: #eff6ff;
+    --color-brand-sky: #38bdf8;
+    --color-navy: #0f172a;
 
     --bg: #ffffff;
     --surface: var(--color-graphite-900);
@@ -44,19 +57,19 @@
     --danger: var(--color-danger);
     --signal: var(--color-signal);
     --card-bg: #ffffff;
-    --card-text: #14161b;
-    --card-muted: #5b6472;
-    --card-border: #e9e5da;
+    --card-text: #0f172a;
+    --card-muted: #475569;
+    --card-border: #e2e8f0;
     --section-light: #ffffff;
-    --section-light-text: #14161b;
-    --section-light-muted: #5b6472;
+    --section-light-text: #0f172a;
+    --section-light-muted: #475569;
 
     /* Bright glassmorphism surfaces — used sparingly (navbar, search,
        filters, floating panels, modals), never as a whole-page treatment. */
     --glass-bg: rgba(255, 255, 255, 0.62);
     --glass-bg-strong: rgba(255, 255, 255, 0.8);
     --glass-border: rgba(255, 255, 255, 0.75);
-    --glass-shadow: 0 8px 28px -12px rgba(20, 22, 27, 0.15);
+    --glass-shadow: 0 8px 28px -12px rgba(15, 23, 42, 0.15);
     --glass-blur: blur(20px) saturate(160%);
 
     color-scheme: light;
@@ -66,56 +79,66 @@
      Every color on the site resolves through these variables (Tailwind
      tokens, component classes and the !important utilities below), so
      flipping `data-theme="dark"` on <html> recolors the whole app with
-     zero component changes. Values stay in the existing palette language:
-     deep warm charcoal + brass accent. */
+     zero component changes. Values are the blue identity: deep navy /
+     dark blue-gray surfaces + light-blue accents (never a plain
+     inversion of the light theme). */
   html[data-theme="dark"] {
     color-scheme: dark;
 
-    --color-graphite-50: #1d2129;
-    --color-graphite-100: #232833;
-    --color-graphite-800: #2a303c;
-    --color-graphite-900: #1b1f27;
-    --color-graphite-950: #121419;
-    --color-steel: #2e3542;
-    --color-ash: #9aa4b5;
-    --color-bone: #f1eee7;
-    --color-brass: #c99a4a;
-    --color-brass-light: #e2ba72;
-    --color-brass-dark: #d9ad68;
-    --color-danger: #d45f52;
-    --color-signal: #3aa88f;
+    --color-graphite-50: #1e293b;
+    --color-graphite-100: #243449;
+    --color-graphite-800: #334155;
+    --color-graphite-900: #1e293b;
+    --color-graphite-950: #0f172a;
+    --color-steel: #334155;
+    --color-ash: #94a3b8;
+    --color-bone: #f1f5f9;
+    --color-brass: #60a5fa;
+    --color-brass-light: #93c5fd;
+    --color-brass-dark: #38bdf8;
+    --color-danger: #f87171;
+    --color-signal: #22c55e;
 
-    --bg: #121419;
-    --surface: #1b1f27;
-    --surface-800: #232833;
-    --surface-muted: #1b1f27;
-    --border: #2e3542;
-    --text: #f1eee7;
-    --muted: #9aa4b5;
-    --accent: #c99a4a;
-    --accent-light: #e2ba72;
-    --accent-dark: #d9ad68;
-    --danger: #d45f52;
-    --signal: #3aa88f;
-    --card-bg: #1a1e25;
-    --card-text: #f1eee7;
-    --card-muted: #9aa4b5;
-    --card-border: #2a303c;
-    --section-light: #16191f;
-    --section-light-text: #f1eee7;
-    --section-light-muted: #9aa4b5;
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface-800: #243449;
+    --surface-muted: #1e293b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #60a5fa;
+    --accent-light: #93c5fd;
+    --accent-dark: #38bdf8;
+    --danger: #f87171;
+    --signal: #22c55e;
+    --card-bg: #1e293b;
+    --card-text: #f1f5f9;
+    --card-muted: #94a3b8;
+    --card-border: #334155;
+    --section-light: #16213a;
+    --section-light-text: #f1f5f9;
+    --section-light-muted: #94a3b8;
 
-    --glass-bg: rgba(22, 25, 31, 0.62);
-    --glass-bg-strong: rgba(22, 25, 31, 0.82);
+    --glass-bg: rgba(15, 23, 42, 0.62);
+    --glass-bg-strong: rgba(15, 23, 42, 0.82);
     --glass-border: rgba(255, 255, 255, 0.12);
+
+    /* Canonical brand-blue tokens, dark-readable values. */
+    --color-brand: #60a5fa;
+    --color-brand-light: #93c5fd;
+    --color-brand-dark: #38bdf8;
+    --color-brand-soft: #1e3a8a;
+    --color-brand-pale: #1e293b;
+    --color-brand-sky: #38bdf8;
+    --color-navy: #0f172a;
     --glass-shadow: 0 8px 28px -12px rgba(0, 0, 0, 0.55);
     --glass-blur: blur(20px) saturate(160%);
   }
 
   html[data-theme="dark"] ::selection {
-    /* Brass selection background needs dark text even when the ink token
-       flips light in dark mode. */
-    color: #14161b;
+    /* Blue selection: white text on primary blue in both themes. */
+    background-color: #2563eb;
+    color: #ffffff;
   }
 
   * {
@@ -137,7 +160,7 @@
 
   ::selection {
     background-color: var(--accent);
-    color: var(--color-bone);
+    color: #ffffff;
   }
 
   /* Visible keyboard focus everywhere — never suppressed */
@@ -166,7 +189,7 @@
     border-radius: 999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3a4350;
+    background: #64748b;
   }
 }
 
@@ -225,8 +248,8 @@
   .hover-lift:hover {
     transform: translateY(-2px);
     box-shadow:
-      0 6px 20px rgba(20, 22, 27, 0.08),
-      0 1px 4px rgba(20, 22, 27, 0.04);
+      0 6px 20px rgba(15, 23, 42, 0.08),
+      0 1px 4px rgba(15, 23, 42, 0.04);
   }
 
   /* Bright, clear glassmorphism — reserved for floating/overlay surfaces:
@@ -251,7 +274,7 @@
     background: rgba(255, 255, 255, 0.72);
     -webkit-backdrop-filter: blur(18px) saturate(160%);
     backdrop-filter: blur(18px) saturate(160%);
-    border-bottom: 1px solid rgba(20, 22, 27, 0.06);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   }
 
   /* Dashboard-chip: small glass pill used for vehicle spec/meta data —
@@ -262,7 +285,7 @@
     background: rgba(255, 255, 255, 0.7);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(20, 22, 27, 0.07);
+    border: 1px solid rgba(15, 23, 42, 0.07);
     color: var(--card-text);
   }
 
@@ -317,13 +340,189 @@
     background-color: var(--color-brass) !important;
   }
   .bg-brass-light {
-    background-color: var(--color-brass-light) !important;
+    /* Round 2: DEEP blue, not light — see Block A header. Plain
+       bg-brass-light is unused; this value is what Tailwind clones
+       into the auto-generated hover:bg-brass-light variant. */
+    background-color: var(--color-brass-dark) !important;
   }
   .bg-brass-dark {
     background-color: var(--color-brass-dark) !important;
   }
   .border-brass {
     border-color: var(--color-brass) !important;
+  }
+
+  /* ── Round 2 (2026-11-05): brass-derived utilities ───────────────────
+     Round 1 relied on tailwind.config.js for these: .text-brass-dark
+     (the PRICE on every CarCard + the detail-page price), .ring-brass*
+     (focus rings), every bg/border-brass opacity step (bg-brass/10,
+     border-brass/30, …) and every hover:/focus:/group-hover: variant
+     (nav-tab hover, filter-button hover, pagination hover, …).
+     If only index.css was pasted, Tailwind kept generating them in GOLD
+     from the old config, so price / tabs hover / filter hover stayed
+     gold. These hand-written !important rules (same technique as the
+     .bg-brass rule above) now recolor them from index.css alone, in
+     both themes. Pasting tailwind.config.js + PATCHES.md is still the
+     clean state, but index.css alone no longer leaves gold behind.
+     MECHANISM (verified against the built CSS — do not "fix" by adding
+     more hand-written variant rules): Tailwind v3 auto-generates
+     hover:/focus:/group-hover:/active: variants by CLONING the plain
+     @layer utility rule, declarations and all. A hand-written variant
+     rule survives ONLY when its plain utility is also defined here;
+     without the plain counterpart Tailwind generates the variant from
+     the theme config instead (gold, if tailwind.config.js was not
+     pasted) and the hand-written rule is silently dropped. Proof:
+     hover:border-brass/30, /50 (plain defined) survive blue, while
+     hover:border-brass/35, /40 (plain missing) survived only as theme
+     gold — fixed by adding the plain /35, /40 rules below. Likewise
+     the generated hover:bg-brass-light literally carries the plain
+     rule's comment and value, which is why the plain .bg-brass-light
+     value below is the DEEP blue: plain bg-brass-light is used
+     NOWHERE (all 6 call sites are hover:bg-brass-light on primary
+     buttons), so this only changes the hover — it deepens to #1D4ED8
+     (light) / #38BDF8 (dark) instead of lightening to #60A5FA. */
+  .text-brass-dark {
+    color: var(--color-brass-dark) !important;
+  }
+  .text-brass-light {
+    color: var(--color-brass-light) !important;
+  }
+  .bg-brass\/8 {
+    background-color: rgb(37 99 235 / 0.08) !important;
+  }
+  .bg-brass\/10 {
+    background-color: rgb(37 99 235 / 0.1) !important;
+  }
+  .bg-brass\/12 {
+    background-color: rgb(37 99 235 / 0.12) !important;
+  }
+  .bg-brass\/15 {
+    background-color: rgb(37 99 235 / 0.15) !important;
+  }
+  .bg-brass\/20 {
+    background-color: rgb(37 99 235 / 0.2) !important;
+  }
+  .bg-brass\/60 {
+    background-color: rgb(37 99 235 / 0.6) !important;
+  }
+  .border-brass\/20 {
+    border-color: rgb(37 99 235 / 0.2) !important;
+  }
+  .border-brass\/30 {
+    border-color: rgb(37 99 235 / 0.3) !important;
+  }
+  .border-brass\/35 {
+    /* Round 2: plain counterpart required — without it Tailwind
+       generates hover:border-brass/35 from the theme (gold, if the
+       old tailwind.config.js is still in place) and drops the
+       hand-written hover rule. */
+    border-color: rgb(37 99 235 / 0.35) !important;
+  }
+  .border-brass\/40 {
+    /* Round 2: same plain-counterpart rule as /35 above. */
+    border-color: rgb(37 99 235 / 0.4) !important;
+  }
+  .border-brass\/50 {
+    border-color: rgb(37 99 235 / 0.5) !important;
+  }
+  .border-s-brass {
+    border-inline-start-color: #2563eb !important;
+  }
+  .ring-brass {
+    --tw-ring-color: #2563eb !important;
+  }
+  .ring-brass\/20 {
+    --tw-ring-color: rgb(37 99 235 / 0.2) !important;
+  }
+  .ring-brass\/40 {
+    --tw-ring-color: rgb(37 99 235 / 0.4) !important;
+  }
+  .ring-brass\/50 {
+    --tw-ring-color: rgb(37 99 235 / 0.5) !important;
+  }
+  .ring-brass\/60 {
+    --tw-ring-color: rgb(37 99 235 / 0.6) !important;
+  }
+  .ring-brass\/70 {
+    --tw-ring-color: rgb(37 99 235 / 0.7) !important;
+  }
+  .focus\:border-brass:focus {
+    border-color: #2563eb !important;
+  }
+  .focus-within\:border-brass:focus-within {
+    border-color: #2563eb !important;
+  }
+  .focus\:bg-brass:focus {
+    background-color: #2563eb !important;
+  }
+  .focus\:ring-brass\/20:focus {
+    --tw-ring-color: rgb(37 99 235 / 0.2) !important;
+  }
+  .focus-within\:ring-brass\/20:focus-within {
+    --tw-ring-color: rgb(37 99 235 / 0.2) !important;
+  }
+  .focus-visible\:ring-brass:focus-visible {
+    --tw-ring-color: #2563eb !important;
+  }
+  .focus-visible\:ring-brass\/40:focus-visible {
+    --tw-ring-color: rgb(37 99 235 / 0.4) !important;
+  }
+  .focus-visible\:ring-brass\/50:focus-visible {
+    --tw-ring-color: rgb(37 99 235 / 0.5) !important;
+  }
+  .focus-visible\:ring-brass\/60:focus-visible {
+    --tw-ring-color: rgb(37 99 235 / 0.6) !important;
+  }
+  .focus-visible\:ring-brass\/70:focus-visible {
+    --tw-ring-color: rgb(37 99 235 / 0.7) !important;
+  }
+  .peer:focus-visible ~ .peer-focus-visible\:ring-brass\/40 {
+    --tw-ring-color: rgb(37 99 235 / 0.4) !important;
+  }
+  .hover\:bg-brass\/8:hover {
+    background-color: rgb(37 99 235 / 0.08) !important;
+  }
+  .hover\:bg-brass\/10:hover {
+    background-color: rgb(37 99 235 / 0.1) !important;
+  }
+  .hover\:bg-brass\/20:hover {
+    background-color: rgb(37 99 235 / 0.2) !important;
+  }
+  .hover\:text-brass:hover {
+    color: var(--color-brass) !important;
+  }
+  .hover\:text-brass-dark:hover {
+    color: var(--color-brass-dark) !important;
+  }
+  .hover\:border-brass:hover {
+    border-color: #2563eb !important;
+  }
+  .hover\:border-brass\/30:hover {
+    border-color: rgb(37 99 235 / 0.3) !important;
+  }
+  .hover\:border-brass\/50:hover {
+    border-color: rgb(37 99 235 / 0.5) !important;
+  }
+  .group:hover .group-hover\:bg-brass {
+    background-color: #2563eb !important;
+  }
+  .group:hover .group-hover\:bg-brass\/10 {
+    background-color: rgb(37 99 235 / 0.1) !important;
+  }
+  .group:hover .group-hover\:bg-brass\/15 {
+    background-color: rgb(37 99 235 / 0.15) !important;
+  }
+  .group:hover .group-hover\:text-brass {
+    color: var(--color-brass) !important;
+  }
+  .group:hover .group-hover\:text-brass-dark {
+    color: var(--color-brass-dark) !important;
+  }
+  .active\:bg-brass-dark:active {
+    background-color: var(--color-brass-dark) !important;
+  }
+  .active\:bg-brass\/20:active {
+    background-color: rgb(37 99 235 / 0.2) !important;
   }
   .bg-danger {
     background-color: var(--color-danger) !important;
@@ -335,11 +534,13 @@
     border-color: var(--color-danger) !important;
   }
   .text-graphite-950 {
-    /* Semantically this class is used app-wide as "dark text on the
-       brass/accent background" (buttons, step badges). It intentionally
-       resolves to the ink token, not --color-graphite-950 itself, so
-       accent-colored surfaces keep readable contrast. */
-    color: var(--color-bone) !important;
+    /* Semantically this class is used app-wide as "text on the
+       brand/accent background" (primary buttons, step badges, pagination
+       active page, badges). On brand blue (#2563EB) that text must be
+       WHITE for contrast (white-on-#2563EB = 5.17:1); dark navy text
+       would be ~1.6:1 and unreadable. Every call site pairs it with
+       bg-brass, so no call site needs changing. */
+    color: #ffffff !important;
   }
   .bg-section-light {
     background-color: var(--section-light) !important;
@@ -352,6 +553,43 @@
   }
   .bg-card {
     background-color: var(--card-bg) !important;
+  }
+
+  /* ── Icon color system (see shared/components/icons.jsx) ─────────────
+     Roles: default navy, secondary slate, accent brand blue, success
+     green, danger red. Each flips to a dark-readable counterpart. */
+  .text-icon {
+    color: #0f172a !important;
+  }
+  .text-icon-secondary {
+    color: #64748b !important;
+  }
+  .text-icon-accent {
+    color: #2563eb !important;
+  }
+  .text-icon-success {
+    /* #15803D (dark green) rather than #16A34A: the mandated success
+       green is 3.30:1 on white — fine for icons, short of AA for text —
+       so text/icons use the darker step (5.02:1). */
+    color: #15803d !important;
+  }
+  .text-icon-danger {
+    color: #dc2626 !important;
+  }
+  html[data-theme="dark"] .text-icon {
+    color: #f1f5f9 !important;
+  }
+  html[data-theme="dark"] .text-icon-secondary {
+    color: #94a3b8 !important;
+  }
+  html[data-theme="dark"] .text-icon-accent {
+    color: #60a5fa !important;
+  }
+  html[data-theme="dark"] .text-icon-success {
+    color: #22c55e !important;
+  }
+  html[data-theme="dark"] .text-icon-danger {
+    color: #f87171 !important;
   }
   .text-card {
     color: var(--card-text) !important;
@@ -373,17 +611,17 @@
    - text-white / bg-black/* sit over photos or dark overlays → untouched.
    - Admin hardcoded hexes → their dark equivalents. */
 @layer utilities {
-  /* Dark text on the brass/accent background must stay dark even when the
-     ink token itself flips light — otherwise brass buttons lose contrast. */
+  /* Text on the brand/accent background stays white in dark mode too —
+     white on light-blue accent keeps contrast on every theme. */
   html[data-theme="dark"] .text-graphite-950 {
-    color: #14161b !important;
+    color: #ffffff !important;
   }
   html[data-theme="dark"] .glass-nav {
-    background: rgba(18, 20, 25, 0.72);
+    background: rgba(15, 23, 42, 0.72);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
   html[data-theme="dark"] .chip-glass {
-    background: rgba(30, 34, 43, 0.7);
+    background: rgba(30, 41, 59, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
@@ -409,7 +647,7 @@
 /* Dark mode: hero search panel uses the same dark glass as the navbar */
 html[data-theme="dark"] .hero-search-glass,
 html[data-theme="dark"] section[aria-label] > div[class*="rounded-2xl"] {
-  background: rgba(18, 20, 25, 0.72);
+  background: rgba(15, 23, 42, 0.72);
   border-color: rgb(255 255 255 / 0.08);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.06),
@@ -431,26 +669,159 @@ html[data-theme="dark"] section[aria-label] > div[class*="rounded-2xl"] {
     background-color: var(--card-bg) !important;
   }
   html[data-theme="dark"] .bg-white\/70 {
-    background-color: rgb(26 30 37 / 0.7) !important;
+    background-color: rgb(30 41 59 / 0.7) !important;
   }
   html[data-theme="dark"] .bg-white\/90 {
-    background-color: rgb(26 30 37 / 0.9) !important;
+    background-color: rgb(30 41 59 / 0.9) !important;
   }
   html[data-theme="dark"] .bg-white\/80 {
-    background-color: rgb(26 30 37 / 0.8) !important;
+    background-color: rgb(30 41 59 / 0.8) !important;
+  }
+  html[data-theme="dark"] .focus\:bg-white:focus {
+    background-color: var(--color-graphite-800) !important;
+  }
+  html[data-theme="dark"] .focus-within\:bg-white:focus-within {
+    background-color: var(--color-graphite-800) !important;
   }
   html[data-theme="dark"] .hover\:bg-white:hover {
     background-color: var(--color-graphite-800) !important;
   }
-  /* Outline buttons (Button.jsx primary variant + converted gold CTAs):
+  /* Outline buttons (Button.jsx primary variant + converted blue CTAs):
      their hover/active fill uses brass/10 and brass/20, which the
      !important .bg-white override above would otherwise kill in dark mode.
-     Dark brass #c99a4a = rgb(201 154 74). Inert unless those classes exist. */
+     Brand blue #2563eb = rgb(37 99 235). Inert unless those classes exist. */
   html[data-theme="dark"] .hover\:bg-brass\/10:hover {
-    background-color: rgb(201 154 74 / 0.1) !important;
+    background-color: rgb(37 99 235 / 0.1) !important;
   }
   html[data-theme="dark"] .active\:bg-brass\/20:active {
-    background-color: rgb(201 154 74 / 0.2) !important;
+    background-color: rgb(37 99 235 / 0.2) !important;
+  }
+
+  /* Round 2 dark counterparts for the rgb() literals in Block A above
+     (var-based rules already flip via --color-brass*; only the literal
+     rgb(37 99 235/…) / #2563eb values need a dark twin: #60A5FA). */
+  html[data-theme="dark"] .bg-brass\/8 {
+    background-color: rgb(96 165 250 / 0.08) !important;
+  }
+  html[data-theme="dark"] .bg-brass\/10 {
+    background-color: rgb(96 165 250 / 0.1) !important;
+  }
+  html[data-theme="dark"] .bg-brass\/12 {
+    background-color: rgb(96 165 250 / 0.12) !important;
+  }
+  html[data-theme="dark"] .bg-brass\/15 {
+    background-color: rgb(96 165 250 / 0.15) !important;
+  }
+  html[data-theme="dark"] .bg-brass\/20 {
+    background-color: rgb(96 165 250 / 0.2) !important;
+  }
+  html[data-theme="dark"] .bg-brass\/60 {
+    background-color: rgb(96 165 250 / 0.6) !important;
+  }
+  html[data-theme="dark"] .border-brass\/20 {
+    border-color: rgb(96 165 250 / 0.2) !important;
+  }
+  html[data-theme="dark"] .border-brass\/30 {
+    border-color: rgb(96 165 250 / 0.3) !important;
+  }
+  html[data-theme="dark"] .border-brass\/35 {
+    border-color: rgb(96 165 250 / 0.35) !important;
+  }
+  html[data-theme="dark"] .border-brass\/40 {
+    border-color: rgb(96 165 250 / 0.4) !important;
+  }
+  html[data-theme="dark"] .border-brass\/50 {
+    border-color: rgb(96 165 250 / 0.5) !important;
+  }
+  html[data-theme="dark"] .border-s-brass {
+    border-inline-start-color: #60a5fa !important;
+  }
+  html[data-theme="dark"] .ring-brass {
+    --tw-ring-color: #60a5fa !important;
+  }
+  html[data-theme="dark"] .ring-brass\/20 {
+    --tw-ring-color: rgb(96 165 250 / 0.2) !important;
+  }
+  html[data-theme="dark"] .ring-brass\/40 {
+    --tw-ring-color: rgb(96 165 250 / 0.4) !important;
+  }
+  html[data-theme="dark"] .ring-brass\/50 {
+    --tw-ring-color: rgb(96 165 250 / 0.5) !important;
+  }
+  html[data-theme="dark"] .ring-brass\/60 {
+    --tw-ring-color: rgb(96 165 250 / 0.6) !important;
+  }
+  html[data-theme="dark"] .ring-brass\/70 {
+    --tw-ring-color: rgb(96 165 250 / 0.7) !important;
+  }
+  html[data-theme="dark"] .focus\:border-brass:focus {
+    border-color: #60a5fa !important;
+  }
+  html[data-theme="dark"] .focus-within\:border-brass:focus-within {
+    border-color: #60a5fa !important;
+  }
+  html[data-theme="dark"] .focus\:bg-brass:focus {
+    background-color: #60a5fa !important;
+  }
+  html[data-theme="dark"] .focus\:ring-brass\/20:focus {
+    --tw-ring-color: rgb(96 165 250 / 0.2) !important;
+  }
+  html[data-theme="dark"] .focus-within\:ring-brass\/20:focus-within {
+    --tw-ring-color: rgb(96 165 250 / 0.2) !important;
+  }
+  html[data-theme="dark"] .focus-visible\:ring-brass:focus-visible {
+    --tw-ring-color: #60a5fa !important;
+  }
+  html[data-theme="dark"] .focus-visible\:ring-brass\/40:focus-visible {
+    --tw-ring-color: rgb(96 165 250 / 0.4) !important;
+  }
+  html[data-theme="dark"] .focus-visible\:ring-brass\/50:focus-visible {
+    --tw-ring-color: rgb(96 165 250 / 0.5) !important;
+  }
+  html[data-theme="dark"] .focus-visible\:ring-brass\/60:focus-visible {
+    --tw-ring-color: rgb(96 165 250 / 0.6) !important;
+  }
+  html[data-theme="dark"] .focus-visible\:ring-brass\/70:focus-visible {
+    --tw-ring-color: rgb(96 165 250 / 0.7) !important;
+  }
+  html[data-theme="dark"] .peer:focus-visible ~ .peer-focus-visible\:ring-brass\/40 {
+    --tw-ring-color: rgb(96 165 250 / 0.4) !important;
+  }
+  html[data-theme="dark"] .hover\:bg-brass\/8:hover {
+    background-color: rgb(96 165 250 / 0.08) !important;
+  }
+  html[data-theme="dark"] .hover\:bg-brass\/10:hover {
+    background-color: rgb(96 165 250 / 0.1) !important;
+  }
+  html[data-theme="dark"] .hover\:bg-brass\/20:hover {
+    background-color: rgb(96 165 250 / 0.2) !important;
+  }
+  html[data-theme="dark"] .hover\:border-brass:hover {
+    border-color: #60a5fa !important;
+  }
+  html[data-theme="dark"] .hover\:border-brass\/30:hover {
+    border-color: rgb(96 165 250 / 0.3) !important;
+  }
+  html[data-theme="dark"] .hover\:border-brass\/35:hover {
+    border-color: rgb(96 165 250 / 0.35) !important;
+  }
+  html[data-theme="dark"] .hover\:border-brass\/40:hover {
+    border-color: rgb(96 165 250 / 0.4) !important;
+  }
+  html[data-theme="dark"] .hover\:border-brass\/50:hover {
+    border-color: rgb(96 165 250 / 0.5) !important;
+  }
+  html[data-theme="dark"] .group:hover .group-hover\:bg-brass {
+    background-color: #60a5fa !important;
+  }
+  html[data-theme="dark"] .group:hover .group-hover\:bg-brass\/10 {
+    background-color: rgb(96 165 250 / 0.1) !important;
+  }
+  html[data-theme="dark"] .group:hover .group-hover\:bg-brass\/15 {
+    background-color: rgb(96 165 250 / 0.15) !important;
+  }
+  html[data-theme="dark"] .active\:bg-brass\/20:active {
+    background-color: rgb(96 165 250 / 0.2) !important;
   }
   html[data-theme="dark"] .bg-\[\#F7F6F3\] {
     background-color: var(--bg) !important;
@@ -492,10 +863,57 @@ html[data-theme="dark"] section[aria-label] > div[class*="rounded-2xl"] {
     color: var(--accent-light) !important;
   }
   html[data-theme="dark"] .bg-\[\#F3EBDD\] {
-    background-color: rgb(201 154 74 / 0.15) !important;
+    background-color: rgb(96 165 250 / 0.15) !important;
   }
   html[data-theme="dark"] .border-\[\#E8D9BC\] {
-    border-color: rgb(201 154 74 / 0.35) !important;
+    border-color: rgb(96 165 250 / 0.35) !important;
+  }
+
+  /* Round 2 dark counterparts for the hardcoded-gold overrides above. */
+  html[data-theme="dark"] .bg-\[\#D9AD68\] {
+    background-color: #2563eb !important;
+  }
+  html[data-theme="dark"] .bg-\[\#D9AD68\]\/10 {
+    background-color: rgb(96 165 250 / 0.1) !important;
+  }
+  html[data-theme="dark"] .text-\[\#17130D\] {
+    color: #ffffff !important;
+  }
+  html[data-theme="dark"] [class*="hover:bg-[#E5C18B]"]:hover {
+    background-color: #1d4ed8 !important;
+  }
+  html[data-theme="dark"] .focus-visible\:ring-\[\#E5C18B\]:focus-visible {
+    --tw-ring-color: #60a5fa !important;
+  }
+  html[data-theme="dark"] [class*="217,173,104"]:hover {
+    box-shadow: 0 5px 18px rgba(96, 165, 250, 0.35) !important;
+  }
+  html[data-theme="dark"] .text-\[\#E5C18B\] {
+    color: #93c5fd !important;
+  }
+  html[data-theme="dark"] .to-\[\#D9AD68\]\/80 {
+    --tw-gradient-to: rgb(96 165 250 / 0.8) !important;
+  }
+  html[data-theme="dark"] .bg-\[\#B8863A\] {
+    background-color: #60a5fa !important;
+  }
+  html[data-theme="dark"] .before\:bg-\[\#B8863A\]::before {
+    background-color: #60a5fa !important;
+  }
+  html[data-theme="dark"] .text-\[\#D9AD68\] {
+    color: #60a5fa !important;
+  }
+  html[data-theme="dark"] .border-\[\#EBD8A8\] {
+    border-color: rgb(96 165 250 / 0.4) !important;
+  }
+  html[data-theme="dark"] .bg-\[\#FFF4D9\] {
+    background-color: rgb(37 99 235 / 0.2) !important;
+  }
+  html[data-theme="dark"] .text-\[\#805713\] {
+    color: #93c5fd !important;
+  }
+  html[data-theme="dark"] .bg-\[\#121419\] {
+    background-color: #0f172a !important;
   }
 
   /* ── Theme-adaptive logo ──────────────────────────────────────────────
@@ -513,15 +931,15 @@ html[data-theme="dark"] section[aria-label] > div[class*="rounded-2xl"] {
   }
 
   /* ── Admin sidebar + dashboard ─────────────────────────────────────── */
-  /* Sidebar active link: warm brass tint per theme (replaces the hardcoded
+  /* Sidebar active link: blue tint per theme (replaces the hardcoded
      light beige that glowed in dark mode). */
   .admin-link-active {
-    background-color: #f7f0e4;
-    color: #80551f;
+    background-color: #eff6ff;
+    color: #1d4ed8;
   }
   html[data-theme="dark"] .admin-link-active {
-    background-color: rgb(201 154 74 / 0.16) !important;
-    color: #e2ba72 !important;
+    background-color: rgb(96 165 250 / 0.16) !important;
+    color: #93c5fd !important;
   }
   /* Dashboard cards use translucent-white utilities that are invisible
      (boxless) in light mode; neutralize them in dark mode too so the
@@ -538,6 +956,126 @@ html[data-theme="dark"] section[aria-label] > div[class*="rounded-2xl"] {
   }
   html[data-theme="dark"] .hover\:bg-white\/\[0\.055\]:hover {
     background-color: transparent !important;
+  }
+
+  /* ── Light-mode overrides for hardcoded warm neutrals (gold -> blue) ──
+     The warm beige/gold arbitrary values below predate the token system.
+     In light mode they re-map to cool blue-grays / blue tints; the dark
+     rules above still win under html[data-theme="dark"]. This covers
+     AdminLayout (sidebar/header borders, avatar tiles, eyebrow) and the
+     warm surfaces in DashboardPage / ManageListings without touching
+     those components. Gold CTA buttons are NOT covered here — they are
+     fixed per-file in PATCHES.md because their dark text (#17130D)
+     would be unreadable on blue. */
+  .bg-\[\#F7F6F3\] {
+    background-color: #f8fafc !important;
+  }
+  .bg-\[\#FDFCFA\] {
+    background-color: #ffffff !important;
+  }
+  .bg-\[\#F8F7F4\] {
+    background-color: #f8fafc !important;
+  }
+  .bg-\[\#F3F0E9\] {
+    background-color: #eff6ff !important;
+  }
+  .bg-\[\#F5F3EE\] {
+    background-color: #eff6ff !important;
+  }
+  .border-\[\#E9E6DF\],
+  .border-\[\#E9E3D7\],
+  .border-\[\#EEECE6\],
+  .border-\[\#EAE7E0\] {
+    border-color: #e2e8f0 !important;
+  }
+  .text-\[\#33332D\],
+  .text-\[\#45443D\],
+  .text-\[\#625F56\],
+  .text-\[\#252722\],
+  .text-\[\#302F2A\] {
+    color: #0f172a !important;
+  }
+  .text-\[\#858176\] {
+    color: #64748b !important;
+  }
+  .hover\:bg-\[\#FAF9F6\]:hover,
+  .hover\:bg-\[\#F3F0E9\]:hover,
+  .hover\:bg-\[\#F5F3EE\]:hover {
+    background-color: #eff6ff !important;
+  }
+  .hover\:text-\[\#252722\]:hover {
+    color: #0f172a !important;
+  }
+  .text-\[\#A18A60\],
+  .text-\[\#87632C\] {
+    color: #1d4ed8 !important;
+  }
+  .bg-\[\#F3EBDD\] {
+    background-color: rgb(37 99 235 / 0.12) !important;
+  }
+  .border-\[\#E8D9BC\] {
+    border-color: rgb(37 99 235 / 0.3) !important;
+  }
+
+  /* ── Round 2: hardcoded gold arbitrary values (light) ───────────────
+     These classes live OUTSIDE the token system, so the token swap
+     could never reach them — they stayed gold until PATCHES.md was
+     applied per-file. They are now also overridden here, so index.css
+     alone turns them blue (PATCHES.md remains the canonical per-file
+     fix; these rules go inert once it is applied). Note: .bg-[#D9AD68]
+     also covers the HeroSection diamond — it becomes #2563EB here
+     instead of PATCHES.md's #60A5FA; both are brand blue. */
+  .bg-\[\#D9AD68\] {
+    background-color: #2563eb !important;
+  }
+  .bg-\[\#D9AD68\]\/10 {
+    background-color: rgb(37 99 235 / 0.1) !important;
+  }
+  .text-\[\#17130D\] {
+    color: #ffffff !important;
+  }
+  /* Round 2: attribute selector, NOT .hover:bg-[#E5C18B]:hover — a
+     hand-written hover: rule is dropped when its plain counterpart
+     (.bg-[#E5C18B], unused anywhere) does not exist; Tailwind then
+     generates the hover from the gold arbitrary value. This selector
+     matches only the two gold buttons (HeroSearchBar submit +
+     FilterResultsPage Filters button), whose class attribute literally
+     contains "hover:bg-[#E5C18B]". */
+  [class*="hover:bg-[#E5C18B]"]:hover {
+    background-color: #1d4ed8 !important;
+  }
+  .focus-visible\:ring-\[\#E5C18B\]:focus-visible {
+    --tw-ring-color: #2563eb !important;
+  }
+  [class*="217,173,104"]:hover {
+    box-shadow: 0 5px 18px rgba(37, 99, 235, 0.25) !important;
+  }
+  .text-\[\#E5C18B\] {
+    color: #93c5fd !important;
+  }
+  .to-\[\#D9AD68\]\/80 {
+    --tw-gradient-to: rgb(96 165 250 / 0.8) !important;
+  }
+  .bg-\[\#B8863A\] {
+    background-color: #2563eb !important;
+  }
+  .before\:bg-\[\#B8863A\]::before {
+    background-color: #2563eb !important;
+  }
+  .text-\[\#D9AD68\] {
+    color: #2563eb !important;
+  }
+  .border-\[\#EBD8A8\] {
+    border-color: #bfdbfe !important;
+  }
+  .bg-\[\#FFF4D9\] {
+    background-color: #dbeafe !important;
+  }
+  .text-\[\#805713\] {
+    color: #1d4ed8 !important;
+  }
+  .bg-\[\#121419\] {
+    background-color: #0f172a !important;
   }
 }
 

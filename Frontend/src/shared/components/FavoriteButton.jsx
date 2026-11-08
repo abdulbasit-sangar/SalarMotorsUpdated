@@ -48,7 +48,7 @@ export const FavoriteButton = ({ carId, className, size = "md", tone }) => {
   const onLightSurface = tone
     ? tone === "onLight"
     : /bg-white/.test(className || "");
-  const idleHeartClass = onLightSurface ? "text-[#2D2926]" : "text-icon";
+  const idleHeartClass = onLightSurface ? "text-[#0F172A]" : "text-icon";
 
   return (
     <button

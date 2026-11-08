@@ -183,14 +183,14 @@ export const AdminCarRow = ({
               <span
                 className={`inline-flex min-h-6 items-center gap-1 rounded-sm border px-2 py-0.5 text-[11px] font-medium ${
                   car.featured
-                    ? "border-[#EBD8A8] bg-[#FFF4D9] text-[#805713]"
+                    ? "border-[#BFDBFE] bg-[#DBEAFE] text-[#1D4ED8]"
                     : "border-[#E2E5E9] bg-[#F2F3F5] text-[#626975]"
                 }`}
               >
                 <span
                   aria-hidden="true"
                   className={`h-1 w-1 rounded-full ${
-                    car.featured ? "bg-[#B8863A]" : "bg-[#9298A2]"
+                    car.featured ? "bg-[#2563EB]" : "bg-[#9298A2]"
                   }`}
                 />
                 {car.featured ? t("row.featured") : t("row.notFeatured")}
@@ -345,7 +345,7 @@ export const AdminCarRow = ({
       {/* Image gallery — full-screen viewer */}
       {galleryOpen && galleryImages.length > 0 && (
         <div
-          className="fixed inset-0 z-[100] flex select-none flex-col bg-[#121419]"
+          className="fixed inset-0 z-[100] flex select-none flex-col bg-[#0F172A]"
           role="dialog"
           aria-modal="true"
           aria-label={carTitle(car)}

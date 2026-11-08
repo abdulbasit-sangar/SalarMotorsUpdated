@@ -25,7 +25,7 @@ export const InfiniteScrollFooter = ({
         <button
           type="button"
           onClick={onRetry}
-          className="inline-flex h-10 items-center rounded-full bg-brass px-5 text-sm font-semibold text-graphite-950 shadow-sm transition-colors hover:bg-brass-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass/40"
+          className="inline-flex h-10 items-center rounded-full bg-brass px-5 text-sm font-semibold text-graphite-950 shadow-sm transition-colors hover:bg-brass-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass/40"
         >
           {t("infinite.retry")}
         </button>

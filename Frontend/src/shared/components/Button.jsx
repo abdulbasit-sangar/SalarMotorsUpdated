@@ -4,13 +4,13 @@ import { Spinner } from "./Spinner.jsx";
 
 const VARIANTS = {
   primary:
-    "bg-brass text-graphite-950 shadow-sm hover:bg-brass-light hover:shadow-card active:bg-brass-dark",
+    "bg-brand text-white shadow-sm hover:bg-brand-dark hover:shadow-card active:bg-brand-dark",
   secondary:
     "bg-white/70 text-bone border border-card backdrop-blur-md hover:border-brass hover:text-brass-dark",
   ghost: "bg-transparent text-ash hover:text-bone hover:bg-graphite-800",
   glass: "glass-panel text-bone hover:bg-white/80",
   danger: "bg-danger text-white hover:brightness-110",
-  soft: "border border-[#DCE8D5] !bg-[#F3F7EF] hover:!bg-[#E8EFE3] disabled:!bg-[#F3F7EF]",
+  soft: "border border-[#BFDBFE] !bg-[#EFF6FF] hover:!bg-[#DBEAFE] disabled:!bg-[#EFF6FF]",
 };
 
 const SIZES = {

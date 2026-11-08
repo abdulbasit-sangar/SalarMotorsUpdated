@@ -161,14 +161,14 @@ className={clsx(
               className={clsx(
                 "group inline-flex min-h-12 w-full flex-1 items-center justify-center gap-2",
                 "rounded-xl px-5",
-                "bg-[#D9AD68] text-[#17130D]",
+                "bg-brand text-white",
                 "text-sm font-semibold tracking-wide",
                 "transition-[background-color,transform,box-shadow] duration-200",
-                "hover:bg-[#E5C18B]",
-                "hover:shadow-[0_5px_18px_rgba(217,173,104,0.22)]",
+                "hover:bg-brand-dark",
+                "hover:shadow-[0_5px_18px_rgba(37,99,235,0.25)]",
                 "active:scale-[0.98]",
                 "focus-visible:outline-none focus-visible:ring-2",
-                "focus-visible:ring-[#E5C18B] focus-visible:ring-offset-2",
+                "focus-visible:ring-brand focus-visible:ring-offset-2",
                 "focus-visible:ring-offset-transparent",
               )}
             >

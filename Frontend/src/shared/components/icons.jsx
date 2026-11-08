@@ -31,7 +31,7 @@
  * mode so icons stay clearly visible in both themes):
  *   text-icon           — default: charcoal #2D2926
  *   text-icon-secondary — secondary: muted gray-brown #8A8178
- *   text-icon-accent    — active / selected / important: bronze #B8863A
+ *   text-icon-accent    — active / selected / important: brand blue #2563EB
  *   text-icon-success   — success states: green
  *   text-icon-danger    — errors / destructive actions: red
  * Brand marks (Facebook, Instagram) keep their brand colors — a logo's

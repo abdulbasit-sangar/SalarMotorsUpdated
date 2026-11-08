@@ -169,7 +169,7 @@ export default function HomePage() {
               <div className="pt-4 flex flex-wrap gap-4">
                 <Link
                   to="/listings"
-                  className="h-11 px-6 flex items-center bg-brass text-graphite-950 font-semibold text-sm rounded-xl transition-colors hover:bg-brass-light"
+                  className="h-11 px-6 flex items-center bg-brass text-graphite-950 font-semibold text-sm rounded-xl transition-colors hover:bg-brass-dark"
                 >
                   {t("about.cta")}
                 </Link>

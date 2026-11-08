@@ -67,7 +67,7 @@ const linkClass = ({ isActive }) =>
       ? [
           "admin-link-active",
           "before:absolute before:inset-y-2.5 before:left-0",
-          "before:w-[3px] before:rounded-r-full before:bg-[#B8863A]",
+          "before:w-[3px] before:rounded-r-full before:bg-[#2563EB]",
         ]
       : [
           "text-ash",

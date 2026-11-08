@@ -577,7 +577,7 @@ export const Navbar = () => {
 
             <button
               type="submit"
-              className="h-12 w-full rounded-2xl bg-brass text-sm font-semibold text-graphite-950 transition hover:bg-brass-light"
+              className="h-12 w-full rounded-2xl bg-brass text-sm font-semibold text-graphite-950 transition hover:bg-brass-dark"
             >
               {t("nav.search")}
             </button>

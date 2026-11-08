@@ -290,8 +290,8 @@ export default function DashboardPage() {
                 icon={Star}
                 label={t("dashboard.featuredNow")}
                 value={data?.featuredCount ?? 0}
-                iconClass="text-[#D9AD68]"
-                iconBackground="bg-[#D9AD68]/10"
+                iconClass="text-[#2563EB]"
+                iconBackground="bg-[#2563EB]/10"
                 tooltip={t("dashboard.featuredHint")}
               />
             </div>
