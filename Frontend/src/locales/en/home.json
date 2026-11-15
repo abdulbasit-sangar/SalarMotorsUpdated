@@ -73,5 +73,84 @@
     "p2": "Our platform is designed with transparency at its core. Every listing includes detailed specifications, clear pricing, and location information so you can compare options and make confident decisions without leaving the catalog.",
     "p3": "Whether you are looking for a reliable daily driver, a luxury import, or a family SUV, Salar Motors provides the tools and support to help you find exactly what you need.",
     "cta": "View All Listings"
+  },
+  "slider": {
+    "prev": "Previous slide",
+    "next": "Next slide",
+    "goToSlide": "Go to slide {{number}}",
+    "browseCta": "Browse All Cars",
+    "promotedCta": "View Promoted Vehicles",
+    "slides": {
+      "s2": {
+        "eyebrow": "ON THE WAY TO HERAT",
+        "title": "Your Next Car Is Already On Its Way",
+        "subtitle": "Follow imported vehicles travelling from America and Dubai to Herat — see them before they arrive."
+      },
+      "s3": {
+        "eyebrow": "VERIFIED IMPORTS",
+        "title": "Verified Cars. Honest Prices.",
+        "subtitle": "Every listing carries clear specifications, transparent pricing and location details, so you can decide with confidence."
+      }
+    }
+  },
+  "promoted": {
+    "eyebrow": "Handpicked For You",
+    "title": "Promoted Vehicles",
+    "subtitle": "Featured listings chosen by our team — swipe or use the arrows to explore them all.",
+    "viewAll": "View all cars",
+    "emptyTitle": "No promoted vehicles yet",
+    "emptyMessage": "Check back soon — new featured listings are added regularly."
+  },
+  "membership": {
+    "eyebrow": "Membership",
+    "title": "Become a Safar Member",
+    "subtitle": "Join Safar from only $50 and showcase your vehicles to buyers across Afghanistan. Choose the plan that fits you — our team guides you through the rest.",
+    "popular": "Most popular",
+    "cta": "Start Membership",
+    "note": "Choose a plan to start on WhatsApp — our team will confirm the next steps with you directly.",
+    "whatsappMessage": "Hello Safar, I want to become a member with the {{plan}} plan. Please share the next steps.",
+    "benefitsTitle": "Every membership includes",
+    "plans": {
+      "sixMonths": {
+        "name": "6 Months",
+        "period": "for 6 months",
+        "save": "Perfect for getting started"
+      },
+      "twelveMonths": {
+        "name": "12 Months",
+        "period": "for 12 months",
+        "save": "Save $10 compared to two 6-month plans"
+      }
+    },
+    "benefits": {
+      "b1": "Showcase your vehicles to buyers across Afghanistan",
+      "b2": "Keep your listings visible for the full membership period",
+      "b3": "Direct support from the Safar team",
+      "b4": "A simple start — our team guides you step by step"
+    }
+  },
+  "whatIs": {
+    "eyebrow": "About Safar",
+    "title": "Afghanistan's Home For Imported Cars",
+    "p1": "Safar is a vehicle marketplace built for Afghanistan. We bring together imported cars from Japan, America, Dubai and beyond, so buyers can explore verified vehicles and cars already on their way — all in one place.",
+    "p2": "Every listing on Safar carries detailed specifications, clear pricing and location information. No guesswork, no hidden details compare options side by side and decide with confidence.",
+    "p3": "Whether you need a reliable daily driver, a luxury import or a family SUV, Safar connects you with the vehicle — and the people you can trust, from first search to final handover.",
+    "cta": "View All Listings"
+  },
+  "followUs": {
+    "eyebrow": "Stay Connected",
+    "title": "Follow Us",
+    "subtitle": "New arrivals, price updates and cars on the way — see them first on our official channels.",
+    "channels": {
+      "facebook": {
+        "action": "Follow on Facebook"
+      },
+      "whatsapp": {
+        "action": "Chat on WhatsApp"
+      },
+      "instagram": {
+        "action": "Follow on Instagram"
+      }
+    }
   }
 }

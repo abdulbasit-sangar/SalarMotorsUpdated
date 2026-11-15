@@ -335,10 +335,9 @@ export const Navbar = () => {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      {/* Compact Floating Navbar */}
-      <div className="mx-auto max-w-7xl px-1 pt-1 sm:px-5 sm:pt-2.5 lg:px-8 lg:pt-2">
-        <div className="glass-nav rounded-2xl lg:rounded-full lg:border lg:border-white/10 lg:shadow-lg">
-          <div className="flex h-[62px] items-center justify-between gap-2 px-3 sm:h-[66px] sm:gap-3 sm:px-4 lg:h-[60px] lg:gap-3 lg:px-5">
+      {/* Full-width navbar — edge to edge, no floating pill. */}
+      <div className="glass-nav">
+        <div className="flex h-[62px] items-center justify-between gap-2 px-4 sm:h-[66px] sm:gap-3 sm:px-6 lg:h-[60px] lg:gap-3 lg:px-8">
             {/* Logo */}
             <NavLink
               to="/"
@@ -418,7 +417,6 @@ export const Navbar = () => {
               </button>
             </div>
           </div>
-        </div>
       </div>
 
       {/* Mobile Drawer Overlay */}

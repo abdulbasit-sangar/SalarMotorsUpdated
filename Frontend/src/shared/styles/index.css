@@ -1130,4 +1130,37 @@ html.theme-transition *::after {
     unicode-bidi: isolate;
     direction: ltr;
   }
+  /* ── Home hero slider (2026-11-13) ──────────────────────────────────────────
+   Right-to-left drift for the active slide image, plus the entrance for its
+   words. The global prefers-reduced-motion block above shortens these to
+   0.001ms, and autoplay also stops in HomeHeroSlider.jsx. */
+@keyframes safar-hero-pan {
+  from {
+    transform: translateX(3%) scale(1.08);
+  }
+  to {
+    transform: translateX(-3%) scale(1.08);
+  }
+}
+
+.hero-slide-image {
+  animation: safar-hero-pan 10s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes safar-hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-slide-content {
+  animation: safar-hero-rise 0.7s ease-out both;
+}
+
 }
