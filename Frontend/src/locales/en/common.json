@@ -22,8 +22,8 @@
     "title": "Something broke"
   },
   "errorState": {
-    "description": "Something went wrong on our end. Try again in a moment.",
-    "title": "Couldn't load this"
+    "description": "Try again",
+    "title": "Something went wrong."
   },
   "favorites": {
     "add": "Add to favorites",

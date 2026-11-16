@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   CarCard,
@@ -9,9 +8,18 @@ import { EmptyState } from "../../../shared/components/EmptyState.jsx";
 import { ErrorState } from "../../../shared/components/ErrorState.jsx";
 import { CarSilhouetteIcon } from "../../../shared/components/icons.jsx";
 
+// Card widths match the All Cars dense-grid column at every breakpoint:
+// (container width − side padding − gaps) ÷ columns. The row keeps its
+// swipe / drag / arrow behaviour; only the card size changes. At 1680px
+// and wider the container stops growing, so the width caps at the exact
+// grid column: (1680 − 48 − 48) ÷ 4 = 396px.
+const GRID_CARD_WIDTH =
+  "w-[calc(100vw-2rem)] sm:w-[calc(50vw-1.75rem)] md:w-[calc(33.333vw-1.5rem)] lg:w-[calc(25vw-1.5rem)] min-[1680px]:w-[396px]";
+
 // Promoted (featured) vehicles in the existing CarCardRow: swipe on phones,
 // drag with the mouse, and left/right arrow buttons on tablets and desktops.
 // The row already handles RTL direction, edge states and reduced motion.
+// Cards are the same compact card as the All Cars page.
 export const PromotedCarousel = ({ cars, loading, error, onRetry }) => {
   const { t } = useTranslation("home");
 
@@ -21,26 +29,9 @@ export const PromotedCarousel = ({ cars, loading, error, onRetry }) => {
       className="scroll-mt-20 bg-section-light py-14 sm:py-20"
     >
       <div className="container-listing">
-        <div className="mb-6 flex items-end justify-between gap-4 sm:mb-8">
-          <div>
-            <p className="section-eyebrow">{t("promoted.eyebrow")}</p>
-            <h2 className="section-title text-section-light">
-              {t("promoted.title")}
-            </h2>
-            <p className="section-subtitle text-section-light-muted">
-              {t("promoted.subtitle")}
-            </p>
-          </div>
-          <Link
-            to="/listings"
-            className="hidden shrink-0 items-center gap-1.5 text-sm font-semibold text-brass-dark transition-colors hover:text-brass md:inline-flex"
-          >
-            {t("promoted.viewAll")}
-            <span aria-hidden="true" className="inline-block rtl:-scale-x-100">
-              →
-            </span>
-          </Link>
-        </div>
+        <h2 className="mb-6 font-display text-xl font-bold leading-tight text-section-light sm:mb-8 sm:text-2xl">
+          {t("promoted.title")}
+        </h2>
 
         {error ? (
           <ErrorState onRetry={onRetry} />
@@ -52,16 +43,19 @@ export const PromotedCarousel = ({ cars, loading, error, onRetry }) => {
             {[0, 1, 2, 3].map((index) => (
               <div
                 key={index}
-                className="w-[250px] shrink-0 sm:w-[270px] lg:w-[290px]"
+                className={`shrink-0 ${GRID_CARD_WIDTH}`}
               >
                 <CarCardSkeleton />
               </div>
             ))}
           </div>
         ) : cars?.length ? (
-          <CarCardRow label={t("promoted.title")}>
+          <CarCardRow
+            label={t("promoted.title")}
+            cardWidthClass={GRID_CARD_WIDTH}
+          >
             {cars.map((car) => (
-              <CarCard key={car._id} car={car} premium />
+              <CarCard key={car._id} car={car} premium variant="compact" />
             ))}
           </CarCardRow>
         ) : (
@@ -71,18 +65,6 @@ export const PromotedCarousel = ({ cars, loading, error, onRetry }) => {
             description={t("promoted.emptyMessage")}
           />
         )}
-
-        <div className="mt-4 text-center md:hidden">
-          <Link
-            to="/listings"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-brass-dark transition-colors hover:text-brass"
-          >
-            {t("promoted.viewAll")}
-            <span aria-hidden="true" className="inline-block rtl:-scale-x-100">
-              →
-            </span>
-          </Link>
-        </div>
       </div>
     </section>
   );

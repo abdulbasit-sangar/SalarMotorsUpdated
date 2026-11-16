@@ -26,6 +26,9 @@ const SLIDES = [
     eyebrowKey: "slider.slides.s2.eyebrow",
     titleKey: "slider.slides.s2.title",
     subtitleKey: "slider.slides.s2.subtitle",
+    // Phones only: cover crops the sky/sand, not the car. Desktop keeps
+    // object-center (see the md: override on the <img> below).
+    positionClass: "object-[50%_58%] md:object-center",
   },
   {
     photo: "/Images/Slide3.jpg",
@@ -33,6 +36,7 @@ const SLIDES = [
     eyebrowKey: "slider.slides.s3.eyebrow",
     titleKey: "slider.slides.s3.title",
     subtitleKey: "slider.slides.s3.subtitle",
+    positionClass: "object-center",
   },
 ];
 
@@ -103,8 +107,8 @@ const resolveVariant = (slideVariant, isDarkSite) => {
 const ARROW_SHADOW =
   "drop-shadow(0 0 3px rgba(255, 255, 255, 0.85)) drop-shadow(0 2px 5px rgba(2, 6, 23, 0.55))";
 
-// Slant only on tablet/desktop (md+): on phones the photo panel is unclipped,
-// so no corner of the picture is cut off. Same 18% slant as before on md+.
+// Slant only on tablet/desktop (md+): on phones the photo panel is unclipped.
+// Same 18% slant as before on md+.
 const photoClipClass = (isRtl) =>
   isRtl
     ? "md:[clip-path:polygon(0_0,82%_0,100%_100%,0_100%)]"
@@ -314,7 +318,7 @@ export const HomeHeroSlider = () => {
                 </div>
               </div>
 
-              {/* Photo panel — slide 1 only: whole picture, best fit, floating 3D shadow. Slides 2-3: on phones the whole picture shows with no slant and no crop; on tablet/desktop they keep the slanted cover panel + vignette exactly as before. */}
+              {/* Photo panel — slide 1 only: whole picture, best fit, floating 3D shadow. Slides 2-3: the picture covers the whole panel on every device, so no dark-blue panel background shows at the edges; on phones the crop is biased per slide (see positionClass) so the subject stays in frame; on tablet/desktop they keep the slanted cover panel + vignette exactly as before. */}
               <div
                 className={
                   isHeroSlide
@@ -358,7 +362,7 @@ export const HomeHeroSlider = () => {
                       event.currentTarget.onerror = null;
                       event.currentTarget.src = HERO_IMAGE;
                     }}
-                    className="h-full w-full object-contain object-center transition-transform duration-700 ease-out md:object-cover md:scale-[1.02]"
+                    className={`h-full w-full object-cover ${slide.positionClass} transition-transform duration-700 ease-out md:scale-[1.02]`}
                   />
                 )}
               </div>

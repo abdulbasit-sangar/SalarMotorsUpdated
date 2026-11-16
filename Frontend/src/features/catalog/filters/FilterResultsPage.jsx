@@ -277,9 +277,9 @@ export default function FilterResultsPage({
             <button
               type="button"
               onClick={() => setMobilePanelOpen(true)}
-              className="inline-flex h-10 min-w-[104px] items-center justify-center gap-1.5 rounded-xl bg-brand px-4 text-xs font-semibold tracking-wide text-white shadow-sm transition-[background-color,transform,box-shadow] duration-200 hover:bg-brand-dark hover:shadow-[0_5px_18px_rgba(37,99,235,0.25)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand sm:h-11 sm:min-w-[120px] sm:gap-2 sm:px-5 sm:text-sm"
+              className="inline-flex h-11 min-w-[104px] items-center justify-center gap-1.5 rounded-lg bg-brand px-4 text-xs font-semibold tracking-wide text-white shadow-sm transition-[background-color,transform,box-shadow] duration-200 hover:bg-brand-dark hover:shadow-[0_5px_18px_rgba(37,99,235,0.25)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand sm:h-12 sm:min-w-[120px] sm:gap-2 sm:px-5 sm:text-sm"
             >
-              <FilterIcon className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+              <FilterIcon className="h-3.5 w-3.5 shrink-0 text-white sm:h-4 sm:w-4" />
               <span>
                 {t("results.filters")}
                 {activeCount > 0 && ` (${activeCount})`}
@@ -296,7 +296,7 @@ export default function FilterResultsPage({
               id="filter-sort"
               value={sort}
               onChange={(event) => handleSortChange(event.target.value)}
-              className="peer absolute inset-0 z-10 h-11 w-full cursor-pointer opacity-0"
+              className="peer absolute inset-0 z-10 w-full cursor-pointer opacity-0"
               aria-label={t("results.sortOptions")}
             >
               {SORT_OPTIONS.map((option) => (
@@ -308,7 +308,7 @@ export default function FilterResultsPage({
 
             <button
               type="button"
-              className="inline-flex h-10 min-w-[96px] items-center justify-center gap-1.5 rounded-xl border border-card bg-white/70 px-4 text-xs font-semibold text-bone shadow-sm backdrop-blur-md transition-all duration-200 hover:border-brass hover:text-brass-dark peer-focus-visible:ring-2 peer-focus-visible:ring-brass/40 sm:h-11 sm:min-w-[120px] sm:gap-2 sm:px-5 sm:text-sm"
+              className="inline-flex h-11 min-w-[104px] items-center justify-center gap-1.5 rounded-lg border border-card bg-white/70 px-4 text-xs font-semibold text-bone shadow-sm backdrop-blur-md transition-all duration-200 hover:border-brass hover:text-brass-dark peer-focus-visible:ring-2 peer-focus-visible:ring-brass/40 sm:h-12 sm:min-w-[120px] sm:gap-2 sm:px-5 sm:text-sm"
             >
               <span>{t("results.sortButton")}</span>
               <ChevronDownIcon className="h-3.5 w-3.5 shrink-0 text-icon-accent sm:h-4 sm:w-4" />

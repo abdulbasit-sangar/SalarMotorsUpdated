@@ -327,7 +327,13 @@ export const CarCardGrid = ({ children, dense = false }) => (
  * shift+wheel, mouse click-and-drag, and the left/right arrow buttons.
  * Must sit inside a `.container-listing` (it bleeds into that padding).
  */
-export const CarCardRow = ({ children, label }) => {
+export const CarCardRow = ({
+  children,
+  label,
+  // Card width inside the row. The default keeps the Sponsored row exactly
+  // as it is; Promoted passes the All Cars grid widths.
+  cardWidthClass = "w-[250px] sm:w-[270px] lg:w-[290px]",
+}) => {
   const { t } = useTranslation();
   const { isRtl } = useLanguage();
   const rowLabel = label ?? t("carRow.defaultLabel");
@@ -483,7 +489,9 @@ export const CarCardRow = ({ children, label }) => {
           className="flex w-max gap-3 px-3 pb-4 pt-1 sm:gap-4 sm:px-4 lg:px-5"
         >
           {Children.map(children, (child) => (
-            <div className="flex w-[250px] shrink-0 snap-start sm:w-[270px] lg:w-[290px] [&>*]:min-w-0 [&>*]:flex-1">
+            <div
+              className={`flex shrink-0 snap-start ${cardWidthClass} [&>*]:min-w-0 [&>*]:flex-1`}
+            >
               {child}
             </div>
           ))}

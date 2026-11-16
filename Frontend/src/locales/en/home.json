@@ -27,19 +27,35 @@
     "items": {
       "verified": {
         "title": "Verified Vehicles",
-        "description": "Every listing is screened and verified so you can browse with complete confidence."
+        "description": "Every listing is screened and verified so you can browse with complete confidence.",
+        "point1": "Screened listings",
+        "point2": "Verified details",
+        "point3": "Clear specifications",
+        "point4": "Browse with confidence"
       },
       "inspection": {
         "title": "Quality Inspection",
-        "description": "Detailed condition reports and transparent specs help you make informed decisions."
+        "description": "Detailed condition reports and transparent specs help you make informed decisions.",
+        "point1": "Condition reports",
+        "point2": "Transparent specs",
+        "point3": "Honest condition",
+        "point4": "Informed decisions"
       },
       "import": {
         "title": "Trusted Import Process",
-        "description": "From sourcing to delivery, our import process is built on reliability and trust."
+        "description": "From sourcing to delivery, our import process is built on reliability and trust.",
+        "point1": "Sourcing to delivery",
+        "point2": "From Dubai & America",
+        "point3": "Reliable process",
+        "point4": "Built on trust"
       },
       "support": {
         "title": "Customer Support",
-        "description": "Our dedicated team guides you through every step of your car buying journey."
+        "description": "Our dedicated team guides you through every step of your car buying journey.",
+        "point1": "Dedicated team",
+        "point2": "Guided every step",
+        "point3": "Search to handover",
+        "point4": "Answers to questions"
       }
     }
   },
@@ -69,7 +85,7 @@
   "about": {
     "eyebrow": "About Us",
     "title": "Your Trusted Automotive Marketplace",
-    "p1": "Salar Motors is a premium vehicle marketplace specializing in imported cars. We connect buyers with verified, quality vehicles sourced from Japan, America, Dubai, and beyond.",
+    "p1": "Salar Motors is a premium vehicle marketplace specializing in imported cars. We connect buyers with verified, quality vehicles sourced from America and Dubai.",
     "p2": "Our platform is designed with transparency at its core. Every listing includes detailed specifications, clear pricing, and location information so you can compare options and make confident decisions without leaving the catalog.",
     "p3": "Whether you are looking for a reliable daily driver, a luxury import, or a family SUV, Salar Motors provides the tools and support to help you find exactly what you need.",
     "cta": "View All Listings"
@@ -104,26 +120,27 @@
   "membership": {
     "eyebrow": "Membership",
     "title": "Become a Safar Member",
-    "subtitle": "Join Safar from only $50 and showcase your vehicles to buyers across Afghanistan. Choose the plan that fits you — our team guides you through the rest.",
+    "subtitle": "For a short time only, list unlimited cars for just $50 a month and reach buyers across Afghanistan. Choose the plan that fits you — our team guides you through the rest.",
     "popular": "Most popular",
+    "limitedOffer": "Limited-time offer",
     "cta": "Start Membership",
     "note": "Choose a plan to start on WhatsApp — our team will confirm the next steps with you directly.",
     "whatsappMessage": "Hello Safar, I want to become a member with the {{plan}} plan. Please share the next steps.",
     "benefitsTitle": "Every membership includes",
     "plans": {
-      "sixMonths": {
-        "name": "6 Months",
-        "period": "for 6 months",
-        "save": "Perfect for getting started"
+      "oneMonth": {
+        "name": "1 Month",
+        "period": "for 1 month",
+        "save": "Save $30"
       },
-      "twelveMonths": {
-        "name": "12 Months",
-        "period": "for 12 months",
-        "save": "Save $10 compared to two 6-month plans"
+      "twoMonths": {
+        "name": "2 Months",
+        "period": "for 2 months",
+        "save": "Save $70 on two months"
       }
     },
     "benefits": {
-      "b1": "Showcase your vehicles to buyers across Afghanistan",
+      "b1": "List unlimited cars to buyers across Afghanistan",
       "b2": "Keep your listings visible for the full membership period",
       "b3": "Direct support from the Safar team",
       "b4": "A simple start — our team guides you step by step"
@@ -132,9 +149,9 @@
   "whatIs": {
     "eyebrow": "About Safar",
     "title": "Afghanistan's Home For Imported Cars",
-    "p1": "Safar is a vehicle marketplace built for Afghanistan. We bring together imported cars from Japan, America, Dubai and beyond, so buyers can explore verified vehicles and cars already on their way — all in one place.",
-    "p2": "Every listing on Safar carries detailed specifications, clear pricing and location information. No guesswork, no hidden details compare options side by side and decide with confidence.",
-    "p3": "Whether you need a reliable daily driver, a luxury import or a family SUV, Safar connects you with the vehicle — and the people you can trust, from first search to final handover.",
+    "p1": "Safar is a vehicle marketplace built for Afghanistan. We promote **newly imported vehicles** — whether a car is **on the way from Dubai or America**, wherever it is right now, or already arrived. If it is coming to Afghanistan, Safar promotes it.",
+    "p2": "We promote **all existing cars** and **all coming new cars**. Every listing carries detailed specifications, clear pricing and location information, so you can compare options side by side and decide with confidence — no guesswork, no hidden details.",
+    "p3": "Whether you need a **reliable daily driver**, a **luxury import** or a **family SUV**, Safar connects you with the vehicle — and the people you can trust, from first search to final handover.",
     "cta": "View All Listings"
   },
   "followUs": {
