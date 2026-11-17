@@ -40,6 +40,24 @@ const SLIDES = [
   },
 ];
 
+// Infinite loop: the track carries a clone of the last slide before the
+// first slide and a clone of the first slide after the last slide, so
+// every forward step — including the wrap from the last slide back to
+// the first — is the same one-slide move in the same direction. When a
+// clone finishes sliding into view, the track snaps back to the real
+// slide with the transition switched off; the clone and the real slide
+// look identical, so the snap is invisible and the loop never ends,
+// never jumps back, and never reverses.
+const TRACK_SLIDES = [
+  { ...SLIDES[SLIDE_COUNT - 1], key: "clone-last", clone: true },
+  ...SLIDES.map((slide) => ({
+    ...slide,
+    key: slide.eyebrowKey,
+    clone: false,
+  })),
+  { ...SLIDES[0], key: "clone-first", clone: true },
+];
+
 const VARIANTS = {
   dark: {
     band: (isRtl) =>
@@ -132,15 +150,31 @@ const ribbonClip = (isRtl) =>
 const slideImage = (slide) =>
   slide.photo === "hero" ? HERO_IMAGE : slide.photo;
 
+// One step from a track position, forward (+1) or back (-1). If the
+// track is sitting on a clone because the snap did not run (reduced
+// motion has no transition, so no transitionend fires), resolve to the
+// matching real slide first — the step always lands on a real panel,
+// never past the end of the track.
+const advancePos = (value, delta) => {
+  const resolved =
+    value === 0 ? SLIDE_COUNT : value === SLIDE_COUNT + 1 ? 1 : value;
+  return resolved + delta;
+};
+
 export const HomeHeroSlider = () => {
   const { t, i18n } = useTranslation("home");
-  const [active, setActive] = useState(0);
+  // Track position: 1..3 show the real slides, 0 shows the clone of the
+  // last slide and 4 the clone of the first. The visible slide is
+  // derived from it, so the dots, arrows and autoplay always agree.
+  const [pos, setPos] = useState(1);
+  const [instant, setInstant] = useState(false);
   const [paused, setPaused] = useState(false);
   const [theme, setThemeState] = useState(getTheme);
   const touchStartX = useRef(null);
 
   const isRtl = i18n.dir() === "rtl";
   const isDarkSite = theme === THEMES.DARK;
+  const active = ((pos - 1) % SLIDE_COUNT + SLIDE_COUNT) % SLIDE_COUNT;
   const activeVariant = resolveVariant(SLIDES[active].variant, isDarkSite);
   // Bare arrows need a color that reads on the slide behind them: white on
   // dark backgrounds, navy on the light slide (light mode only — in dark
@@ -148,8 +182,40 @@ export const HomeHeroSlider = () => {
   const arrowsOnDark = SLIDES[active].variant === "dark" || isDarkSite;
   const arrowColorClass = arrowsOnDark ? "text-white" : "text-brand-navy";
 
-  const goTo = (index) =>
-    setActive(((index % SLIDE_COUNT) + SLIDE_COUNT) % SLIDE_COUNT);
+  const stepBy = (delta) => setPos((value) => advancePos(value, delta));
+
+  // Dots jump straight to a slide.
+  const goTo = (index) => setPos(index + 1);
+
+  // A clone has finished sliding into view: snap back to the identical
+  // real slide with the transition off, so the loop continues without
+  // any visible jump. Only the track's own transform transition counts
+  // — transitionend bubbles up from the pictures and buttons too.
+  const handleTransitionEnd = (event) => {
+    if (event.target !== event.currentTarget) return;
+    if (event.propertyName !== "transform") return;
+    if (pos === SLIDE_COUNT + 1) {
+      setInstant(true);
+      setPos(1);
+    } else if (pos === 0) {
+      setInstant(true);
+      setPos(SLIDE_COUNT);
+    }
+  };
+
+  // Re-enable the transition after the snap has painted, so the next
+  // step animates again.
+  useEffect(() => {
+    if (!instant) return undefined;
+    let secondFrame;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => setInstant(false));
+    });
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      if (secondFrame !== undefined) window.cancelAnimationFrame(secondFrame);
+    };
+  }, [instant]);
 
   // Same pattern as ThemeToggle: re-read the site theme whenever the toggle
   // flips it, so the backgrounds follow the switch instantly.
@@ -174,7 +240,7 @@ export const HomeHeroSlider = () => {
 
     const id = window.setInterval(() => {
       if (typeof document !== "undefined" && document.hidden) return;
-      setActive((value) => (value + 1) % SLIDE_COUNT);
+      setPos((value) => advancePos(value, 1));
     }, AUTOPLAY_MS);
 
     return () => window.clearInterval(id);
@@ -196,8 +262,10 @@ export const HomeHeroSlider = () => {
     const delta = endX - startX;
     if (Math.abs(delta) < 40) return;
 
-    const step = delta < 0 ? 1 : -1;
-    goTo(active + (isRtl ? -step : step));
+    // Swipe left (finger moves left) shows the next slide, swipe right
+    // the previous one — the same in every language, because the track
+    // itself always moves the same way.
+    stepBy(delta < 0 ? 1 : -1);
   };
 
   return (
@@ -212,21 +280,33 @@ export const HomeHeroSlider = () => {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
+      {/* The track is always laid out left-to-right (dir="ltr"), so the
+          slide motion is always right-to-left in every language: the
+          next slide enters from the right and the current one leaves
+          to the left. Each panel below restores the page direction, so
+          the words and pictures inside keep their own layout. */}
       <div
-        className="flex h-full transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none"
+        dir="ltr"
+        onTransitionEnd={handleTransitionEnd}
+        className={`flex h-full will-change-transform motion-reduce:transition-none ${
+          instant
+            ? "transition-none"
+            : "transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+        }`}
         style={{
-          transform: `translateX(${isRtl ? active * 100 : -active * 100}%)`,
+          transform: `translateX(${-pos * 100}%)`,
         }}
       >
-        {SLIDES.map((slide, index) => {
-          const isActive = index === active;
+        {TRACK_SLIDES.map((slide, index) => {
+          const isActive = !slide.clone && index - 1 === active;
           const variant = resolveVariant(slide.variant, isDarkSite);
           const isDarkBackground = slide.variant === "dark" || isDarkSite;
           const isHeroSlide = slide.photo === "hero";
 
           return (
             <div
-              key={slide.eyebrowKey}
+              key={slide.key}
+              dir={isRtl ? "rtl" : "ltr"}
               className="relative flex h-full w-full shrink-0 flex-col md:flex-row"
               aria-hidden={!isActive}
             >
@@ -375,7 +455,7 @@ export const HomeHeroSlider = () => {
       <button
         type="button"
         aria-label={t("slider.prev")}
-        onClick={() => goTo(active - 1)}
+        onClick={() => stepBy(-1)}
         className="absolute start-3 top-1/2 z-25 hidden h-12 w-12 -translate-y-1/2 items-center justify-center bg-transparent transition-transform hover:scale-110 focus-visible:scale-110 active:scale-95 md:flex lg:start-4"
       >
         <ChevronLeftIcon
@@ -389,7 +469,7 @@ export const HomeHeroSlider = () => {
       <button
         type="button"
         aria-label={t("slider.next")}
-        onClick={() => goTo(active + 1)}
+        onClick={() => stepBy(1)}
         className="absolute end-3 top-1/2 z-25 hidden h-12 w-12 -translate-y-1/2 items-center justify-center bg-transparent transition-transform hover:scale-110 focus-visible:scale-110 active:scale-95 md:flex lg:end-4"
       >
         <ChevronRightIcon
