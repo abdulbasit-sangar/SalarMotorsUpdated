@@ -42,7 +42,9 @@
   "favorites": {
     "eyebrow": "خوندي شوي",
     "title": "ستاسو خوښې",
-    "emptyTitle": "تر اوسه خوښې نشته",
+    "backToCars": "موټر",
+
+    "emptyTitle": "هیڅ خوخه و نه موندل شوه!",
     "emptyDescription": "د هر اعلان په زړه کېکاږئ چې دلته خوندي شي.",
     "browse": "اعلانونه وګورئ"
   },

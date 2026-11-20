@@ -17,6 +17,7 @@ import { Skeleton } from "../../../shared/components/Skeleton.jsx";
 import { SellerCard } from "../../../shared/components/SellerCard.jsx";
 import { FeaturesList } from "../../../shared/components/FeaturesList.jsx";
 import { FavoriteButton } from "../../../shared/components/FavoriteButton.jsx";
+import { BackToCarsButton } from "../../../shared/components/BackToCarsButton.jsx";
 import {
   carLocation,
   carTitle,
@@ -24,7 +25,6 @@ import {
 } from "../../../shared/utils/format.js";
 import {
   MapPinIcon,
-  ChevronLeftIcon,
   ClipboardCheckIcon,
   CommentIcon,
   LayersIcon,
@@ -114,14 +114,7 @@ export default function CarDetailsPage() {
                 favorite heart at the end — balanced on all viewports
                 and RTL-aware. */}
             <div className="flex items-center justify-between mb-4">
-              <Link
-                to="/listings"
-                aria-label={t("details.back")}
-                title={t("details.back")}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-card bg-white/70 text-ash shadow-sm backdrop-blur transition-all hover:text-brass-dark hover:border-brass/40 hover:bg-white hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
-              >
-                <ChevronLeftIcon className="w-5 h-5" />
-              </Link>
+              <BackToCarsButton />
               <FavoriteButton carId={car._id} className="shadow-lg" />
             </div>
             <div className="relative">

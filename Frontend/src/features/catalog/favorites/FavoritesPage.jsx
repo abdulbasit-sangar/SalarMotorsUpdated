@@ -4,6 +4,7 @@ import { CarCard, CarCardGrid } from "../../../shared/components/CarCard.jsx";
 import { CarCardSkeleton } from "../../../shared/components/Skeleton.jsx";
 import { EmptyState } from "../../../shared/components/EmptyState.jsx";
 import { ErrorState } from "../../../shared/components/ErrorState.jsx";
+import { BackToCarsButton } from "../../../shared/components/BackToCarsButton.jsx";
 import { HeartIcon } from "../../../shared/components/icons.jsx";
 import { useFavorites } from "../../../store/favorites/FavoritesContext.jsx";
 import { fetchFavorites } from "../../../services/favorites/favoritesApi.js";
@@ -40,8 +41,9 @@ export default function FavoritesPage() {
   return (
     <div className="container-listing pb-8 pt-28 sm:pb-10 sm:pt-32">
 
-      <h1 className="font-display text-2xl font-semibold text-bone mb-6">
+      <BackToCarsButton className="mb-4" />
 
+      <h1 className="font-display text-2xl font-semibold text-bone mb-6">
         {t("favorites.title")}
       </h1>
 
@@ -61,11 +63,9 @@ export default function FavoritesPage() {
         </CarCardGrid>
       ) : (
         <EmptyState
-          icon={<HeartIcon className="w-10 h-10" />}
+          compact
+          icon={<HeartIcon className="h-6 w-6" />}
           title={t("favorites.emptyTitle")}
-          description={t("favorites.emptyDescription")}
-          actionLabel={t("favorites.browse")}
-          onAction={() => (window.location.href = "/listings")}
         />
       )}
     </div>

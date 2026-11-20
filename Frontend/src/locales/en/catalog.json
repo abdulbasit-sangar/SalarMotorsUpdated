@@ -42,7 +42,8 @@
   "favorites": {
     "eyebrow": "Saved",
     "title": "Your Favorites",
-    "emptyTitle": "No favorites yet",
+    "backToCars": "Cars",
+    "emptyTitle": "No Favorite found!",
     "emptyDescription": "Tap the heart on any listing to save it here.",
     "browse": "Browse listings"
   },
